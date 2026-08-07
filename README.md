@@ -73,14 +73,14 @@ O comando `npm run build` gerará/atualizará o arquivo `dist/zeev-fieb.css`.
 2. Ative o **GitHub Pages** nas configurações do repositório (`Settings` -> `Pages`) apontando para o branch `main` e raiz `/` ou pasta `/docs`.
 3. A URL pública do stylesheet será:
    ```text
-   https://<USUARIO>.github.io/<REPOSITORIO>/dist/zeev-fieb.css
+   https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css
    ```
 
 ### Controle de Cache durante Homologação no h-Zeev
 Para forçar a atualização imediata pelo navegador e evitar cache do GitHub Pages durante os testes no `h-Zeev`, adicione o parâmetro de versão na tag `<link>`:
 
 ```html
-<link rel="stylesheet" href="https://<USUARIO>.github.io/<REPOSITORIO>/dist/zeev-fieb.css?v=0.1.0">
+<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css?v=0.1.0">
 ```
 
 Sempre que publicar alterações no CSS durante a homologação, incremente a versão na URL (`?v=0.1.1`, `?v=0.1.2`, etc.).

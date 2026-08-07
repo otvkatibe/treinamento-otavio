@@ -9,7 +9,7 @@ Este guia descreve os passos para aplicar o arquivo CSS compilado `dist/zeev-fie
 Insira a seguinte tag `<link>` no Zeev:
 
 ```html
-<link rel="stylesheet" href="https://<USUARIO>.github.io/<REPOSITORIO>/dist/zeev-fieb.css?v=0.1.0">
+<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css?v=0.1.0">
 ```
 
 > **Nota sobre o parâmetro `?v=0.1.0`**: Utilize o parâmetro de versão ao atualizar a folha de estilo durante a homologação para forçar o navegador e o CDN a ignorar o cache local.
@@ -51,7 +51,7 @@ cmd /c "openssl dgst -sha384 -binary dist/zeev-fieb.css | openssl base64 -A"
 E adicionado à tag em produção:
 
 ```html
-<link rel="stylesheet" href="https://<USUARIO>.github.io/<REPOSITORIO>/dist/zeev-fieb.css" integrity="sha384-HASH_GERADO..." crossorigin="anonymous">
+<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css" integrity="sha384-HASH_GERADO..." crossorigin="anonymous">
 ```
 
 ---
