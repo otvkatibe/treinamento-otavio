@@ -1,49 +1,42 @@
-# Auditoria de Seletores CSS e FASE 0 — Descoberta do DOM do h-Zeev
+# Auditoria de Seletores CSS — Descoberta Incremental do DOM (h-Zeev)
 
-Este documento registra a estratégia de seletores para a customização `zeev-fieb-theme`, classificando a confiança técnica de cada seletor e definindo o roteiro de inspeção DevTools na **Fase 0**.
-
----
-
-## 1. FASE 0 — Descoberta do DOM no h-Zeev
-
-Como não há acesso direto automatizado ao navegador autenticado do ambiente `h-Zeev`, os seletores aplicados aos campos e elementos do formulário são tratados **inicialmente como hipóteses técnicas com nível de confiança Média/Baixa**, até que trechos de HTML real sejam copiados via Inspect/DevTools.
-
-### Fragmentos de HTML Solicitados para Inspeção no DevTools:
-1. **Contêiner Principal do Formulário**: HTML da tag form ou div que envelopa a tela.
-2. **Agrupamento "Dados pessoais"**: HTML da seção/fieldset do grupo.
-3. **Campo de Texto Simples / Textarea**: HTML do wrapper e tags do campo `nomeCompleto`.
-4. **Campo CPF**: HTML do input `cpfCliente` para identificar se utiliza `data-name`, `name`, `id` ou classes de máscara.
-5. **Campo Select**: HTML da lista de seleção `estadoCivil` ou `tipoDocumento`.
-6. **Rótulos (Labels) e Mensagens de Erro**: HTML da tag de label e mensagem de erro nativa.
-7. **Barra de Botões de Ação**: HTML da div contendo os botões de envio/aprovação/correção.
+Este documento registra a estratégia de seletores para a customização `zeev-fieb-theme`, classificando o status e a confiança técnica de cada seletor à medida que fragmentos do **DOM real do h-Zeev** são confirmados via DevTools.
 
 ---
 
-## 2. Tabela de Seletores e Hipóteses (v0.1.0)
+## 1. Contrato de Seletores & Hierarquia de Preferência
 
-| Componente | Seletor Aplicado em CSS | Evidência no h-Zeev | Confiança | Risco |
-| :--- | :--- | :--- | :--- | :--- |
-| **Debug Indicator** | `.zeev-form-container::before, form[data-zeev="true"]::before` | Pendente teste visual h-Zeev | Média | Baixo |
-| **Escopo Principal** | `.zeev-form-container, .zeev-form-wrapper, form[data-zeev]` | Pendente DevTools | Média | Baixo |
-| **Agrupamento "Dados pessoais"** | `[data-group-name="Dados pessoais"], .zeev-group-dados-pessoais` | Pendente DevTools | Média | Médio |
-| **Grid do Agrupamento** | `.zeev-group-grid` | CSS local / Pendente DevTools | Média | Baixo |
-| **Campo Nome Completo** | `[data-name="nomeCompleto"] textarea, #nomeCompleto` | Hipótese (Identificador `nomeCompleto`) | Baixa | Médio |
-| **Campo CPF** | `[data-name="cpfCliente"] input, #cpfCliente` | Hipótese (Identificador `cpfCliente`) | Baixa | Médio |
-| **Campo Nacionalidade** | `[data-name="nacionalidade"] textarea, #nacionalidade` | Hipótese (Identificador `nacionalidade`) | Baixa | Médio |
-| **Campo Estado Civil** | `[data-name="estadoCivil"] select, #estadoCivil` | Hipótese (Identificador `estadoCivil`) | Baixa | Médio |
-| **Campo Profissão** | `[data-name="profissao"] textarea, #profissao` | Hipótese (Identificador `profissao`) | Baixa | Médio |
-| **Campo Tipo Documento** | `[data-name="tipoDocumento"] select, #tipoDocumento` | Hipótese (Identificador `tipoDocumento`) | Baixa | Médio |
-| **Campo Núm. Documento** | `[data-name="numeroDocumento"] textarea, #numeroDocumento` | Hipótese (Identificador `numeroDocumento`) | Baixa | Médio |
-| **Inputs/Textareas/Selects** | `.zeev-form-container input, .zeev-form-container select` | Escopado no formulário | Média | Baixo |
-| **Indicador Foco `:focus-visible`**| `.zeev-form-container input:focus-visible` | Padrão WCAG | Alta | Baixo |
-| **Campos Read-only / Disabled**| `.zeev-form-container input:disabled, textarea[readonly]` | Padrão HTML5 | Alta | Baixo |
-| **Mensagens de Erro Nativas** | `.zeev-form-container .has-error input, .error-message` | Padrão Zeev | Média | Baixo |
-| **Barra de Botões** | `.zeev-form-container .zeev-actions-bar` | Mantidos nativos na v0.1 | Baixa | Baixo |
+Para garantir robustez e evitar que o tema quebre em atualizações da plataforma Zeev, adotamos a seguinte prioridade de contrato:
+
+1. **`data-name`** (Preferência 1 — Estável e independente de compilações internas)
+2. **Atributos/IDs derivados do identificador** (ex: `#inpnomeCompleto`, `#td0nomeCompleto`)
+3. **`fieldkey` ou `name="inpXXXXX"`** (Apenas quando houver justificativa técnica explícita, nunca como seletor principal)
+
+> 🛑 **Importante**: Não utilizamos seletores de wrappers fictícios do mock (`.zeev-form-container`, `.zeev-form-wrapper`, `form[data-zeev="true"]`) nem seletores frágeis por substring (`[id*="..."]`).
 
 ---
 
-## 3. Diretrizes de Mitigação de Riscos
+## 2. Tabela de Seletores e Status (v0.1.0 Descoberta Incremental)
 
-1. **Sem seletores com wildcards amplos**: Evitou-se o uso de `[id*="nomeCompleto"]` ou `[name*="nomeCompleto"]` para evitar correspondências acidentais em outros elementos do DOM.
-2. **Escopo estrito**: Nenhuma regra estiliza `body`, `html`, `*`, `input`, `button` ou `label` de forma global sem contêiner do Zeev.
-3. **Botões mantidos nativos**: Na versão v0.1, os botões não dependem de texto em português (`:contains(...)`) nem de seletores frágeis, permanecendo com estilização praticamente nativa até inspeção do DOM.
+| Componente | Identificador Zeev | Seletor Aplicado em CSS | Status | Confiança | Evidência no h-Zeev |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Nome completo** | `nomeCompleto` | `[data-name="nomeCompleto"]` | **CONFIRMADO** | **ALTA** | Atributo `data-name="nomeCompleto"` presente no `<textarea>` do DOM real. |
+| **Célula de Rótulo (Nome)** | `td0nomeCompleto` | `#td0nomeCompleto` | **CONFIRMADO** | **ALTA** | ID `#td0nomeCompleto` presente na `<td>` do rótulo no DOM real. |
+| **Agrupamento "Dados pessoais"**| `codgroup 7724` | `tr[codgroup="7724"]` | HIPÓTESE | MÉDIA | Atributo `codgroup="7724"` observado na `<tr>` do campo `nomeCompleto`. |
+| **Campo CPF** | `cpfCliente` | `[data-name="cpfCliente"]` | PENDENTE | MÉDIA | Aguardando snippet DevTools do campo CPF. |
+| **Campo Nacionalidade** | `nacionalidade` | `[data-name="nacionalidade"]` | PENDENTE | MÉDIA | Aguardando snippet DevTools. |
+| **Campo Estado Civil** | `estadoCivil` | `[data-name="estadoCivil"]` | PENDENTE | MÉDIA | Aguardando snippet DevTools. |
+| **Campo Profissão** | `profissao` | `[data-name="profissao"]` | PENDENTE | MÉDIA | Aguardando snippet DevTools. |
+| **Campo Tipo Documento** | `tipoDocumento` | `[data-name="tipoDocumento"]` | PENDENTE | MÉDIA | Aguardando snippet DevTools. |
+| **Campo Núm. Documento** | `numeroDocumento` | `[data-name="numeroDocumento"]` | PENDENTE | MÉDIA | Aguardando snippet DevTools. |
+| **Estados Disabled / Readonly** | — | `[data-name]:disabled` | CONFIRMADO | ALTA | Padrão HTML5 em inputs/textareas Zeev. |
+| **Indicador Foco `:focus-visible`**| — | `[data-name]:focus-visible` | CONFIRMADO | ALTA | Padrão WCAG aplicado aos seletores `data-name`. |
+
+---
+
+## 3. Histórico de Descoberta do DOM Real
+
+- **2026-08-07**:
+  - Infraestrutura de injeção externa `<link>` validada via GitHub Pages.
+  - Confirmado que o Zeev expõe `data-name="nomeCompleto"` no elemento `<textarea id="inpnomeCompleto">`.
+  - Descartados os wrappers fictícios do mock (`.zeev-form-container`, `.zeev-form-wrapper`, `.zeev-app-wrapper`).

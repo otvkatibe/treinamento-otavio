@@ -8,4 +8,7 @@ yarn-error.log*
 .vscode/
 .idea/
 zeev-docs/
+.env
+.env.*
+
 

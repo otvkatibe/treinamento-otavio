@@ -5,7 +5,7 @@ Customização visual estática, sóbria, moderna e acessível desenvolvida para
 - **Aplicativo Zeev Target**: `Treinamento - Otávio Katibe`
 - **Ambiente**: `h-Zeev / Homologação`
 - **Versão do Tailwind CSS**: `Tailwind CSS v4.3.3` (compilado estaticamente via `@tailwindcss/cli`)
-- **Arquivo CSS Final**: `dist/zeev-fieb.css` (~21.7 KB)
+- **Arquivo CSS Final**: `dist/zeev-fieb.css` (~7.3 KB)
 
 ---
 
@@ -14,29 +14,31 @@ Customização visual estática, sóbria, moderna e acessível desenvolvida para
 - **CSS Estático Puro no Zeev**: O Zeev recebe unicamente um arquivo CSS compilado (`dist/zeev-fieb.css`). Não há dependência de Node.js, CDN runtime ou scripts Tailwind no navegador.
 - **Design Tokens FIEB**: As cores e medidas principais estão centralizadas em variáveis CSS (`:root`). 
   > `/* PALETA PROVISÓRIA — substituir por tokens oficiais FIEB */`
-- **Seletores Defensivos**: A estilização mapeia os identificadores estáveis do Zeev (`nomeCompleto`, `cpfCliente`, `nacionalidade`, `estadoCivil`, `profissao`, `tipoDocumento`, `numeroDocumento`) e wrappers do grupo `Dados pessoais` sem utilizar seletores frágeis (`:nth-child`, IDs dinâmicos).
-- **Indicador Visual Temporário de Debug**: O stylesheet inicia com a regra `/* DEBUG EXTERNAL CSS */` exibindo uma barra discreta no topo da página para confirmar o carregamento no `h-Zeev`.
+- **Seletores Defensivos & Hipóteses**: A estilização mapeia os identificadores conhecidos do Zeev (`nomeCompleto`, `cpfCliente`, `nacionalidade`, `estadoCivil`, `profissao`, `tipoDocumento`, `numeroDocumento`) e wrappers do grupo `Dados pessoais`. Todas as classes do mock são tratadas estritamente como **hipóteses** pendentes de validação no DOM real.
+- **Indicador Visual Temporário de Debug**: O stylesheet inicia com a regra `/* DEBUG EXTERNAL CSS */` tentando exibir um indicador temporário quando um dos wrappers de teste estiver presente.
 
 ---
 
 ## 2. Estrutura do Projeto
 
 ```text
-treinamento-otaviokatibe/
+treinamento-otavio/
 ├── package.json               # Dependências do build (Tailwind v4.3.3)
 ├── README.md                  # Documentação principal
 ├── LIMITACOES.md              # Limitações técnicas e próximos passos
-├── .gitignore                 # Arquivos ignorados pelo Git
+├── .gitignore                 # Arquivos ignorados pelo Git (.env, zeev-docs, etc.)
 │
 ├── src/
-│   └── zeev-fieb.css          # Estylesheet fonte com tokens e utilitários
+│   └── zeev-fieb.css          # Stylesheet fonte com tokens e utilitários
 │
 ├── dist/
-│   └── zeev-fieb.css          # Estylesheet estático compilado para produção/Zeev
+│   └── zeev-fieb.css          # Stylesheet estático compilado para produção/Zeev (~7.3 KB)
 │
 ├── docs/
-│   ├── seletores.md           # Mapeamento e auditoria dos seletores CSS do Zeev
+│   ├── seletores.md           # Mapeamento e auditoria dos seletores CSS (hipóteses vs confirmados)
 │   ├── instalacao-zeev.md     # Guia de injeção no h-Zeev e Rollback
+│   ├── debug-h-zeev.md        # Roteiro passo a passo para testes no h-Zeev e DevTools
+│   ├── dom-a-validar.md       # Tabela para registro do DOM real observado
 │   └── testes.md              # Roteiro de testes funcionais e visuais
 │
 └── index.html                 # Visualizador local e demonstração no GitHub Pages
@@ -67,23 +69,43 @@ O comando `npm run build` gerará/atualizará o arquivo `dist/zeev-fieb.css`.
 
 ---
 
-## 4. Publicação no GitHub Pages e Controle de Cache
+## 4. Publicação para homologação
 
-1. Suba o repositório para o GitHub.
-2. Ative o **GitHub Pages** nas configurações do repositório (`Settings` -> `Pages`) apontando para o branch `main` e raiz `/` ou pasta `/docs`.
-3. A URL pública do stylesheet será:
-   ```text
-   https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css
-   ```
+### Passo A: Compilar e Enviar Alterações ao GitHub
 
-### Controle de Cache durante Homologação no h-Zeev
-Para forçar a atualização imediata pelo navegador e evitar cache do GitHub Pages durante os testes no `h-Zeev`, adicione o parâmetro de versão na tag `<link>`:
+Execute os comandos no terminal:
+
+```bash
+npm run build
+
+git add .
+git commit -m "feat: Zeev FIEB theme v0.1.0"
+git push
+```
+
+### Passo B: Configurar o GitHub Pages
+
+1. Acesse o repositório no GitHub: `https://github.com/otvkatibe/treinamento-otavio`
+2. Acesse: **Settings** → **Pages**
+3. Em **Build and deployment** / **Source**: selecione `Deploy from a branch`
+4. Selecione a branch `main` e a pasta `/ (root)`
+5. Clique em **Save**
+
+### URLs Esperadas
+- **URL do Site / Demonstrador**:
+  `https://otvkatibe.github.io/treinamento-otavio/`
+- **URL do CSS Compilado**:
+  `https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css`
+
+### Tag de Injeção no Zeev
+
+Copie a seguinte tag para inserir no ambiente **h-Zeev** (*Scripts e Estilos → Fontes externas → Scripts e estilos nas atividades*):
 
 ```html
 <link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css?v=0.1.0">
 ```
 
-Sempre que publicar alterações no CSS durante a homologação, incremente a versão na URL (`?v=0.1.1`, `?v=0.1.2`, etc.).
+> **Controle de Cache**: O parâmetro `?v=0.1.0` força a atualização pelo navegador e previne cache durante a homologação. Ao publicar correções, incremente a versão na URL (`?v=0.1.1`, `?v=0.1.2`, etc.).
 
 ---
 
@@ -95,3 +117,4 @@ Caso haja qualquer instabilidade ou seja necessário reverter para o visual nati
 2. Vá em **Scripts e Estilos** -> **Fontes externas** -> **Scripts e estilos nas atividades**.
 3. Remova ou comente a tag `<link>` do CSS.
 4. Salve e publique a alteração. O formulário voltará imediatamente ao estilo nativo sem afetar dados ou regras de negócio.
+
