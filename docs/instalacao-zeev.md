@@ -9,10 +9,10 @@ Este guia descreve os passos para aplicar o arquivo CSS compilado `dist/zeev-fie
 Insira a seguinte tag `<link>` no Zeev:
 
 ```html
-<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css?v=0.1.0">
+<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css?v=0.2.0">
 ```
 
-> **Nota sobre o parâmetro `?v=0.1.0`**: Utilize o parâmetro de versão ao atualizar a folha de estilo durante a homologação para forçar o navegador e o CDN a ignorar o cache local.
+> **Nota sobre o parâmetro `?v=0.2.0`**: Utilize o parâmetro de versão ao atualizar a folha de estilo durante a homologação para forçar o navegador e o CDN a ignorar o cache local.
 
 ---
 
@@ -61,7 +61,7 @@ E adicionado à tag em produção:
 Assim que a tag for inserida e a tela da tarefa (ex: `Solicitar registro` ou `T01 - Fazer o cadastro`) for carregada no `h-Zeev`, um banner discreto azul no topo da página deverá exibir:
 
 ```text
-[DEBUG EXTERNAL CSS] Tema FIEB Ativo (h-Zeev v0.1.0)
+[DEBUG] Tema Zeev FIEB v0.2.0 Ativo no h-Zeev
 ```
 
 Isso confirma que a injeção externa do CSS via GitHub Pages funcionou com sucesso.

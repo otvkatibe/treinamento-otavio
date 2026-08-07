@@ -1,176 +1,141 @@
-# Descoberta do DOM — h-Zeev
+# Registro do DOM Real — h-Zeev (v0.2.0)
 
-Este documento serve para registrar a estrutura HTML real inspecionada no ambiente **h-Zeev** via DevTools durante o primeiro teste de homologação do aplicativo `Treinamento - Otávio Katibe`.
+Este documento registra a estrutura HTML real inspecionada no ambiente **h-Zeev** via DevTools durante a execução da tarefa *"Solicitar registro"* do aplicativo `Treinamento - Otávio Katibe`.
 
 ---
 
 ## 1. Estrutura Global do Formulário
 
-### Wrapper Principal do Formulário
-- **Status**: PENDENTE
+### Wrapper Principal do Formulário (`#containerRequest`)
+- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
-  <!-- Cole aqui o snippet inspecionado no DevTools -->
+  <div id="containerRequest">
+      <div id="ContainerForm">
+          <div id="BoxFrmExecute">
+              <table id="FrmExecute">...</table>
+          </div>
+      </div>
+  </div>
   ```
-- **Seletor candidato**:
-- **Confiança**: BAIXA (Hipótese)
-
-### Wrapper de Tarefa (Shell / Contêiner da Atividade)
-- **Status**: PENDENTE
-- **HTML observado**:
-  ```html
-  <!-- Cole aqui o snippet inspecionado no DevTools -->
-  ```
-- **Seletor candidato**:
-- **Confiança**: BAIXA (Hipótese)
+- **Seletor candidato**: `#containerRequest`
+- **Confiança**: ALTA
 
 ---
 
 ## 2. Agrupamentos / Seções
 
-### Agrupamento "Dados pessoais"
-- **Status**: HIPÓTESE (Pendente confirmação completa do grupo)
+### Agrupamento "Dados pessoais" (`data-groupid="7724"`)
+- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
-  <tr codgroup="7724" class="execute-required">
-      <!-- Células do grupo/campo -->
-  </tr>
+  <table data-groupid="7724">
+      <tr class="group">
+          <td colspan="2">
+              <div id="group7724">Dados pessoais</div>
+          </td>
+      </tr>
+      <tr codgroup="7724" class="execute-required">...</tr>
+  </table>
   ```
-- **Seletor candidato**: `tr[codgroup="7724"]`
-- **Confiança**: MÉDIA (Hipótese baseada no atributo codgroup)
+- **Seletor candidato**: `#containerRequest [data-groupid="7724"]` e `#group7724`
+- **Confiança**: ALTA
 
 ---
 
 ## 3. Campos por Identificador Lógico
 
 ### Field: `nomeCompleto`
-- **Identificador Zeev**: `nomeCompleto`
 - **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
-  <tr codgroup="7724" class="execute-required">
-      <td valign="top" id="td0nomeCompleto" class="col0">
-          Nome completo
-      </td>
-
-      <td
-          valign="top"
-          id="td1nomeCompleto"
-          class="col1"
-          fieldkey="56955">
-
-          <textarea
-              rows="5"
-              name="inp56955"
-              id="inpnomeCompleto"
-              data-name="nomeCompleto"
-              data-label="Nome completo"
-              data-required="true"
-              data-fieldformat="TEXTAREA"
-              data-formula=""
-              label="Nome completo"
-              xname="inpnomeCompleto"
-              xtype="TEXTAREA"
-              required="S"
-              minlength="0"
-              maxlength="3072"
-              autocomplete="off"
-              class="form-control form-control-textarea">
-          </textarea>
-
-      </td>
-  </tr>
+  <textarea id="inpnomeCompleto" data-name="nomeCompleto" data-fieldformat="TEXTAREA" class="form-control form-control-textarea"></textarea>
   ```
-- **Seletor candidato**: `[data-name="nomeCompleto"]` (secundário: `#inpnomeCompleto`)
-- **Confiança**: ALTA (Atributo data-name presente no DOM real do h-Zeev)
+- **Seletor candidato**: `#containerRequest [data-name="nomeCompleto"]`
+- **Confiança**: ALTA
 
 ### Field: `cpfCliente`
-- **Identificador Zeev**: `cpfCliente`
-- **Status**: PENDENTE
+- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
-  <!-- Cole aqui o snippet inspecionado no DevTools -->
+  <td id="td1cpfCliente" class="col1">
+      <input type="text" id="inpcpfCliente" data-name="cpfCliente" data-fieldformat="TEXT" class="form-control form-control-text">
+      <span class="form-text text-muted small">Digite apenas os números ou selecione a máscara formatada.</span>
+  </td>
   ```
-- **Seletor candidato**:
-- **Confiança**: BAIXA (Hipótese)
+- **Seletor candidato**: `#containerRequest [data-name="cpfCliente"]`
+- **Confiança**: ALTA
 
 ### Field: `nacionalidade`
-- **Identificador Zeev**: `nacionalidade`
-- **Status**: PENDENTE
+- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
-  <!-- Cole aqui o snippet inspecionado no DevTools -->
+  <textarea id="inpnacionalidade" data-name="nacionalidade" class="form-control form-control-textarea"></textarea>
   ```
-- **Seletor candidato**:
-- **Confiança**: BAIXA (Hipótese)
+- **Seletor candidato**: `#containerRequest [data-name="nacionalidade"]`
+- **Confiança**: ALTA
 
 ### Field: `estadoCivil`
-- **Identificador Zeev**: `estadoCivil`
-- **Status**: PENDENTE
+- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
-  <!-- Cole aqui o snippet inspecionado no DevTools -->
+  <td id="td1estadoCivil" class="col1">
+      <div class="form-check">
+          <input type="checkbox" id="chk_ec_1" data-name="estadoCivil" value="solteiro" class="form-check-input">
+          <label for="chk_ec_1" class="form-check-label">Solteiro(a)</label>
+      </div>
+  </td>
   ```
-- **Seletor candidato**:
-- **Confiança**: BAIXA (Hipótese)
+- **Seletor candidato**: `#containerRequest input[type="checkbox"][data-name="estadoCivil"]`
+- **Confiança**: ALTA
 
 ### Field: `profissao`
-- **Identificador Zeev**: `profissao`
-- **Status**: PENDENTE
+- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
-  <!-- Cole aqui o snippet inspecionado no DevTools -->
+  <textarea id="inpprofissao" data-name="profissao" class="form-control form-control-textarea"></textarea>
   ```
-- **Seletor candidato**:
-- **Confiança**: BAIXA (Hipótese)
+- **Seletor candidato**: `#containerRequest [data-name="profissao"]`
+- **Confiança**: ALTA
 
 ### Field: `tipoDocumento`
-- **Identificador Zeev**: `tipoDocumento`
-- **Status**: PENDENTE
+- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
-  <!-- Cole aqui o snippet inspecionado no DevTools -->
+  <td id="td1tipoDocumento" class="col1">
+      <div class="form-check">
+          <input type="checkbox" id="chk_td_1" data-name="tipoDocumento" value="rg" class="form-check-input">
+          <label for="chk_td_1" class="form-check-label">RG - Carteira de Identidade</label>
+      </div>
+  </td>
   ```
-- **Seletor candidato**:
-- **Confiança**: BAIXA (Hipótese)
+- **Seletor candidato**: `#containerRequest input[type="checkbox"][data-name="tipoDocumento"]`
+- **Confiança**: ALTA
 
 ### Field: `numeroDocumento`
-- **Identificador Zeev**: `numeroDocumento`
-- **Status**: PENDENTE
+- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
-  <!-- Cole aqui o snippet inspecionado no DevTools -->
+  <textarea id="inpnumeroDocumento" data-name="numeroDocumento" class="form-control form-control-textarea"></textarea>
   ```
-- **Seletor candidato**:
-- **Confiança**: BAIXA (Hipótese)
+- **Seletor candidato**: `#containerRequest [data-name="numeroDocumento"]`
+- **Confiança**: ALTA
 
 ---
 
-## 4. Elementos de Ação e Feedback
+## 4. Elementos de Ação e Barra Inferior
 
-### Botão Primário / Ações Principais
-- **Status**: PENDENTE
+### Botão Enviar Solicitação (`#BtnSend`) & Barra (`#controllers`)
+- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
-  <!-- Cole aqui o snippet inspecionado no DevTools -->
+  <div id="controllers">
+      <div id="buttons">
+          <button class="btn btn-success btn-mobile" id="BtnSend" type="button" onclick="send()" disabled="disabled">
+              Enviar solicitação
+          </button>
+      </div>
+  </div>
   ```
-- **Seletor candidato**:
-- **Confiança**: BAIXA (Hipótese)
-
-### Botões da Atividade (Aprovar / Reprovar / Solicitar correção)
-- **Status**: PENDENTE
-- **HTML observado**:
-  ```html
-  <!-- Cole aqui o snippet inspecionado no DevTools -->
-  ```
-- **Seletor candidato**:
-- **Confiança**: BAIXA (Hipótese)
-
-### Mensagem de Validação / Erro
-- **Status**: PENDENTE
-- **HTML observado**:
-  ```html
-  <!-- Cole aqui o snippet inspecionado no DevTools -->
-  ```
-- **Seletor candidato**:
-- **Confiança**: BAIXA (Hipótese)
+- **Seletor candidato**: `#containerRequest #BtnSend` e `#containerRequest #controllers`
+- **Confiança**: ALTA

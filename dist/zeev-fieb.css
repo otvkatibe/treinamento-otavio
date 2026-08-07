@@ -1,5 +1,25 @@
 /*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+@layer properties;
 @layer theme, base, components, utilities;
+@layer theme {
+  :root, :host {
+    --color-blue-800: oklch(42.4% 0.199 265.638);
+    --color-blue-900: oklch(37.9% 0.146 265.522);
+    --color-slate-100: oklch(96.8% 0.007 247.896);
+    --color-slate-200: oklch(92.9% 0.013 255.508);
+    --color-slate-300: oklch(86.9% 0.022 252.894);
+    --color-slate-400: oklch(70.4% 0.04 256.788);
+    --color-slate-800: oklch(27.9% 0.041 260.031);
+    --color-white: #fff;
+    --spacing: 0.25rem;
+    --text-sm: 0.875rem;
+    --text-sm--line-height: calc(1.25 / 0.875);
+    --radius-md: 0.375rem;
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --default-transition-duration: 150ms;
+    --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
 :root {
   --zeev-fieb-primary: #004085;
   --zeev-fieb-primary-hover: #002752;
@@ -19,63 +39,266 @@
   --zeev-fieb-shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
   --zeev-fieb-shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
 }
-[data-name="nomeCompleto"], #inpnomeCompleto {
-  width: 100%;
-  background-color: var(--zeev-fieb-surface);
+#containerRequest::before {
+  content: "[DEBUG] Tema Zeev FIEB v0.2.0 Ativo no h-Zeev";
+  display: block;
+  background-color: var(--zeev-fieb-primary);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-align: center;
+  padding: 4px 12px;
+  border-bottom: 2px solid #38bdf8;
+  margin-bottom: 12px;
+}
+#containerRequest {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--zeev-fieb-text-main);
+}
+#containerRequest [data-groupid="7724"] {
+  background-color: var(--zeev-fieb-surface);
   border: 1px solid var(--zeev-fieb-border);
-  border-radius: var(--zeev-fieb-radius-md);
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  min-height: 2.75rem;
-  resize: vertical;
-  box-shadow: var(--zeev-fieb-shadow-subtle);
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  border-radius: var(--zeev-fieb-radius-lg);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--zeev-fieb-shadow-card);
 }
-[data-name="nomeCompleto"]:focus-visible, #inpnomeCompleto:focus-visible {
-  outline: 2px solid var(--zeev-fieb-border-focus);
-  outline-offset: 1px;
-  border-color: var(--zeev-fieb-primary);
-  box-shadow: 0 0 0 3px rgba(0, 64, 133, 0.15);
+#containerRequest #group7724 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--zeev-fieb-primary);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--zeev-fieb-primary-light);
+  display: block;
+  width: 100%;
 }
-#td0nomeCompleto {
+#containerRequest #FrmExecute td.col0 {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--zeev-fieb-text-main);
-  padding-bottom: 0.375rem;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  vertical-align: top;
 }
-[data-name="cpfCliente"], #inpcpfCliente {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  letter-spacing: 0.05em;
+#containerRequest #FrmExecute td.col1 {
+  padding: 0.5rem 0;
+  vertical-align: top;
 }
-[data-name="nacionalidade"], #inpnacionalidade {
-  min-height: 2.5rem;
+#containerRequest :is( [data-name="nomeCompleto"], [data-name="cpfCliente"], [data-name="nacionalidade"], [data-name="profissao"], [data-name="numeroDocumento"] ) {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border-style: var(--tw-border-style);
+  border-width: 1px;
+  border-color: var(--color-slate-300);
+  background-color: var(--color-white);
+  padding-inline: calc(var(--spacing) * 3);
+  padding-block: calc(var(--spacing) * 2);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading, var(--text-sm--line-height));
+  color: var(--color-slate-800);
+  --tw-shadow: 0 1px 2px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.05));
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+  transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration, var(--default-transition-duration));
+  --tw-duration: 150ms;
+  transition-duration: 150ms;
+  --tw-ease: var(--ease-in-out);
+  transition-timing-function: var(--ease-in-out);
 }
-[data-name="estadoCivil"], #inpestadoCivil {
+#containerRequest :is( [data-name="nomeCompleto"], [data-name="cpfCliente"], [data-name="nacionalidade"], [data-name="profissao"], [data-name="numeroDocumento"] ):focus-visible {
+  border-color: var(--color-blue-800);
+  --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  outline-style: var(--tw-outline-style);
+  outline-width: 2px;
+  outline-offset: 1px;
+  outline-color: var(--color-blue-900);
+}
+#containerRequest textarea:is( [data-name="nomeCompleto"], [data-name="nacionalidade"], [data-name="profissao"], [data-name="numeroDocumento"] ) {
+  min-height: 2.75rem;
+  max-height: 8rem;
+  resize: vertical;
+}
+#containerRequest #td1cpfCliente .form-text {
+  font-size: 0.75rem;
+  color: var(--zeev-fieb-text-muted);
+  margin-top: 0.25rem;
+  display: block;
+}
+#containerRequest #td1estadoCivil .form-check, #containerRequest #td1tipoDocumento .form-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+#containerRequest input[type="checkbox"]:is( [data-name="estadoCivil"], [data-name="tipoDocumento"] ) {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--zeev-fieb-primary);
+  border-radius: var(--zeev-fieb-radius-sm);
   cursor: pointer;
 }
-[data-name="profissao"], #inpprofissao {
-  min-height: 2.5rem;
-}
-[data-name="tipoDocumento"], #inptipoDocumento {
+#containerRequest #td1estadoCivil .form-check-label, #containerRequest #td1tipoDocumento .form-check-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--zeev-fieb-text-main);
   cursor: pointer;
 }
-[data-name="numeroDocumento"], #inpnumeroDocumento {
-  min-height: 2.5rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+#containerRequest :is( [data-name]:disabled, [data-name][readonly] ) {
+  cursor: not-allowed;
+  border-color: var(--color-slate-200);
+  background-color: var(--color-slate-100);
+  color: var(--color-slate-400);
+  --tw-shadow: 0 0 #0000;
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
-tr[codgroup="7724"] {
+#containerRequest #controllers {
   background-color: var(--zeev-fieb-surface);
+  border-top: 1px solid var(--zeev-fieb-border);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  padding: 0.75rem 1.5rem;
 }
-[data-name]:disabled, [data-name][readonly] {
-  background-color: #f1f5f9;
-  color: var(--zeev-fieb-text-disabled);
-  border-color: #e2e8f0;
+#containerRequest #buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+#containerRequest #BtnSend {
+  background-color: var(--zeev-fieb-primary);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.625rem 1.5rem;
+  border-radius: var(--zeev-fieb-radius-md);
+  border: 1px solid var(--zeev-fieb-primary-hover);
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  box-shadow: var(--zeev-fieb-shadow-subtle);
+}
+#containerRequest #BtnSend:hover:not(:disabled) {
+  background-color: var(--zeev-fieb-primary-hover);
+}
+#containerRequest #BtnSend:disabled {
+  background-color: #cbd5e1;
+  color: #94a3b8;
+  border-color: #cbd5e1;
   cursor: not-allowed;
   box-shadow: none;
+  opacity: 0.7;
 }
-[data-name][aria-invalid="true"] {
-  border-color: #721c24;
-  background-color: #fef2f2;
+#containerRequest #containerMessages, #containerRequest #containerFiles, #containerRequest #commands {
+  border-radius: var(--zeev-fieb-radius-md);
+  border: 1px solid var(--zeev-fieb-border);
+  margin-top: 1rem;
+}
+@property --tw-border-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
+@property --tw-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-shadow-color {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-shadow-alpha {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+@property --tw-inset-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-inset-shadow-color {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-inset-shadow-alpha {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+@property --tw-ring-color {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-ring-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-inset-ring-color {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-inset-ring-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-ring-inset {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-ring-offset-width {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --tw-ring-offset-color {
+  syntax: "*";
+  inherits: false;
+  initial-value: #fff;
+}
+@property --tw-ring-offset-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+@property --tw-duration {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-ease {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
+@layer properties {
+  @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
+    *, ::before, ::after, ::backdrop {
+      --tw-border-style: solid;
+      --tw-shadow: 0 0 #0000;
+      --tw-shadow-color: initial;
+      --tw-shadow-alpha: 100%;
+      --tw-inset-shadow: 0 0 #0000;
+      --tw-inset-shadow-color: initial;
+      --tw-inset-shadow-alpha: 100%;
+      --tw-ring-color: initial;
+      --tw-ring-shadow: 0 0 #0000;
+      --tw-inset-ring-color: initial;
+      --tw-inset-ring-shadow: 0 0 #0000;
+      --tw-ring-inset: initial;
+      --tw-ring-offset-width: 0px;
+      --tw-ring-offset-color: #fff;
+      --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-duration: initial;
+      --tw-ease: initial;
+      --tw-outline-style: solid;
+    }
+  }
 }
