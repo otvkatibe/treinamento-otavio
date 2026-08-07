@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zeev FIEB Theme - Demonstrador & Mock Real v0.2.0</title>
+  <title>Zeev FIEB Theme - Demonstrador & Mock Real v0.2.1</title>
   <link rel="stylesheet" href="./dist/zeev-fieb.css">
   <style>
     body {
@@ -27,13 +27,13 @@
               <td>
                 
                 <!-- Agrupamento Dados Pessoais (data-groupid="7724") -->
-                <table data-groupid="7724" style="width: 100%;">
+                <table class="form" id="Dados pessoais" data-groupid="7724" style="width: 100%;">
                   <tbody>
                     
                     <!-- Título do Agrupamento -->
                     <tr class="group">
-                      <td colspan="2">
-                        <div id="group7724">Dados pessoais</div>
+                      <td colspan="2" class="group">
+                        <b id="group7724" data-key="7724">Dados pessoais</b>
                       </td>
                     </tr>
 
@@ -72,7 +72,7 @@
                           data-fieldformat="TEXT"
                           class="form-control form-control-text"
                           value="123.456.789-00">
-                        <span class="form-text text-muted small">Digite apenas os números ou selecione a máscara formatada.</span>
+                        <span class="form-text text-muted small">ex: máscara 000.000.000-00</span>
                       </td>
                     </tr>
 
@@ -81,7 +81,7 @@
                       <td id="td0nacionalidade" class="col0">Nacionalidade</td>
                       <td id="td1nacionalidade" class="col1" fieldkey="56957">
                         <textarea
-                          rows="2"
+                          rows="5"
                           name="inp56957"
                           id="inpnacionalidade"
                           data-name="nacionalidade"
@@ -107,6 +107,10 @@
                           <input type="checkbox" id="chk_ec_3" data-name="estadoCivil" value="divorciado" class="form-check-input">
                           <label for="chk_ec_3" class="form-check-label">Divorciado(a)</label>
                         </div>
+                        <div class="form-check">
+                          <input type="checkbox" id="chk_ec_4" data-name="estadoCivil" value="viuvo" class="form-check-input">
+                          <label for="chk_ec_4" class="form-check-label">Viúvo(a)</label>
+                        </div>
                       </td>
                     </tr>
 
@@ -115,7 +119,7 @@
                       <td id="td0profissao" class="col0">Profissão</td>
                       <td id="td1profissao" class="col1" fieldkey="56959">
                         <textarea
-                          rows="2"
+                          rows="5"
                           name="inp56959"
                           id="inpprofissao"
                           data-name="profissao"
@@ -125,17 +129,25 @@
                       </td>
                     </tr>
 
-                    <!-- 6. Tipo de documento (tipoDocumento) - CHECKBOXES REAIS -->
+                    <!-- 6. Tipo de documento (tipoDocumento) - CHECKBOXES REAIS (CIN, RG, CNH, Passaporte) -->
                     <tr codgroup="7724">
                       <td id="td0tipoDocumento" class="col0">Tipo de documento</td>
                       <td id="td1tipoDocumento" class="col1" fieldkey="56960">
                         <div class="form-check">
-                          <input type="checkbox" id="chk_td_1" data-name="tipoDocumento" value="rg" class="form-check-input" checked>
-                          <label for="chk_td_1" class="form-check-label">RG - Carteira de Identidade</label>
+                          <input type="checkbox" id="chk_td_1" data-name="tipoDocumento" value="cin" class="form-check-input">
+                          <label for="chk_td_1" class="form-check-label">CIN</label>
                         </div>
                         <div class="form-check">
-                          <input type="checkbox" id="chk_td_2" data-name="tipoDocumento" value="cnh" class="form-check-input">
-                          <label for="chk_td_2" class="form-check-label">CNH - Carteira de Habilitação</label>
+                          <input type="checkbox" id="chk_td_2" data-name="tipoDocumento" value="rg" class="form-check-input" checked>
+                          <label for="chk_td_2" class="form-check-label">RG</label>
+                        </div>
+                        <div class="form-check">
+                          <input type="checkbox" id="chk_td_3" data-name="tipoDocumento" value="cnh" class="form-check-input">
+                          <label for="chk_td_3" class="form-check-label">CNH</label>
+                        </div>
+                        <div class="form-check">
+                          <input type="checkbox" id="chk_td_4" data-name="tipoDocumento" value="passaporte" class="form-check-input">
+                          <label for="chk_td_4" class="form-check-label">Passaporte</label>
                         </div>
                       </td>
                     </tr>
@@ -145,7 +157,7 @@
                       <td id="td0numeroDocumento" class="col0">Número do documento</td>
                       <td id="td1numeroDocumento" class="col1" fieldkey="56961">
                         <textarea
-                          rows="2"
+                          rows="5"
                           name="inp56961"
                           id="inpnumeroDocumento"
                           data-name="numeroDocumento"

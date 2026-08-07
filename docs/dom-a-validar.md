@@ -1,24 +1,28 @@
-# Registro do DOM Real — h-Zeev (v0.2.0)
+# Registro do DOM Real — h-Zeev (v0.2.1)
 
 Este documento registra a estrutura HTML real inspecionada no ambiente **h-Zeev** via DevTools durante a execução da tarefa *"Solicitar registro"* do aplicativo `Treinamento - Otávio Katibe`.
+
+> **FASE 0 DE DESCOBERTA**: **CONCLUÍDA PARA A TAREFA "SOLICITAR REGISTRO"**
 
 ---
 
 ## 1. Estrutura Global do Formulário
 
-### Wrapper Principal do Formulário (`#containerRequest`)
+### Wrapper Principal e Tabela (`#containerRequest` -> `#FrmExecute`)
 - **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
   <div id="containerRequest">
-      <div id="ContainerForm">
-          <div id="BoxFrmExecute">
-              <table id="FrmExecute">...</table>
+      <div class="container-task">
+          <div id="ContainerForm">
+              <div id="BoxFrmExecute">
+                  <table id="FrmExecute">...</table>
+              </div>
           </div>
       </div>
   </div>
   ```
-- **Seletor candidato**: `#containerRequest`
+- **Seletor candidato**: `#containerRequest #FrmExecute`
 - **Confiança**: ALTA
 
 ---
@@ -29,54 +33,47 @@ Este documento registra a estrutura HTML real inspecionada no ambiente **h-Zeev*
 - **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
-  <table data-groupid="7724">
+  <table class="form" id="Dados pessoais" data-groupid="7724">
       <tr class="group">
-          <td colspan="2">
-              <div id="group7724">Dados pessoais</div>
+          <td colspan="2" class="group">
+              <b id="group7724" data-key="7724">Dados pessoais</b>
           </td>
       </tr>
       <tr codgroup="7724" class="execute-required">...</tr>
   </table>
   ```
-- **Seletor candidato**: `#containerRequest [data-groupid="7724"]` e `#group7724`
+- **Seletor candidato**: `#containerRequest #FrmExecute [data-groupid="7724"]` e `#group7724`
 - **Confiança**: ALTA
 
 ---
 
-## 3. Campos por Identificador Lógico
+## 3. Campos por Identificador Lógico (Todos Confirmados com Confiança Alta)
 
 ### Field: `nomeCompleto`
-- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
   <textarea id="inpnomeCompleto" data-name="nomeCompleto" data-fieldformat="TEXTAREA" class="form-control form-control-textarea"></textarea>
   ```
-- **Seletor candidato**: `#containerRequest [data-name="nomeCompleto"]`
-- **Confiança**: ALTA
+- **Seletor**: `#containerRequest #FrmExecute [data-name="nomeCompleto"]`
 
 ### Field: `cpfCliente`
-- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
   <td id="td1cpfCliente" class="col1">
       <input type="text" id="inpcpfCliente" data-name="cpfCliente" data-fieldformat="TEXT" class="form-control form-control-text">
-      <span class="form-text text-muted small">Digite apenas os números ou selecione a máscara formatada.</span>
+      <span class="form-text text-muted small">ex: máscara 000.000.000-00</span>
   </td>
   ```
-- **Seletor candidato**: `#containerRequest [data-name="cpfCliente"]`
-- **Confiança**: ALTA
+- **Seletor**: `#containerRequest #FrmExecute [data-name="cpfCliente"]`
 
 ### Field: `nacionalidade`
-- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
   <textarea id="inpnacionalidade" data-name="nacionalidade" class="form-control form-control-textarea"></textarea>
   ```
-- **Seletor candidato**: `#containerRequest [data-name="nacionalidade"]`
-- **Confiança**: ALTA
+- **Seletor**: `#containerRequest #FrmExecute [data-name="nacionalidade"]`
 
 ### Field: `estadoCivil`
-- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
   <td id="td1estadoCivil" class="col1">
@@ -86,50 +83,46 @@ Este documento registra a estrutura HTML real inspecionada no ambiente **h-Zeev*
       </div>
   </td>
   ```
-- **Seletor candidato**: `#containerRequest input[type="checkbox"][data-name="estadoCivil"]`
-- **Confiança**: ALTA
+- **Seletor**: `#containerRequest #td1estadoCivil input[type="checkbox"][data-name="estadoCivil"]`
 
 ### Field: `profissao`
-- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
   <textarea id="inpprofissao" data-name="profissao" class="form-control form-control-textarea"></textarea>
   ```
-- **Seletor candidato**: `#containerRequest [data-name="profissao"]`
-- **Confiança**: ALTA
+- **Seletor**: `#containerRequest #FrmExecute [data-name="profissao"]`
 
 ### Field: `tipoDocumento`
-- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
   <td id="td1tipoDocumento" class="col1">
       <div class="form-check">
-          <input type="checkbox" id="chk_td_1" data-name="tipoDocumento" value="rg" class="form-check-input">
-          <label for="chk_td_1" class="form-check-label">RG - Carteira de Identidade</label>
+          <input type="checkbox" id="chk_td_1" data-name="tipoDocumento" value="cin" class="form-check-input">
+          <label for="chk_td_1" class="form-check-label">CIN</label>
+      </div>
+      <div class="form-check">
+          <input type="checkbox" id="chk_td_2" data-name="tipoDocumento" value="rg" class="form-check-input">
+          <label for="chk_td_2" class="form-check-label">RG</label>
       </div>
   </td>
   ```
-- **Seletor candidato**: `#containerRequest input[type="checkbox"][data-name="tipoDocumento"]`
-- **Confiança**: ALTA
+- **Seletor**: `#containerRequest #td1tipoDocumento input[type="checkbox"][data-name="tipoDocumento"]`
 
 ### Field: `numeroDocumento`
-- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
   <textarea id="inpnumeroDocumento" data-name="numeroDocumento" class="form-control form-control-textarea"></textarea>
   ```
-- **Seletor candidato**: `#containerRequest [data-name="numeroDocumento"]`
-- **Confiança**: ALTA
+- **Seletor**: `#containerRequest #FrmExecute [data-name="numeroDocumento"]`
 
 ---
 
 ## 4. Elementos de Ação e Barra Inferior
 
 ### Botão Enviar Solicitação (`#BtnSend`) & Barra (`#controllers`)
-- **Status**: CONFIRMADO
 - **HTML observado**:
   ```html
-  <div id="controllers">
+  <div id="controllers" style="position: fixed; bottom: 0; z-index: 93;">
       <div id="buttons">
           <button class="btn btn-success btn-mobile" id="BtnSend" type="button" onclick="send()" disabled="disabled">
               Enviar solicitação
@@ -137,5 +130,4 @@ Este documento registra a estrutura HTML real inspecionada no ambiente **h-Zeev*
       </div>
   </div>
   ```
-- **Seletor candidato**: `#containerRequest #BtnSend` e `#containerRequest #controllers`
-- **Confiança**: ALTA
+- **Seletor**: `#containerRequest #BtnSend` e `#containerRequest #controllers`

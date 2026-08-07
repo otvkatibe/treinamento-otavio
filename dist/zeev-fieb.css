@@ -40,7 +40,7 @@
   --zeev-fieb-shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
 }
 #containerRequest::before {
-  content: "[DEBUG] Tema Zeev FIEB v0.2.0 Ativo no h-Zeev";
+  content: "Tema FIEB v0.2.1 • CSS externo ativo";
   display: block;
   background-color: var(--zeev-fieb-primary);
   color: #ffffff;
@@ -56,7 +56,7 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--zeev-fieb-text-main);
 }
-#containerRequest [data-groupid="7724"] {
+#containerRequest #FrmExecute [data-groupid="7724"] {
   background-color: var(--zeev-fieb-surface);
   border: 1px solid var(--zeev-fieb-border);
   border-radius: var(--zeev-fieb-radius-lg);
@@ -74,18 +74,18 @@
   display: block;
   width: 100%;
 }
-#containerRequest #FrmExecute td.col0 {
+#containerRequest #FrmExecute tr[codgroup="7724"] > td.col0 {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--zeev-fieb-text-main);
-  padding: 0.5rem 0.75rem 0.5rem 0;
+  padding: 0.625rem 0.75rem 0.625rem 0;
   vertical-align: top;
 }
-#containerRequest #FrmExecute td.col1 {
+#containerRequest #FrmExecute tr[codgroup="7724"] > td.col1 {
   padding: 0.5rem 0;
   vertical-align: top;
 }
-#containerRequest :is( [data-name="nomeCompleto"], [data-name="cpfCliente"], [data-name="nacionalidade"], [data-name="profissao"], [data-name="numeroDocumento"] ) {
+#containerRequest #FrmExecute :is( [data-name="nomeCompleto"], [data-name="cpfCliente"], [data-name="nacionalidade"], [data-name="profissao"], [data-name="numeroDocumento"] ) {
   width: 100%;
   border-radius: var(--radius-md);
   border-style: var(--tw-border-style);
@@ -107,7 +107,7 @@
   --tw-ease: var(--ease-in-out);
   transition-timing-function: var(--ease-in-out);
 }
-#containerRequest :is( [data-name="nomeCompleto"], [data-name="cpfCliente"], [data-name="nacionalidade"], [data-name="profissao"], [data-name="numeroDocumento"] ):focus-visible {
+#containerRequest #FrmExecute :is( [data-name="nomeCompleto"], [data-name="cpfCliente"], [data-name="nacionalidade"], [data-name="profissao"], [data-name="numeroDocumento"] ):focus-visible {
   border-color: var(--color-blue-800);
   --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -116,7 +116,7 @@
   outline-offset: 1px;
   outline-color: var(--color-blue-900);
 }
-#containerRequest textarea:is( [data-name="nomeCompleto"], [data-name="nacionalidade"], [data-name="profissao"], [data-name="numeroDocumento"] ) {
+#containerRequest #FrmExecute textarea:is( [data-name="nomeCompleto"], [data-name="nacionalidade"], [data-name="profissao"], [data-name="numeroDocumento"] ) {
   min-height: 2.75rem;
   max-height: 8rem;
   resize: vertical;
@@ -147,7 +147,7 @@
   color: var(--zeev-fieb-text-main);
   cursor: pointer;
 }
-#containerRequest :is( [data-name]:disabled, [data-name][readonly] ) {
+#containerRequest #FrmExecute :is( [data-name]:disabled, [data-name][readonly] ) {
   cursor: not-allowed;
   border-color: var(--color-slate-200);
   background-color: var(--color-slate-100);
@@ -190,7 +190,11 @@
   box-shadow: none;
   opacity: 0.7;
 }
-#containerRequest #containerMessages, #containerRequest #containerFiles, #containerRequest #commands {
+#containerRequest #commands {
+  border-radius: var(--zeev-fieb-radius-md);
+  border: 1px solid var(--zeev-fieb-border);
+}
+#containerRequest #containerMessages, #containerRequest #containerFiles {
   border-radius: var(--zeev-fieb-radius-md);
   border: 1px solid var(--zeev-fieb-border);
   margin-top: 1rem;

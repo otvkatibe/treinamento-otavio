@@ -3,8 +3,8 @@
 @import "tailwindcss/theme.css" layer(theme);
 
 /* ==========================================================================
-   PALETA PROVISÓRIA — Tokens Oficiais FIEB (v0.2.0)
-   Tema Visual Corporativo para Zeev (Ambiente h-Zeev)
+   PALETA PROVISÓRIA — substituir por tokens oficiais FIEB
+   Tema Visual Corporativo para Zeev (Ambiente h-Zeev v0.2.1)
    Processo: Treinamento - Otávio Katibe
    ========================================================================== */
 
@@ -38,7 +38,7 @@
    DEBUG EXTERNAL CSS — REMOVER APÓS HOMOLOGAÇÃO
    ========================================================================== */
 #containerRequest::before {
-  content: "[DEBUG] Tema Zeev FIEB v0.2.0 Ativo no h-Zeev";
+  content: "Tema FIEB v0.2.1 • CSS externo ativo";
   display: block;
   background-color: var(--zeev-fieb-primary);
   color: #ffffff;
@@ -61,7 +61,7 @@
 }
 
 /* Agrupamento: Dados pessoais (CONFIRMADO: data-groupid="7724") */
-#containerRequest [data-groupid="7724"] {
+#containerRequest #FrmExecute [data-groupid="7724"] {
   background-color: var(--zeev-fieb-surface);
   border: 1px solid var(--zeev-fieb-border);
   border-radius: var(--zeev-fieb-radius-lg);
@@ -82,25 +82,26 @@
   width: 100%;
 }
 
-/* Células da Tabela do Formulário (CONFIRMADO: td.col0 e td.col1) */
-#containerRequest #FrmExecute td.col0 {
+/* Rótulos de Campos (td.col0 nas linhas do grupo) */
+#containerRequest #FrmExecute tr[codgroup="7724"] > td.col0 {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--zeev-fieb-text-main);
-  padding: 0.5rem 0.75rem 0.5rem 0;
+  padding: 0.625rem 0.75rem 0.625rem 0;
   vertical-align: top;
 }
 
-#containerRequest #FrmExecute td.col1 {
+/* Células de Entrada de Dados (td.col1 nas linhas do grupo) */
+#containerRequest #FrmExecute tr[codgroup="7724"] > td.col1 {
   padding: 0.5rem 0;
   vertical-align: top;
 }
 
 /* ==========================================================================
-   2. CAMPOS DE TEXTO E TEXTAREAS (CONTRATO CONFIRMADO VIA DATA-NAME)
+   2. CAMPOS DE TEXTO E TEXTAREAS (ESCOPADOS SOB #FrmExecute)
    ========================================================================== */
 
-#containerRequest :is(
+#containerRequest #FrmExecute :is(
   [data-name="nomeCompleto"],
   [data-name="cpfCliente"],
   [data-name="nacionalidade"],
@@ -110,7 +111,7 @@
   @apply bg-white border border-slate-300 rounded-md text-slate-800 text-sm px-3 py-2 transition-colors duration-150 ease-in-out shadow-xs w-full;
 }
 
-#containerRequest :is(
+#containerRequest #FrmExecute :is(
   [data-name="nomeCompleto"],
   [data-name="cpfCliente"],
   [data-name="nacionalidade"],
@@ -120,8 +121,8 @@
   @apply outline-2 outline-blue-900 outline-offset-1 border-blue-800 shadow-md;
 }
 
-/* Ajuste moderado de altura para Textareas sem alterar o layout da tabela */
-#containerRequest textarea:is(
+/* Ajuste de Altura Compacta para Textareas sem Alterar Atributos HTML */
+#containerRequest #FrmExecute textarea:is(
   [data-name="nomeCompleto"],
   [data-name="nacionalidade"],
   [data-name="profissao"],
@@ -141,7 +142,7 @@
 }
 
 /* ==========================================================================
-   3. CHECKBOXES REAIS (CONFIRMADO: estadoCivil E tipoDocumento)
+   3. CHECKBOXES REAIS (estadoCivil E tipoDocumento)
    ========================================================================== */
 
 #containerRequest #td1estadoCivil .form-check,
@@ -176,7 +177,7 @@
    4. ESTADOS DISABLED E SOMENTE LEITURA
    ========================================================================== */
 
-#containerRequest :is(
+#containerRequest #FrmExecute :is(
   [data-name]:disabled,
   [data-name][readonly]
 ) {
@@ -228,12 +229,16 @@
 }
 
 /* ==========================================================================
-   6. HARMONIZAÇÃO DISCRETA DE OUTROS CONTÊINERES DO ZEEV
+   6. HARMONIZAÇÃO DISCRETA DE OUTRAS ÁREAS DO ZEEV
    ========================================================================== */
 
-#containerRequest #containerMessages,
-#containerRequest #containerFiles,
 #containerRequest #commands {
+  border-radius: var(--zeev-fieb-radius-md);
+  border: 1px solid var(--zeev-fieb-border);
+}
+
+#containerRequest #containerMessages,
+#containerRequest #containerFiles {
   border-radius: var(--zeev-fieb-radius-md);
   border: 1px solid var(--zeev-fieb-border);
   margin-top: 1rem;

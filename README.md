@@ -1,22 +1,22 @@
-# Tema Visual Corporativo FIEB para Zeev (Ambiente h-Zeev v0.2.0)
+# Tema Visual Corporativo FIEB para Zeev (Ambiente h-Zeev v0.2.1)
 
 Customização visual estática, sóbria, moderna e acessível desenvolvida para a plataforma Zeev, compatível com a identidade institucional do **Sistema FIEB**.
 
 - **Aplicativo Zeev Target**: `Treinamento - Otávio Katibe`
 - **Ambiente**: `h-Zeev / Homologação`
-- **Versão do Projeto**: `v0.2.0`
+- **Versão do Projeto**: `v0.2.1` (Fase 0 Concluída para a tarefa *"Solicitar registro"*)
 - **Versão do Tailwind CSS**: `Tailwind CSS v4.3.3` (compilado estaticamente via `@tailwindcss/cli`)
-- **Arquivo CSS Final**: `dist/zeev-fieb.css` (~9.7 KB)
+- **Arquivo CSS Final**: `dist/zeev-fieb.css` (~9.9 KB)
 
 ---
 
-## 1. Arquitetura e Decisões de Projeto (v0.2.0)
+## 1. Arquitetura e Decisões de Projeto (v0.2.1)
 
 - **CSS Estático Puro no Zeev**: O Zeev recebe unicamente um arquivo CSS compilado (`dist/zeev-fieb.css`). Não há dependência de Node.js, CDN runtime ou scripts JS no navegador.
-- **Escopo Estrito via ID Real (`#containerRequest`)**: Todas as regras CSS são escopadas sob o contêiner raiz real do Zeev (`#containerRequest`), descartando totalmente wrappers fictícios do mock.
-- **Seletores 100% Confirmados via `data-name`**: Os campos funcionais utilizam a síntese `[data-name="..."]` (`nomeCompleto`, `cpfCliente`, `nacionalidade`, `estadoCivil`, `profissao`, `tipoDocumento`, `numeroDocumento`).
-- **Checkboxes Reais**: Suporte nativo ao layout dos seletores `estadoCivil` e `tipoDocumento` renderizados como `input[type="checkbox"]` dentro de `.form-check`.
-- **Barra de Botões e Ações (`#controllers` / `#BtnSend`)**: Estilização institucional sóbria da barra inferior e do botão principal de submissão.
+- **Escopo Estrito via ID Real (`#containerRequest #FrmExecute`)**: Todas as regras CSS de entrada são escopadas sob `#containerRequest #FrmExecute`, prevenindo vazamentos visuais para contêineres como `#containerMessages` ou `#containerFiles`.
+- **Seletores 100% Confirmados via `data-name`**: Todos os campos utilizam a síntese `[data-name="..."]` (`nomeCompleto`, `cpfCliente`, `nacionalidade`, `estadoCivil`, `profissao`, `tipoDocumento`, `numeroDocumento`).
+- **Checkboxes Reais**: Suporte nativo ao layout dos seletores `estadoCivil` e `tipoDocumento` (CIN, RG, CNH, Passaporte) renderizados como `input[type="checkbox"]` dentro de `.form-check`.
+- **Barra de Botões e Ações (`#controllers` / `#BtnSend`)**: Estilização institucional sóbria da barra inferior (`#controllers` com `position: fixed; bottom: 0; z-index: 93;` preservados) e do botão de submissão (`#BtnSend`).
 - **Design Tokens FIEB**: As cores e medidas principais estão centralizadas em variáveis CSS (`:root`).
   > `/* PALETA PROVISÓRIA — substituir por tokens oficiais FIEB */`
 
@@ -26,25 +26,25 @@ Customização visual estática, sóbria, moderna e acessível desenvolvida para
 
 ```text
 treinamento-otavio/
-├── package.json               # Dependências do build (Tailwind v4.3.3 / Version v0.2.0)
+├── package.json               # Dependências do build (Tailwind v4.3.3 / Version v0.2.1)
 ├── README.md                  # Documentação principal
 ├── LIMITACOES.md              # Limitações técnicas e próximos passos
 ├── .gitignore                 # Arquivos ignorados pelo Git (.env, zeev-docs, etc.)
 │
 ├── src/
-│   └── zeev-fieb.css          # Stylesheet fonte v0.2.0 com tokens e seletores escopados
+│   └── zeev-fieb.css          # Stylesheet fonte v0.2.1 com tokens e seletores escopados
 │
 ├── dist/
-│   └── zeev-fieb.css          # Stylesheet estático compilado para homologação (~9.7 KB)
+│   └── zeev-fieb.css          # Stylesheet estático compilado para homologação (~9.9 KB)
 │
 ├── docs/
-│   ├── seletores.md           # Contrato oficial de seletores confirmados do h-Zeev
+│   ├── seletores.md           # Contrato oficial de seletores confirmados (Fase 0 concluída)
 │   ├── instalacao-zeev.md     # Guia de injeção no h-Zeev e Rollback
 │   ├── debug-h-zeev.md        # Roteiro passo a passo para diagnósticos DevTools
 │   ├── dom-a-validar.md       # Fragmentos de HTML real inspecionados no h-Zeev
 │   └── testes.md              # Roteiro de testes funcionais, acessibilidade e resiliência
 │
-└── index.html                 # Demonstrador local reproduzindo o DOM real do Zeev
+└── index.html                 # Demonstrador local reproduzindo o DOM real do Zeev (100% alinhado)
 ```
 
 ---
@@ -72,7 +72,7 @@ O comando `npm run build` gerará/atualizará o arquivo `dist/zeev-fieb.css`.
 
 ---
 
-## 4. Publicação para homologação (v0.2.0)
+## 4. Publicação para homologação (v0.2.1)
 
 ### Passo A: Compilar e Enviar Alterações ao GitHub
 
@@ -82,7 +82,7 @@ Execute os comandos no terminal:
 npm run build
 
 git add .
-git commit -m "feat: Zeev FIEB theme v0.2.0"
+git commit -m "feat: Zeev FIEB theme v0.2.1"
 git push
 ```
 
@@ -105,10 +105,10 @@ git push
 Copie a seguinte tag para inserir no ambiente **h-Zeev** (*Scripts e Estilos → Fontes externas → Scripts e estilos nas atividades*):
 
 ```html
-<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css?v=0.2.0">
+<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css?v=0.2.1">
 ```
 
-> **Controle de Cache**: O parâmetro `?v=0.2.0` força a atualização pelo navegador e previne cache durante a homologação no h-Zeev.
+> **Controle de Cache**: O parâmetro `?v=0.2.1` força a atualização pelo navegador e previne cache durante a homologação no h-Zeev.
 
 ---
 
