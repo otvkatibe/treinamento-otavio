@@ -1,0 +1,286 @@
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+
+/* ==========================================================================
+   PALETA PROVISÓRIA — substituir por tokens oficiais FIEB
+   Tema Visual Corporativo para Zeev (Ambiente h-Zeev v0.1.0)
+   Processo: Treinamento - Otávio Katibe
+   ========================================================================== */
+
+:root {
+  /* Cores Institucionais FIEB com prefixo seguro --zeev-fieb-* */
+  --zeev-fieb-primary: #004085;          /* Azul escuro institucional FIEB */
+  --zeev-fieb-primary-hover: #002752;    /* Hover para botões primários */
+  --zeev-fieb-primary-light: #e6f0fa;    /* Fundo suave para destaques */
+  
+  --zeev-fieb-secondary: #4a5568;        /* Cinza neutro corporativo */
+  --zeev-fieb-secondary-hover: #2d3748;
+  
+  --zeev-fieb-surface: #ffffff;          /* Fundo de cards, campos e formulários */
+  --zeev-fieb-background: #f8fafc;       /* Fundo da área de trabalho */
+  --zeev-fieb-border: #cbd5e1;          /* Borda neutra suave */
+  --zeev-fieb-border-focus: #004085;    /* Anel de foco visível */
+  
+  --zeev-fieb-text-main: #1e293b;       /* Cor principal de texto */
+  --zeev-fieb-text-muted: #64748b;      /* Texto secundário e rótulos de ajuda */
+  --zeev-fieb-text-disabled: #94a3b8;   /* Texto em campos desabilitados */
+  
+  --zeev-fieb-radius-sm: 0.25rem;       /* 4px */
+  --zeev-fieb-radius-md: 0.375rem;      /* 6px */
+  --zeev-fieb-radius-lg: 0.5rem;        /* 8px */
+  
+  --zeev-fieb-shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  --zeev-fieb-shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
+/* ==========================================================================
+   DEBUG EXTERNAL CSS — Indicador temporário restrito ao formulário do Zeev
+   (NÃO afeta body, html ou shell global do Zeev)
+   ========================================================================== */
+.zeev-form-container::before,
+.zeev-form-wrapper::before,
+.zeev-app-wrapper::before,
+form[data-zeev="true"]::before {
+  content: "[DEBUG EXTERNAL CSS] Tema FIEB v0.1.0 Ativo no h-Zeev";
+  display: block;
+  background-color: var(--zeev-fieb-primary);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-align: center;
+  padding: 4px 12px;
+  border-bottom: 2px solid #38bdf8;
+  border-radius: var(--zeev-fieb-radius-md) var(--zeev-fieb-radius-md) 0 0;
+  margin-bottom: 12px;
+}
+
+/* ==========================================================================
+   1. ESCOPO DO FORMULÁRIO (SEM SELETORES GLOBAIS UNSCOPED)
+   ========================================================================== */
+
+.zeev-form-container,
+.zeev-form-wrapper,
+.zeev-app-wrapper,
+form[data-zeev="true"] {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--zeev-fieb-text-main);
+  background-color: var(--zeev-fieb-background);
+  padding: 1.5rem;
+  border-radius: var(--zeev-fieb-radius-lg);
+}
+
+.zeev-form-container .zeev-header-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--zeev-fieb-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--zeev-fieb-border);
+}
+
+/* ==========================================================================
+   2. AGRUPAMENTO "DADOS PESSOAIS" (HIPÓTESE A SER VALIDADA NA FASE 0)
+   ========================================================================== */
+
+.zeev-form-container [data-group-name="Dados pessoais"],
+.zeev-form-container [data-group-id="dadosPessoais"],
+.zeev-form-container .zeev-group-dados-pessoais,
+.zeev-form-container fieldset.zeev-group {
+  background-color: var(--zeev-fieb-surface);
+  border: 1px solid var(--zeev-fieb-border);
+  border-radius: var(--zeev-fieb-radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--zeev-fieb-shadow-card);
+}
+
+.zeev-form-container [data-group-name="Dados pessoais"] > legend,
+.zeev-form-container [data-group-name="Dados pessoais"] > header,
+.zeev-form-container .zeev-group-title,
+.zeev-form-container fieldset.zeev-group > legend {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--zeev-fieb-primary);
+  padding: 0 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--zeev-fieb-primary-light);
+  display: block;
+  width: 100%;
+}
+
+.zeev-form-container .zeev-group-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .zeev-form-container .zeev-group-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ==========================================================================
+   3. SELETORES DE CAMPOS POR IDENTIFICADOR (HIPÓTESES PENDENTES DE DEVTOOLS)
+   ========================================================================== */
+
+/* Layout defensivo de wrapper de campo */
+.zeev-form-container .zeev-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.zeev-form-container .zeev-field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--zeev-fieb-text-main);
+}
+
+.zeev-form-container .zeev-field .help-text {
+  font-size: 0.75rem;
+  color: var(--zeev-fieb-text-muted);
+}
+
+/* Candidates por Identificador */
+.zeev-form-container [data-name="nomeCompleto"] textarea,
+.zeev-form-container [data-field-name="nomeCompleto"] textarea,
+.zeev-form-container [name="nomeCompleto"],
+.zeev-form-container #nomeCompleto {
+  min-height: 2.75rem;
+  resize: vertical;
+}
+
+.zeev-form-container [data-name="cpfCliente"] input,
+.zeev-form-container [data-field-name="cpfCliente"] input,
+.zeev-form-container [name="cpfCliente"],
+.zeev-form-container #cpfCliente {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.05em;
+}
+
+.zeev-form-container [data-name="nacionalidade"] textarea,
+.zeev-form-container [data-field-name="nacionalidade"] textarea,
+.zeev-form-container [name="nacionalidade"],
+.zeev-form-container #nacionalidade {
+  min-height: 2.5rem;
+}
+
+.zeev-form-container [data-name="estadoCivil"] select,
+.zeev-form-container [data-field-name="estadoCivil"] select,
+.zeev-form-container [name="estadoCivil"],
+.zeev-form-container #estadoCivil {
+  cursor: pointer;
+}
+
+.zeev-form-container [data-name="profissao"] textarea,
+.zeev-form-container [data-field-name="profissao"] textarea,
+.zeev-form-container [name="profissao"],
+.zeev-form-container #profissao {
+  min-height: 2.5rem;
+}
+
+.zeev-form-container [data-name="tipoDocumento"] select,
+.zeev-form-container [data-field-name="tipoDocumento"] select,
+.zeev-form-container [name="tipoDocumento"],
+.zeev-form-container #tipoDocumento {
+  cursor: pointer;
+}
+
+.zeev-form-container [data-name="numeroDocumento"] textarea,
+.zeev-form-container [data-field-name="numeroDocumento"] textarea,
+.zeev-form-container [name="numeroDocumento"],
+.zeev-form-container #numeroDocumento {
+  min-height: 2.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* ==========================================================================
+   4. INPUTS, TEXTAREAS, SELECTS & ACESSIBILIDADE DE FOCO (ESCOPADOS)
+   ========================================================================== */
+
+.zeev-form-container input[type="text"],
+.zeev-form-container input[type="number"],
+.zeev-form-container input[type="email"],
+.zeev-form-container textarea,
+.zeev-form-container select {
+  width: 100%;
+  background-color: var(--zeev-fieb-surface);
+  color: var(--zeev-fieb-text-main);
+  border: 1px solid var(--zeev-fieb-border);
+  border-radius: var(--zeev-fieb-radius-md);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  box-shadow: var(--zeev-fieb-shadow-subtle);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Indicador de Foco Acessível com :focus-visible */
+.zeev-form-container input:focus-visible,
+.zeev-form-container textarea:focus-visible,
+.zeev-form-container select:focus-visible {
+  outline: 2px solid var(--zeev-fieb-border-focus);
+  outline-offset: 1px;
+  border-color: var(--zeev-fieb-primary);
+  box-shadow: 0 0 0 3px rgba(0, 64, 133, 0.15);
+}
+
+/* Somente Leitura / Disabled */
+.zeev-form-container input:disabled,
+.zeev-form-container textarea:disabled,
+.zeev-form-container select:disabled,
+.zeev-form-container input[readonly],
+.zeev-form-container textarea[readonly] {
+  background-color: #f1f5f9;
+  color: var(--zeev-fieb-text-disabled);
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Preservar mensagens de erro nativas do Zeev */
+.zeev-form-container .has-error input,
+.zeev-form-container .has-error textarea,
+.zeev-form-container .has-error select,
+.zeev-form-container [aria-invalid="true"] {
+  border-color: #721c24;
+  background-color: #fef2f2;
+}
+
+.zeev-form-container .error-message,
+.zeev-form-container .field-error,
+.zeev-form-container .help-block.error {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #721c24;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* ==========================================================================
+   5. BOTÕES NA v0.1 (PRATICAMENTE NATIVOS — PENDENTE INSPECÇÃO DO DOM REAL)
+   ========================================================================== */
+
+.zeev-form-container .zeev-actions-bar,
+.zeev-form-container .form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--zeev-fieb-border);
+}
+
+.zeev-form-container .zeev-actions-bar button,
+.zeev-form-container .form-actions button {
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--zeev-fieb-radius-md);
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}

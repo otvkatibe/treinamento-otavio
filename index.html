@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zeev FIEB Theme - Mock & Teste Local v0.1.0</title>
+  <link rel="stylesheet" href="./dist/zeev-fieb.css">
+</head>
+<body style="background-color: #f1f5f9; padding: 20px; font-family: system-ui, sans-serif;">
+
+  <!-- Contêiner principal escopado do Zeev (sem classes Tailwind genéricas) -->
+  <div class="zeev-form-container">
+    
+    <div class="zeev-header-title">
+      Treinamento - Otávio Katibe (Fase 0 — Teste v0.1.0)
+    </div>
+
+    <!-- Agrupamento: Dados pessoais -->
+    <fieldset data-group-name="Dados pessoais" class="zeev-group-dados-pessoais">
+      <legend class="zeev-group-title">Dados pessoais</legend>
+      
+      <div class="zeev-group-grid">
+        
+        <!-- 1. Nome completo (nomeCompleto) - Área de texto -->
+        <div data-name="nomeCompleto" class="zeev-field">
+          <label for="nomeCompleto">Nome completo *</label>
+          <textarea id="nomeCompleto" name="nomeCompleto" rows="2" placeholder="Digite o nome completo">Otávio Katibe</textarea>
+          <span class="help-text">Hipótese de seletor: [data-name="nomeCompleto"] ou #nomeCompleto</span>
+        </div>
+
+        <!-- 2. CPF (cpfCliente) - CPF -->
+        <div data-name="cpfCliente" class="zeev-field">
+          <label for="cpfCliente">CPF *</label>
+          <input type="text" id="cpfCliente" name="cpfCliente" placeholder="000.000.000-00" value="123.456.789-00">
+          <span class="help-text">Hipótese de seletor: [data-name="cpfCliente"] ou #cpfCliente</span>
+        </div>
+
+        <!-- 3. Nacionalidade (nacionalidade) - Área de texto -->
+        <div data-name="nacionalidade" class="zeev-field">
+          <label for="nacionalidade">Nacionalidade</label>
+          <textarea id="nacionalidade" name="nacionalidade" rows="1" placeholder="Ex: Brasileira">Brasileira</textarea>
+        </div>
+
+        <!-- 4. Estado civil (estadoCivil) - Lista de seleção -->
+        <div data-name="estadoCivil" class="zeev-field">
+          <label for="estadoCivil">Estado civil</label>
+          <select id="estadoCivil" name="estadoCivil">
+            <option value="">Selecione...</option>
+            <option value="solteiro" selected>Solteiro(a)</option>
+            <option value="casado">Casado(a)</option>
+            <option value="divorciado">Divorciado(a)</option>
+            <option value="viuvo">Viúvo(a)</option>
+          </select>
+        </div>
+
+        <!-- 5. Profissão (profissao) - Área de texto -->
+        <div data-name="profissao" class="zeev-field">
+          <label for="profissao">Profissão</label>
+          <textarea id="profissao" name="profissao" rows="1" placeholder="Cargo ou ocupação">Analista de Sistemas</textarea>
+        </div>
+
+        <!-- 6. Tipo de documento (tipoDocumento) - Lista de seleção -->
+        <div data-name="tipoDocumento" class="zeev-field">
+          <label for="tipoDocumento">Tipo de documento</label>
+          <select id="tipoDocumento" name="tipoDocumento">
+            <option value="">Selecione...</option>
+            <option value="rg" selected>RG - Carteira de Identidade</option>
+            <option value="cnh">CNH - Carteira de Habilitação</option>
+          </select>
+        </div>
+
+        <!-- 7. Número do documento (numeroDocumento) - Área de texto -->
+        <div data-name="numeroDocumento" class="zeev-field">
+          <label for="numeroDocumento">Número do documento</label>
+          <textarea id="numeroDocumento" name="numeroDocumento" rows="1" placeholder="Número e emissor">12.345.678-9 SSP/BA</textarea>
+        </div>
+
+      </div>
+    </fieldset>
+
+    <!-- Demonstração de Erro e Disabled sem utilitários globais Tailwind -->
+    <fieldset class="zeev-group-dados-pessoais" style="margin-top: 1rem;">
+      <legend class="zeev-group-title">Validação & Read-only (Testes de Foco e Estado)</legend>
+      <div class="zeev-group-grid">
+        
+        <div class="zeev-field has-error">
+          <label for="campo-erro">Campo com erro nativo</label>
+          <input type="text" id="campo-erro" value="Valor inválido" aria-invalid="true">
+          <span class="error-message">Mensagem nativa de validação preservada.</span>
+        </div>
+
+        <div class="zeev-field">
+          <label for="campo-disabled">Campo desabilitado (Read-only / T02)</label>
+          <input type="text" id="campo-disabled" value="Somente leitura de homologação" disabled readonly>
+          <span class="help-text">Modo de visualização.</span>
+        </div>
+
+      </div>
+    </fieldset>
+
+    <!-- Barra de botões (v0.1 — estilo básico sem seletores frágeis por texto) -->
+    <div class="zeev-actions-bar">
+      <button type="submit" style="background-color: var(--zeev-fieb-primary); color: #fff; border: 1px solid var(--zeev-fieb-primary);">
+        Concluir (Submeter)
+      </button>
+
+      <button type="button" style="background-color: var(--zeev-fieb-surface); color: var(--zeev-fieb-secondary); border: 1px solid var(--zeev-fieb-border);">
+        Ação Secundária
+      </button>
+    </div>
+
+  </div>
+
+</body>
+</html>

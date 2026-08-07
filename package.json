@@ -1,0 +1,23 @@
+{
+  "name": "zeev-fieb-theme",
+  "version": "0.1.0",
+  "description": "Customização visual corporativa para aplicativo Zeev no ambiente h-Zeev (Sistema FIEB)",
+  "main": "dist/zeev-fieb.css",
+  "scripts": {
+    "dev": "npx @tailwindcss/cli -i ./src/zeev-fieb.css -o ./dist/zeev-fieb.css --watch",
+    "build": "npx @tailwindcss/cli -i ./src/zeev-fieb.css -o ./dist/zeev-fieb.css"
+  },
+  "keywords": [
+    "zeev",
+    "fieb",
+    "tailwind",
+    "theme",
+    "css"
+  ],
+  "author": "Otávio Katibe",
+  "license": "MIT",
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.3",
+    "tailwindcss": "4.3.3"
+  }
+}
