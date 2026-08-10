@@ -28,9 +28,30 @@ A suíte cobre automaticamente:
 
 Esses contratos não precisam ser repetidos manualmente em cada tarefa.
 
-## 2. Smoke check no h-Zeev
+## 2. Publicação, cache e integridade
 
-Depois de publicar e fazer reload completo com a chave de cache atual, execute uma vez por tela no console:
+Durante a homologação, o Zeev utiliza URLs estáveis, sem query string de versão:
+
+```html
+<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css">
+<script defer src="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.js"></script>
+```
+
+Após cada publicação, valide o conteúdo efetivamente servido pelo GitHub Pages comparando o SHA-256 remoto com o artefato local. Se o Pages ainda entregar a versão anterior por cache intermediário, aguarde a expiração do TTL antes de iniciar a homologação.
+
+O reload com cache desabilitado elimina somente o cache local do navegador; ele não invalida o cache intermediário do GitHub Pages.
+
+Artefatos associados ao commit `55fab2a4527b3454ae3bdf9290aeece33aafd72b`:
+
+- CSS v0.3.0: `ae21b34ed7c3137cbc65cc5834c10be300e44804b5f15222a8a2c92353dd1af0`;
+- JS v0.3.0: `c46580a803831f0a8ca36c7247b42de282f838f072d76375ae1c86cdbb325632`;
+- CSS rollback v0.2.1: `acd01866ad5a20f510d3cfbf331e1280ffef0ec8d24be6dc61e830983f28541e`.
+
+Esses hashes comprovam a integridade e identificam inequivocamente a versão homologada, mesmo com URLs estáveis.
+
+## 3. Smoke check no h-Zeev
+
+Depois de confirmar os hashes remotos e fazer reload completo com o cache local desabilitado, execute uma vez por tela no console:
 
 ```js
 const report = window.__ZEEV_FIEB__?.diagnostics();
@@ -51,7 +72,7 @@ O aceite determinístico exige `report.passed === true` e `report.status === "PA
 
 O smoke check deve ser executado após cada transição SPA para confirmar apenas que o runtime acompanhou a nova tarefa. T0–T5 devem retornar seus respectivos códigos.
 
-## 3. Validação humana reduzida
+## 4. Validação humana reduzida
 
 Validar manualmente somente o que o DOM não comprova adequadamente:
 
@@ -63,7 +84,7 @@ Validar manualmente somente o que o DOM não comprova adequadamente:
 - decisão de correção em T2, correção em T3 e retorno posterior ao fluxo aprovado;
 - preservação dos dados e regras de negócio após cada submit.
 
-## 4. Rollback
+## 5. Rollback
 
 Remova completamente o script, substitua o stylesheet pelo CSS v0.2.1 e publique a configuração:
 
@@ -82,6 +103,6 @@ Faça reload completo ignorando o cache antes de validar:
 
 O resultado esperado é `{ runtime: "undefined", roots: 0 }`.
 
-## 5. Futuro E2E
+## 6. Futuro E2E
 
 Esta fase não adiciona ferramenta E2E. Se uma etapa futura exigir automação de navegador, a dependência e sua versão exata deverão ser propostas antes da implementação, acompanhadas do comando `npm` completo e da justificativa para instalação manual pelo operador, conforme `AGENTS.md`.
