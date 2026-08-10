@@ -17,6 +17,9 @@
 
   <!-- Contêiner Real Confirmado no h-Zeev -->
   <div id="containerRequest">
+    <div class="page-title">
+      <h1>Solicitar registro</h1>
+    </div>
     
     <div id="ContainerForm">
       <div id="BoxFrmExecute">
@@ -54,7 +57,7 @@
                           xtype="TEXTAREA"
                           required="S"
                           autocomplete="off"
-                          class="form-control form-control-textarea">Otávio Katibe</textarea>
+                          class="form-control form-control-textarea"></textarea>
                       </td>
                     </tr>
 
@@ -72,7 +75,7 @@
                           data-fieldformat="TEXT"
                           class="form-control form-control-text"
                           value="123.456.789-00">
-                        <span class="form-text text-muted small">ex: máscara 000.000.000-00</span>
+                        <span class="form-text text-muted small">máscara 000.000.000-00</span>
                       </td>
                     </tr>
 
@@ -91,25 +94,25 @@
                       </td>
                     </tr>
 
-                    <!-- 4. Estado civil (estadoCivil) - CHECKBOXES REAIS -->
+                    <!-- 4. Estado civil (estadoCivil) - RADIO GROUP DE SELEÇÃO ÚNICA -->
                     <tr codgroup="7724">
                       <td id="td0estadoCivil" class="col0">Estado civil</td>
                       <td id="td1estadoCivil" class="col1" fieldkey="56958">
                         <div class="form-check">
-                          <input type="checkbox" id="chk_ec_1" data-name="estadoCivil" value="solteiro" class="form-check-input" checked>
-                          <label for="chk_ec_1" class="form-check-label">Solteiro(a)</label>
+                          <input type="radio" name="estadoCivil" id="radio_ec_1" data-name="estadoCivil" data-fieldformat="RADIO" value="solteiro" class="form-check-input" checked>
+                          <label for="radio_ec_1" class="form-check-label">Solteiro(a)</label>
                         </div>
                         <div class="form-check">
-                          <input type="checkbox" id="chk_ec_2" data-name="estadoCivil" value="casado" class="form-check-input">
-                          <label for="chk_ec_2" class="form-check-label">Casado(a)</label>
+                          <input type="radio" name="estadoCivil" id="radio_ec_2" data-name="estadoCivil" data-fieldformat="RADIO" value="casado" class="form-check-input">
+                          <label for="radio_ec_2" class="form-check-label">Casado(a)</label>
                         </div>
                         <div class="form-check">
-                          <input type="checkbox" id="chk_ec_3" data-name="estadoCivil" value="divorciado" class="form-check-input">
-                          <label for="chk_ec_3" class="form-check-label">Divorciado(a)</label>
+                          <input type="radio" name="estadoCivil" id="radio_ec_3" data-name="estadoCivil" data-fieldformat="RADIO" value="divorciado" class="form-check-input">
+                          <label for="radio_ec_3" class="form-check-label">Divorciado(a)</label>
                         </div>
                         <div class="form-check">
-                          <input type="checkbox" id="chk_ec_4" data-name="estadoCivil" value="viuvo" class="form-check-input">
-                          <label for="chk_ec_4" class="form-check-label">Viúvo(a)</label>
+                          <input type="radio" name="estadoCivil" id="radio_ec_4" data-name="estadoCivil" data-fieldformat="RADIO" value="viuvo" class="form-check-input">
+                          <label for="radio_ec_4" class="form-check-label">Viúvo(a)</label>
                         </div>
                       </td>
                     </tr>
@@ -125,29 +128,29 @@
                           data-name="profissao"
                           data-label="Profissão"
                           data-fieldformat="TEXTAREA"
-                          class="form-control form-control-textarea">Analista de Sistemas</textarea>
+                          class="form-control form-control-textarea"></textarea>
                       </td>
                     </tr>
 
-                    <!-- 6. Tipo de documento (tipoDocumento) - CHECKBOXES REAIS (CIN, RG, CNH, Passaporte) -->
+                    <!-- 6. Tipo de documento (tipoDocumento) - RADIO GROUP DE SELEÇÃO ÚNICA -->
                     <tr codgroup="7724">
                       <td id="td0tipoDocumento" class="col0">Tipo de documento</td>
                       <td id="td1tipoDocumento" class="col1" fieldkey="56960">
                         <div class="form-check">
-                          <input type="checkbox" id="chk_td_1" data-name="tipoDocumento" value="cin" class="form-check-input">
-                          <label for="chk_td_1" class="form-check-label">CIN</label>
+                          <input type="radio" name="tipoDocumento" id="radio_td_1" data-name="tipoDocumento" data-fieldformat="RADIO" value="cin" class="form-check-input">
+                          <label for="radio_td_1" class="form-check-label">CIN</label>
                         </div>
                         <div class="form-check">
-                          <input type="checkbox" id="chk_td_2" data-name="tipoDocumento" value="rg" class="form-check-input" checked>
-                          <label for="chk_td_2" class="form-check-label">RG</label>
+                          <input type="radio" name="tipoDocumento" id="radio_td_2" data-name="tipoDocumento" data-fieldformat="RADIO" value="rg" class="form-check-input" checked>
+                          <label for="radio_td_2" class="form-check-label">RG</label>
                         </div>
                         <div class="form-check">
-                          <input type="checkbox" id="chk_td_3" data-name="tipoDocumento" value="cnh" class="form-check-input">
-                          <label for="chk_td_3" class="form-check-label">CNH</label>
+                          <input type="radio" name="tipoDocumento" id="radio_td_3" data-name="tipoDocumento" data-fieldformat="RADIO" value="cnh" class="form-check-input">
+                          <label for="radio_td_3" class="form-check-label">CNH</label>
                         </div>
                         <div class="form-check">
-                          <input type="checkbox" id="chk_td_4" data-name="tipoDocumento" value="passaporte" class="form-check-input">
-                          <label for="chk_td_4" class="form-check-label">Passaporte</label>
+                          <input type="radio" name="tipoDocumento" id="radio_td_4" data-name="tipoDocumento" data-fieldformat="RADIO" value="passaporte" class="form-check-input">
+                          <label for="radio_td_4" class="form-check-label">Passaporte</label>
                         </div>
                       </td>
                     </tr>
@@ -163,7 +166,7 @@
                           data-name="numeroDocumento"
                           data-label="Número do documento"
                           data-fieldformat="TEXTAREA"
-                          class="form-control form-control-textarea">12.345.678-9 SSP/BA</textarea>
+                          class="form-control form-control-textarea"></textarea>
                       </td>
                     </tr>
 

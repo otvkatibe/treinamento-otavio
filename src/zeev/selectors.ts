@@ -1,5 +1,6 @@
 export const ZEEV_SELECTORS = {
   root: '#containerRequest',
+  taskTitle: '#containerRequest .page-title h1',
   controllers: '#controllers',
   buttons: '#buttons',
   sendButton: '#BtnSend',
