@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 
+import { act } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import type {
+  LifecycleReason,
+  ZeevFiebRuntime,
+} from '../types';
 
 function zeevMarkup(title = 'Solicitar registro'): string {
   return `
@@ -22,6 +28,32 @@ async function flushMutationObserver(): Promise<void> {
   await Promise.resolve();
 }
 
+function advanceTimersByTime(milliseconds: number): void {
+  act((): void => {
+    vi.advanceTimersByTime(milliseconds);
+  });
+}
+
+function runPendingTimers(): void {
+  act((): void => {
+    vi.runOnlyPendingTimers();
+  });
+}
+
+function syncWithAct(
+  sync: (reason?: LifecycleReason) => ZeevFiebRuntime,
+  reason: LifecycleReason = 'manual',
+): ZeevFiebRuntime {
+  let runtime: ZeevFiebRuntime | null = null;
+  act((): void => {
+    runtime = sync(reason);
+  });
+  if (!runtime) {
+    throw new Error('Lifecycle sync did not return a runtime');
+  }
+  return runtime;
+}
+
 beforeEach(() => {
   vi.useFakeTimers();
   document.body.innerHTML = '';
@@ -31,7 +63,7 @@ beforeEach(() => {
 
 afterEach(async () => {
   const { teardown } = await import('../lifecycle');
-  teardown();
+  act((): void => teardown());
   document.body.innerHTML = '';
   vi.restoreAllMocks();
   vi.useRealTimers();
@@ -49,7 +81,7 @@ describe('lifecycle SPA', () => {
     await import('../../main');
 
     expect(window.__ZEEV_FIEB__?.initialized).toBe(true);
-    vi.advanceTimersByTime(100);
+    advanceTimersByTime(100);
     expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
   });
 
@@ -61,12 +93,13 @@ describe('lifecycle SPA', () => {
     const firstRuntime = boot();
     const observer = firstRuntime.observer;
     const secondRuntime = boot();
-    vi.advanceTimersByTime(100);
+    advanceTimersByTime(100);
 
     expect(secondRuntime).toBe(firstRuntime);
     expect(secondRuntime.observer).toBe(observer);
     expect(secondRuntime.initialized).toBe(true);
-    expect(secondRuntime.reactRoot).toBeNull();
+    expect(secondRuntime.reactRoot).not.toBeNull();
+    expect(secondRuntime.reactMountElement).toBe(secondRuntime.mountElement);
     expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
     expect(document.querySelector('#zeev-fieb-root')?.nextElementSibling?.id).toBe(
       'ContainerForm',
@@ -83,11 +116,15 @@ describe('lifecycle SPA', () => {
     renderZeevDom();
     const { sync } = await import('../lifecycle');
 
-    sync('manual');
-    sync('manual');
-    const runtime = sync('manual');
+    const nativeForm = document.querySelector('#ContainerForm');
+    const firstRuntime = syncWithAct(sync);
+    const firstReactRoot = firstRuntime.reactRoot;
+    syncWithAct(sync);
+    const runtime = syncWithAct(sync);
 
     expect(runtime.syncCount).toBe(3);
+    expect(runtime.reactRoot).toBe(firstReactRoot);
+    expect(document.querySelector('#ContainerForm')).toBe(nativeForm);
     expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
   });
 
@@ -99,7 +136,7 @@ describe('lifecycle SPA', () => {
     );
     const { sync } = await import('../lifecycle');
 
-    const runtime = sync('manual');
+    const runtime = syncWithAct(sync);
 
     expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
     expect(runtime.mountElement?.nextElementSibling?.id).toBe('ContainerForm');
@@ -110,10 +147,10 @@ describe('lifecycle SPA', () => {
     const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined);
     const { sync } = await import('../lifecycle');
 
-    sync('manual');
+    syncWithAct(sync);
     const title = document.querySelector('.page-title h1');
     if (title) title.textContent = 'T01 - Fazer o cadastro';
-    const runtime = sync('manual');
+    const runtime = syncWithAct(sync);
 
     expect(runtime.currentTask?.code).toBe('T1');
     expect(runtime.viewSignature?.title).toBe('T01 - Fazer o cadastro');
@@ -126,18 +163,21 @@ describe('lifecycle SPA', () => {
     renderZeevDom();
     const { sync } = await import('../lifecycle');
 
-    const initialRuntime = sync('manual');
+    const initialRuntime = syncWithAct(sync);
     const initialRoot = initialRuntime.viewSignature?.root;
     const initialMount = initialRuntime.mountElement;
+    const initialReactRoot = initialRuntime.reactRoot;
     document.querySelector('#containerRequest')?.remove();
     document.body.insertAdjacentHTML(
       'beforeend',
       zeevMarkup('T01 - Fazer o cadastro'),
     );
-    const updatedRuntime = sync('manual');
+    const updatedRuntime = syncWithAct(sync);
 
     expect(updatedRuntime.viewSignature?.root).not.toBe(initialRoot);
     expect(updatedRuntime.mountElement).not.toBe(initialMount);
+    expect(updatedRuntime.reactRoot).not.toBe(initialReactRoot);
+    expect(updatedRuntime.reactMountElement).toBe(updatedRuntime.mountElement);
     expect(initialMount?.isConnected).toBe(false);
     expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
     expect(updatedRuntime.currentTask?.code).toBe('T1');
@@ -148,18 +188,18 @@ describe('lifecycle SPA', () => {
     const { boot } = await import('../lifecycle');
 
     const runtime = boot();
-    vi.advanceTimersByTime(100);
+    advanceTimersByTime(100);
     await flushMutationObserver();
-    vi.runOnlyPendingTimers();
+    runPendingTimers();
     const countBeforeMutation = runtime.syncCount;
 
     const title = document.querySelector('.page-title h1');
     if (title) title.textContent = 'T02 - Validar o cadastro';
     await flushMutationObserver();
 
-    vi.advanceTimersByTime(99);
+    advanceTimersByTime(99);
     expect(runtime.syncCount).toBe(countBeforeMutation);
-    vi.advanceTimersByTime(1);
+    advanceTimersByTime(1);
     expect(runtime.syncCount).toBe(countBeforeMutation + 1);
     expect(runtime.currentTask?.code).toBe('T2');
   });
@@ -169,15 +209,15 @@ describe('lifecycle SPA', () => {
     const { boot } = await import('../lifecycle');
 
     const runtime = boot();
-    vi.advanceTimersByTime(100);
+    advanceTimersByTime(100);
     const initialCount = runtime.syncCount;
 
     window.dispatchEvent(new PopStateEvent('popstate'));
-    vi.advanceTimersByTime(100);
+    advanceTimersByTime(100);
     expect(runtime.syncCount).toBe(initialCount + 1);
 
     window.dispatchEvent(new HashChangeEvent('hashchange'));
-    vi.advanceTimersByTime(100);
+    advanceTimersByTime(100);
     expect(runtime.syncCount).toBe(initialCount + 2);
   });
 
@@ -193,7 +233,7 @@ describe('lifecycle SPA', () => {
     body.innerHTML = zeevMarkup();
     document.documentElement.append(body);
     document.dispatchEvent(new Event('DOMContentLoaded'));
-    vi.advanceTimersByTime(100);
+    advanceTimersByTime(100);
 
     expect(runtime.initialized).toBe(true);
     expect(runtime.domReadyHandler).toBeNull();
@@ -207,13 +247,13 @@ describe('lifecycle SPA', () => {
     const { boot, teardown } = await import('../lifecycle');
 
     const runtime = boot();
-    vi.advanceTimersByTime(100);
+    advanceTimersByTime(100);
     const observer = runtime.observer;
     const disconnectSpy = observer
       ? vi.spyOn(observer, 'disconnect')
       : undefined;
 
-    teardown();
+    act((): void => teardown());
 
     expect(disconnectSpy).toHaveBeenCalledOnce();
     expect(removeEventListenerSpy).toHaveBeenCalledWith(
@@ -225,7 +265,83 @@ describe('lifecycle SPA', () => {
       expect.any(Function),
     );
     expect(window.__ZEEV_FIEB__).toBeUndefined();
+    expect(runtime.reactRoot).toBeNull();
+    expect(runtime.reactMountElement).toBeNull();
     expect(document.querySelector('#zeev-fieb-root')).toBeNull();
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('autorrecupera mount e React root removidos externamente', async () => {
+    renderZeevDom();
+    const { sync } = await import('../lifecycle');
+
+    const initialRuntime = syncWithAct(sync);
+    const initialMount = initialRuntime.mountElement;
+    const initialReactRoot = initialRuntime.reactRoot;
+    initialMount?.remove();
+
+    const recoveredRuntime = syncWithAct(sync);
+
+    expect(recoveredRuntime.mountElement).not.toBe(initialMount);
+    expect(recoveredRuntime.reactRoot).not.toBe(initialReactRoot);
+    expect(recoveredRuntime.reactMountElement).toBe(recoveredRuntime.mountElement);
+    expect(recoveredRuntime.mountElement?.isConnected).toBe(true);
+    expect(
+      recoveredRuntime.mountElement?.querySelector(
+        '[data-zeev-fieb-island="true"]',
+      ),
+    ).not.toBeNull();
+    expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
+  });
+
+  it('recria o React root quando o conteúdo da Island é removido', async () => {
+    renderZeevDom();
+    const { sync } = await import('../lifecycle');
+
+    const initialRuntime = syncWithAct(sync);
+    const mountElement = initialRuntime.mountElement;
+    const initialReactRoot = initialRuntime.reactRoot;
+    mountElement?.replaceChildren();
+
+    const recoveredRuntime = syncWithAct(sync);
+
+    expect(recoveredRuntime.mountElement).toBe(mountElement);
+    expect(recoveredRuntime.reactRoot).not.toBe(initialReactRoot);
+    expect(recoveredRuntime.reactMountElement).toBe(mountElement);
+    expect(
+      mountElement?.querySelector('[data-zeev-fieb-island="true"]'),
+    ).not.toBeNull();
+  });
+
+  it('recria o React root quando a associação com o mount é inválida', async () => {
+    renderZeevDom();
+    const { sync } = await import('../lifecycle');
+
+    const initialRuntime = syncWithAct(sync);
+    const initialReactRoot = initialRuntime.reactRoot;
+    initialRuntime.reactMountElement = document.createElement('div');
+
+    const recoveredRuntime = syncWithAct(sync);
+
+    expect(recoveredRuntime.reactRoot).not.toBe(initialReactRoot);
+    expect(recoveredRuntime.reactMountElement).toBe(recoveredRuntime.mountElement);
+  });
+
+  it('recupera a perda da referência pública sem manter dois roots', async () => {
+    renderZeevDom();
+    const { sync } = await import('../lifecycle');
+
+    const initialRuntime = syncWithAct(sync);
+    const initialReactRoot = initialRuntime.reactRoot;
+    initialRuntime.reactRoot = null;
+
+    const recoveredRuntime = syncWithAct(sync);
+
+    expect(recoveredRuntime.reactRoot).not.toBeNull();
+    expect(recoveredRuntime.reactRoot).not.toBe(initialReactRoot);
+    expect(recoveredRuntime.reactMountElement).toBe(recoveredRuntime.mountElement);
+    expect(document.querySelectorAll('[data-zeev-fieb-island="true"]')).toHaveLength(
+      1,
+    );
   });
 });

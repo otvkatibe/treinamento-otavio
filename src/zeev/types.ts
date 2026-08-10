@@ -20,6 +20,7 @@ export interface TaskMetadata {
   code: TaskCode;
   title: string;
   label: string;
+  heading: string;
   description: string;
   stepIndex: number;
   conditional: boolean;
@@ -72,6 +73,8 @@ export interface ZeevFiebRuntime {
   initialized: boolean;
   observer: MutationObserver | null;
   reactRoot: Root | null;
+  reactMountElement: HTMLElement | null;
+  reactContentNodes: readonly Node[];
   mountElement: HTMLElement | null;
   currentTask: TaskContext | null;
   viewSignature: ViewSignature | null;

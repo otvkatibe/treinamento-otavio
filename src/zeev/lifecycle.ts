@@ -1,5 +1,6 @@
 import { zeevAdapter } from './adapter';
 import { ZEEV_SELECTORS } from './selectors';
+import { renderIsland, unmountIsland } from '../ui/render-island';
 import type {
   LifecycleReason,
   TaskContext,
@@ -18,6 +19,8 @@ function createRuntime(): ZeevFiebRuntime {
     initialized: false,
     observer: null,
     reactRoot: null,
+    reactMountElement: null,
+    reactContentNodes: [],
     mountElement: null,
     currentTask: null,
     viewSignature: null,
@@ -167,10 +170,18 @@ export function sync(reason: LifecycleReason = 'manual'): ZeevFiebRuntime {
   const startedAt = performance.now();
   const previousSignature = runtime.viewSignature;
   const previousTask = runtime.currentTask;
+  const previousMountElement = runtime.mountElement;
 
   console.info(`${LOG_PREFIX} sync`, reason);
 
-  runtime.mountElement = ensureMountPoint();
+  const nextMountElement = ensureMountPoint();
+  const mountChanged = previousMountElement !== nextMountElement;
+
+  if (mountChanged && (runtime.reactRoot || runtime.reactMountElement)) {
+    unmountIsland(runtime);
+  }
+
+  runtime.mountElement = nextMountElement;
   runtime.currentTask = zeevAdapter.getCurrentTask();
   runtime.viewSignature = createViewSignature();
   runtime.syncCount += 1;
@@ -189,6 +200,8 @@ export function sync(reason: LifecycleReason = 'manual'): ZeevFiebRuntime {
     );
   }
 
+  renderIsland(runtime, viewChanged || mountChanged);
+
   runtime.lastSyncDuration = performance.now() - startedAt;
   return runtime;
 }
@@ -201,6 +214,7 @@ export function teardown(): void {
       window.clearTimeout(runtime.syncTimer);
     }
     runtime.observer?.disconnect();
+    unmountIsland(runtime);
 
     if (runtime.popstateHandler) {
       window.removeEventListener('popstate', runtime.popstateHandler);
@@ -215,6 +229,8 @@ export function teardown(): void {
     runtime.initialized = false;
     runtime.observer = null;
     runtime.reactRoot = null;
+    runtime.reactMountElement = null;
+    runtime.reactContentNodes = [];
     runtime.mountElement = null;
     runtime.currentTask = null;
     runtime.viewSignature = null;
