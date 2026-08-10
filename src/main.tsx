@@ -8,13 +8,20 @@ export { App } from './ui/App';
 export { muiTheme } from './theme/mui-theme';
 export { tokens } from './theme/tokens';
 export { zeevAdapter } from './zeev/adapter';
+export { runDiagnostics } from './zeev/diagnostics';
 export { ZEEV_FIELDS } from './zeev/fields';
 export { boot, scheduleSync, sync, teardown } from './zeev/lifecycle';
 export { ZEEV_SELECTORS } from './zeev/selectors';
 export { getTaskByTitle, normalizeTaskTitle, TASK_CODES, TASKS } from './zeev/tasks';
 export type {
   AppState,
+  DiagnosticCheck,
+  DiagnosticStatus,
+  DiagnosticValue,
+  FieldDiagnostic,
   LifecycleReason,
+  RadioGroupDiagnostic,
+  SendButtonDiagnostic,
   TaskCode,
   TaskContext,
   TaskMetadata,
@@ -22,6 +29,7 @@ export type {
   VisualConfig,
   ZeevElements,
   ZeevFiebRuntime,
+  ZeevFiebDiagnostics,
   ZeevFieldElement,
   ZeevFieldName,
 } from './zeev/types';

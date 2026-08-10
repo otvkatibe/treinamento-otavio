@@ -15,6 +15,9 @@ function zeevMarkup(title = 'Solicitar registro'): string {
       <section class="main-col">
         <div id="ContainerForm"><form id="FrmExecute"></form></div>
       </section>
+      <div id="controllers">
+        <div id="buttons"><button id="BtnSend">Enviar</button></div>
+      </div>
     </div>
   `;
 }
@@ -117,6 +120,7 @@ describe('lifecycle SPA', () => {
     const { sync } = await import('../lifecycle');
 
     const nativeForm = document.querySelector('#ContainerForm');
+    const nativeSendButton = document.querySelector('#BtnSend');
     const firstRuntime = syncWithAct(sync);
     const firstReactRoot = firstRuntime.reactRoot;
     syncWithAct(sync);
@@ -125,6 +129,7 @@ describe('lifecycle SPA', () => {
     expect(runtime.syncCount).toBe(3);
     expect(runtime.reactRoot).toBe(firstReactRoot);
     expect(document.querySelector('#ContainerForm')).toBe(nativeForm);
+    expect(document.querySelector('#BtnSend')).toBe(nativeSendButton);
     expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
   });
 

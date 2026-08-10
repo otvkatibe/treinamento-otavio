@@ -14,6 +14,7 @@ function renderZeevDom(title: string): void {
         <div id="BoxFrmExecute">
           <form id="FrmExecute">
             <input type="text" data-name="nomeCompleto" data-fieldformat="TEXT" value="Maria">
+            <input type="text" data-name="cpfCliente" data-fieldformat="TEXT" value="000.000.000-00">
             <input type="text" data-name="nacionalidade" data-fieldformat="TEXT" value="Brasileira">
             <input type="text" data-name="profissao" data-fieldformat="TEXT" value="Analista">
             <input type="text" data-name="numeroDocumento" data-fieldformat="TEXT" value="123456">
@@ -62,16 +63,24 @@ describe('zeevAdapter', () => {
   it('consulta os campos de texto e todas as opções dos radio groups dentro do formulário', () => {
     renderZeevDom('Solicitar registro');
 
+    const textFields = [
+      'nomeCompleto',
+      'cpfCliente',
+      'nacionalidade',
+      'profissao',
+      'numeroDocumento',
+    ] as const;
+
     expect(zeevAdapter.getField('nomeCompleto')).toBeInstanceOf(HTMLInputElement);
     expect(zeevAdapter.getField('nomeCompleto')?.getAttribute('value')).toBe('Maria');
-    expect(zeevAdapter.getFields('nomeCompleto')).toHaveLength(1);
-    expect(zeevAdapter.getField('nacionalidade')).toBeInstanceOf(HTMLInputElement);
-    expect(zeevAdapter.getField('nacionalidade')?.getAttribute('type')).toBe('text');
-    expect(zeevAdapter.getField('profissao')?.getAttribute('type')).toBe('text');
-    expect(zeevAdapter.getField('numeroDocumento')?.getAttribute('type')).toBe('text');
-    expect(zeevAdapter.getFields('nacionalidade')).toHaveLength(1);
-    expect(zeevAdapter.getFields('profissao')).toHaveLength(1);
-    expect(zeevAdapter.getFields('numeroDocumento')).toHaveLength(1);
+    textFields.forEach((name) => {
+      expect(zeevAdapter.getField(name)).toBeInstanceOf(HTMLInputElement);
+      expect(zeevAdapter.getField(name)?.getAttribute('type')).toBe('text');
+      expect(zeevAdapter.getField(name)?.getAttribute('data-fieldformat')).toBe(
+        'TEXT',
+      );
+      expect(zeevAdapter.getFields(name)).toHaveLength(1);
+    });
     expect(zeevAdapter.getFields('estadoCivil')).toHaveLength(2);
     expect(zeevAdapter.getFields('tipoDocumento')).toHaveLength(2);
   });

@@ -68,6 +68,62 @@ export interface ViewSignature {
   root: HTMLElement | null;
 }
 
+export type DiagnosticStatus = 'PASS' | 'FAIL';
+
+export type DiagnosticValue = string | number | boolean | null;
+
+export interface DiagnosticCheck {
+  id: string;
+  label: string;
+  status: DiagnosticStatus;
+  expected: DiagnosticValue;
+  observed: DiagnosticValue;
+}
+
+export interface FieldDiagnostic {
+  name: ZeevFieldName;
+  present: boolean;
+  elementCount: number;
+  tagName: string | null;
+  inputType: string | null;
+  fieldFormat: string | null;
+  height: string | null;
+  boxSizing: string | null;
+  maxWidth: string | null;
+}
+
+export interface RadioGroupDiagnostic {
+  name: 'estadoCivil' | 'tipoDocumento';
+  optionCount: number;
+  checkedCount: number;
+  selectedValue: string | null;
+}
+
+export interface SendButtonDiagnostic {
+  present: boolean;
+  tagName: string | null;
+  id: string | null;
+  disabled: boolean | null;
+}
+
+export interface ZeevFiebDiagnostics {
+  status: DiagnosticStatus;
+  generatedAt: string;
+  version: string | null;
+  initialized: boolean;
+  task: {
+    code: TaskCode | null;
+    title: string | null;
+    known: boolean;
+  };
+  rootCount: number;
+  mountBefore: string | null;
+  fields: readonly FieldDiagnostic[];
+  radioGroups: readonly RadioGroupDiagnostic[];
+  sendButton: SendButtonDiagnostic;
+  checks: readonly DiagnosticCheck[];
+}
+
 export interface ZeevFiebRuntime {
   version: string;
   initialized: boolean;
@@ -85,6 +141,7 @@ export interface ZeevFiebRuntime {
   popstateHandler: EventListener | null;
   hashchangeHandler: EventListener | null;
   domReadyHandler: EventListener | null;
+  diagnostics: () => ZeevFiebDiagnostics;
 }
 
 declare global {

@@ -1,4 +1,5 @@
 import { zeevAdapter } from './adapter';
+import { runDiagnostics } from './diagnostics';
 import { ZEEV_SELECTORS } from './selectors';
 import { renderIsland, unmountIsland } from '../ui/render-island';
 import type {
@@ -31,6 +32,7 @@ function createRuntime(): ZeevFiebRuntime {
     popstateHandler: null,
     hashchangeHandler: null,
     domReadyHandler: null,
+    diagnostics: runDiagnostics,
   };
 }
 
