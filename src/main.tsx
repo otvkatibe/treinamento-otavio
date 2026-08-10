@@ -20,6 +20,7 @@ export type {
   DiagnosticValue,
   FieldDiagnostic,
   LifecycleReason,
+  MountDiagnostic,
   RadioGroupDiagnostic,
   SendButtonDiagnostic,
   TaskCode,

@@ -106,7 +106,15 @@ export interface SendButtonDiagnostic {
   disabled: boolean | null;
 }
 
+export interface MountDiagnostic {
+  count: number;
+  id: string | null;
+  connected: boolean;
+  before: string | null;
+}
+
 export interface ZeevFiebDiagnostics {
+  passed: boolean;
   status: DiagnosticStatus;
   generatedAt: string;
   version: string | null;
@@ -118,6 +126,7 @@ export interface ZeevFiebDiagnostics {
   };
   rootCount: number;
   mountBefore: string | null;
+  mount: MountDiagnostic;
   fields: readonly FieldDiagnostic[];
   radioGroups: readonly RadioGroupDiagnostic[];
   sendButton: SendButtonDiagnostic;

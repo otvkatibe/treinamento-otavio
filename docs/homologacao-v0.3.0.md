@@ -47,7 +47,7 @@ O relatório contém:
 - quantidade de opções e radios marcados por grupo;
 - presença, tipo e estado disabled do `#BtnSend`.
 
-O aceite determinístico exige `report.status === "PASS"`. Em caso de `FAIL`, exporte o objeto inteiro e registre os checks reprovados; não repita manualmente cada consulta DOM.
+O aceite determinístico exige `report.passed === true` e `report.status === "PASS"`. Em caso de `FAIL`, exporte o objeto inteiro e registre os checks reprovados; não repita manualmente cada consulta DOM.
 
 O smoke check deve ser executado após cada transição SPA para confirmar apenas que o runtime acompanhou a nova tarefa. T0–T5 devem retornar seus respectivos códigos.
 

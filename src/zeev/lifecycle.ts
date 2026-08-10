@@ -37,8 +37,10 @@ function createRuntime(): ZeevFiebRuntime {
 }
 
 function getOrCreateRuntime(): ZeevFiebRuntime {
-  window.__ZEEV_FIEB__ ??= createRuntime();
-  return window.__ZEEV_FIEB__;
+  const runtime = window.__ZEEV_FIEB__ ?? createRuntime();
+  runtime.diagnostics = runDiagnostics;
+  window.__ZEEV_FIEB__ = runtime;
+  return runtime;
 }
 
 function initialize(runtime: ZeevFiebRuntime): void {

@@ -70,6 +70,8 @@ describe('diagnóstico de homologação', () => {
     const report = runtime.diagnostics();
 
     expect(window.__ZEEV_FIEB__?.diagnostics).toBe(runtime.diagnostics);
+    expect(typeof window.__ZEEV_FIEB__?.diagnostics).toBe('function');
+    expect(report.passed).toBe(true);
     expect(report.status).toBe('PASS');
     expect(report.task).toEqual({
       code: 'T0',
@@ -79,6 +81,12 @@ describe('diagnóstico de homologação', () => {
     expect(report.initialized).toBe(true);
     expect(report.rootCount).toBe(1);
     expect(report.mountBefore).toBe('ContainerForm');
+    expect(report.mount).toEqual({
+      count: 1,
+      id: 'zeev-fieb-root',
+      connected: true,
+      before: 'ContainerForm',
+    });
     expect(report.fields).toHaveLength(7);
     expect(report.radioGroups).toEqual([
       {
@@ -147,6 +155,7 @@ describe('diagnóstico de homologação', () => {
       .map(({ id }) => id);
 
     expect(report.status).toBe('FAIL');
+    expect(report.passed).toBe(false);
     expect(failedChecks).toEqual(
       expect.arrayContaining([
         'mount.unique',

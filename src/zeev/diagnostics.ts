@@ -227,6 +227,7 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
   );
 
   return {
+    passed: overallStatus === 'PASS',
     status: overallStatus,
     generatedAt: new Date().toISOString(),
     version: runtime?.version ?? null,
@@ -238,6 +239,12 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
     },
     rootCount: mounts.length,
     mountBefore: mount?.nextElementSibling?.id ?? null,
+    mount: {
+      count: mounts.length,
+      id: mount?.id ?? null,
+      connected: mount?.isConnected ?? false,
+      before: mount?.nextElementSibling?.id ?? null,
+    },
     fields,
     radioGroups,
     sendButton: {
