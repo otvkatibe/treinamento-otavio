@@ -28,7 +28,11 @@ export function App({
     <StyledEngineProvider enableCssLayer>
       <ThemeProvider theme={muiTheme}>
         <ScopedCssBaseline>
-          <Box data-zeev-fieb-island="true" sx={{ mb: 2 }}>
+          <Box
+            data-zeev-fieb-island="true"
+            data-zeev-fieb-task-known={task ? 'true' : 'false'}
+            sx={{ mb: 2 }}
+          >
             {task ? (
               <Paper
                 component="section"

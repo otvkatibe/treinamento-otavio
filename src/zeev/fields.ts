@@ -8,17 +8,20 @@ interface ZeevFieldDefinition {
 
 export const ZEEV_FIELDS = {
   nomeCompleto: {
-    selector: '[data-name="nomeCompleto"]',
+    selector:
+      'input[type="text"][data-name="nomeCompleto"][data-fieldformat="TEXT"]',
     valueCardinality: 'single',
     structure: 'control',
   },
   cpfCliente: {
-    selector: '[data-name="cpfCliente"]',
+    selector:
+      'input[type="text"][data-name="cpfCliente"][data-fieldformat="TEXT"]',
     valueCardinality: 'single',
     structure: 'control',
   },
   nacionalidade: {
-    selector: '[data-name="nacionalidade"]',
+    selector:
+      'input[type="text"][data-name="nacionalidade"][data-fieldformat="TEXT"]',
     valueCardinality: 'single',
     structure: 'control',
   },
@@ -29,7 +32,8 @@ export const ZEEV_FIELDS = {
     structure: 'radio-group',
   },
   profissao: {
-    selector: '[data-name="profissao"]',
+    selector:
+      'input[type="text"][data-name="profissao"][data-fieldformat="TEXT"]',
     valueCardinality: 'single',
     structure: 'control',
   },
@@ -40,7 +44,8 @@ export const ZEEV_FIELDS = {
     structure: 'radio-group',
   },
   numeroDocumento: {
-    selector: '[data-name="numeroDocumento"]',
+    selector:
+      'input[type="text"][data-name="numeroDocumento"][data-fieldformat="TEXT"]',
     valueCardinality: 'single',
     structure: 'control',
   },

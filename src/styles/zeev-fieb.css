@@ -5,7 +5,7 @@
 
 /* ==========================================================================
    PALETA PROVISÓRIA — substituir por tokens oficiais FIEB
-   Tema Visual Corporativo para Zeev (Ambiente h-Zeev v0.2.1)
+   Tema Visual Corporativo para Zeev (Ambiente h-Zeev v0.3.0)
    Processo: Treinamento - Otávio Katibe
    ========================================================================== */
 
@@ -36,29 +36,24 @@
 }
 
 /* ==========================================================================
-   DEBUG EXTERNAL CSS — REMOVER APÓS HOMOLOGAÇÃO
-   ========================================================================== */
-#containerRequest::before {
-  content: "Tema FIEB v0.2.1 • CSS externo ativo";
-  display: block;
-  background-color: var(--zeev-fieb-primary);
-  color: #ffffff;
-  font-size: 0.75rem;
-  font-weight: 600;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  text-align: center;
-  padding: 4px 12px;
-  border-bottom: 2px solid #38bdf8;
-  margin-bottom: 12px;
-}
-
-/* ==========================================================================
    1. ESTRUTURA GLOBAL E CONTÊINERES CONFIRMADOS DO H-ZEEV
    ========================================================================== */
 
 #containerRequest {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--zeev-fieb-text-main);
+}
+
+/* A Island MUI assume o cabeçalho somente para tarefas conhecidas. */
+#containerRequest:has(
+  #zeev-fieb-root [data-zeev-fieb-task-known="true"]
+) .page-title {
+  display: none;
+}
+
+#containerRequest #zeev-fieb-root {
+  position: relative;
+  z-index: 1;
 }
 
 /* Agrupamento: Dados pessoais (CONFIRMADO: data-groupid="7724") */
@@ -102,7 +97,7 @@
    2. CAMPOS DE TEXTO E TEXTAREAS (ESCOPADOS SOB #FrmExecute)
    ========================================================================== */
 
-#containerRequest #FrmExecute :is(
+#containerRequest #FrmExecute input[type="text"]:is(
   [data-name="nomeCompleto"],
   [data-name="cpfCliente"],
   [data-name="nacionalidade"],
@@ -110,9 +105,12 @@
   [data-name="numeroDocumento"]
 ) {
   @apply bg-white border border-slate-300 rounded-md text-slate-800 text-sm px-3 py-2 transition-colors duration-150 ease-in-out shadow-xs w-full;
+  box-sizing: border-box;
+  height: 40px;
+  max-width: 100%;
 }
 
-#containerRequest #FrmExecute :is(
+#containerRequest #FrmExecute input[type="text"]:is(
   [data-name="nomeCompleto"],
   [data-name="cpfCliente"],
   [data-name="nacionalidade"],
@@ -122,16 +120,18 @@
   @apply outline-2 outline-blue-900 outline-offset-1 border-blue-800 shadow-md;
 }
 
-/* Ajuste de Altura Compacta para Textareas sem Alterar Atributos HTML */
-#containerRequest #FrmExecute textarea:is(
-  [data-name="nomeCompleto"],
-  [data-name="nacionalidade"],
-  [data-name="profissao"],
-  [data-name="numeroDocumento"]
-) {
-  min-height: 2.75rem;
+/* Suporte genérico para futuros campos Zeev que realmente usem textarea. */
+#containerRequest #FrmExecute textarea {
+  @apply bg-white border border-slate-300 rounded-md text-slate-800 text-sm px-3 py-2 transition-colors duration-150 ease-in-out shadow-xs w-full;
+  box-sizing: border-box;
+  min-height: 48px;
   max-height: 8rem;
+  max-width: 100%;
   resize: vertical;
+}
+
+#containerRequest #FrmExecute textarea:focus-visible {
+  @apply outline-2 outline-blue-900 outline-offset-1 border-blue-800 shadow-md;
 }
 
 /* Mensagem Auxiliar do CPF (CONFIRMADO: #td1cpfCliente .form-text) */
@@ -143,7 +143,7 @@
 }
 
 /* ==========================================================================
-   3. CHECKBOXES REAIS (estadoCivil E tipoDocumento)
+   3. RADIOS DE SELEÇÃO ÚNICA (estadoCivil E tipoDocumento)
    ========================================================================== */
 
 #containerRequest #td1estadoCivil .form-check,
@@ -153,17 +153,39 @@
   gap: 0.5rem;
   margin-right: 1.25rem;
   margin-bottom: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--zeev-fieb-radius-md);
+  padding: 0.375rem 0.5rem;
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
 
-#containerRequest input[type="checkbox"]:is(
+#containerRequest input[type="radio"][data-fieldformat="RADIO"]:is(
   [data-name="estadoCivil"],
   [data-name="tipoDocumento"]
 ) {
   width: 1.125rem;
   height: 1.125rem;
   accent-color: var(--zeev-fieb-primary);
-  border-radius: var(--zeev-fieb-radius-sm);
+  border-radius: 50%;
   cursor: pointer;
+}
+
+#containerRequest input[type="radio"][data-fieldformat="RADIO"]:is(
+  [data-name="estadoCivil"],
+  [data-name="tipoDocumento"]
+):focus-visible {
+  outline: 2px solid var(--zeev-fieb-primary);
+  outline-offset: 2px;
+}
+
+#containerRequest #td1estadoCivil .form-check:has(
+  input[type="radio"][data-fieldformat="RADIO"]:checked
+),
+#containerRequest #td1tipoDocumento .form-check:has(
+  input[type="radio"][data-fieldformat="RADIO"]:checked
+) {
+  background-color: var(--zeev-fieb-primary-light);
+  border-color: var(--zeev-fieb-primary);
 }
 
 #containerRequest #td1estadoCivil .form-check-label,
@@ -243,4 +265,49 @@
   border-radius: var(--zeev-fieb-radius-md);
   border: 1px solid var(--zeev-fieb-border);
   margin-top: 1rem;
+}
+
+/* ==========================================================================
+   7. AJUSTES RESPONSIVOS PARA O FORMULÁRIO NATIVO
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  #containerRequest #FrmExecute [data-groupid="7724"] {
+    padding: 0.875rem;
+  }
+
+  #containerRequest #controllers {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 720px) {
+  #containerRequest #FrmExecute tr[codgroup="7724"] {
+    display: block;
+  }
+
+  #containerRequest #FrmExecute tr[codgroup="7724"] > td.col0,
+  #containerRequest #FrmExecute tr[codgroup="7724"] > td.col1 {
+    display: block;
+    width: 100%;
+  }
+
+  #containerRequest #FrmExecute tr[codgroup="7724"] > td.col0 {
+    padding: 0.75rem 0 0.25rem;
+  }
+
+  #containerRequest #td1estadoCivil .form-check,
+  #containerRequest #td1tipoDocumento .form-check {
+    margin-right: 0.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  #containerRequest #buttons {
+    width: 100%;
+  }
+
+  #containerRequest #BtnSend {
+    width: 100%;
+  }
 }

@@ -36,6 +36,10 @@ describe('React Island', () => {
       screen.getByText(`Etapa ${task.stepIndex + 1} de ${TASKS.length}`),
     ).toBeInTheDocument();
     expect(screen.getByText('Homologação • v0.3.0')).toBeInTheDocument();
+    expect(document.querySelector('[data-zeev-fieb-island="true"]')).toHaveAttribute(
+      'data-zeev-fieb-task-known',
+      'true',
+    );
   });
 
   it('usa Stepper horizontal sem StepContent a partir de 900 px', () => {
@@ -115,5 +119,9 @@ describe('React Island', () => {
     ).toBeInTheDocument();
     expect(screen.queryByLabelText('Progresso do processo')).not.toBeInTheDocument();
     expect(screen.getByText('Homologação • v0.3.0')).toBeInTheDocument();
+    expect(document.querySelector('[data-zeev-fieb-island="true"]')).toHaveAttribute(
+      'data-zeev-fieb-task-known',
+      'false',
+    );
   });
 });
