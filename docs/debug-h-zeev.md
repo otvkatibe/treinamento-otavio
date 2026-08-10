@@ -28,10 +28,10 @@ Este guia descreve os passos para realizar o primeiro teste real de injeção CS
 
 ---
 
-## Passo 2. Executar uma Tarefa Humana
+## Passo 2. Executar uma Etapa do Processo
 
-1. Inicie uma nova instância do processo ou abra uma tarefa pendente (ex: `Solicitar registro` ou `T01 - Fazer o cadastro`).
-2. Mantenha a tela da tarefa carregada no navegador.
+1. Inicie uma nova instância para abrir o Evento de Início `Solicitar registro`, ou abra uma tarefa humana pendente, como `T01 - Fazer o cadastro`.
+2. Mantenha a tela da etapa carregada no navegador.
 
 ---
 

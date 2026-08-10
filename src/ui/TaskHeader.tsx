@@ -3,13 +3,13 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import { TASKS } from '../zeev/tasks';
-import type { TaskMetadata, VisualConfig } from '../zeev/types';
+import { PROCESS_STEPS } from '../zeev/steps';
+import type { ProcessStepMetadata, VisualConfig } from '../zeev/types';
 import { EnvironmentBadge } from './EnvironmentBadge';
 import { TaskStatus } from './TaskStatus';
 
 export interface TaskHeaderProps {
-  task: TaskMetadata;
+  task: ProcessStepMetadata;
   environment: VisualConfig['environment'];
   version: string;
 }
@@ -47,7 +47,10 @@ export function TaskHeader({
           useFlexGap
           sx={{ flexWrap: 'wrap' }}
         >
-          <TaskStatus stepIndex={task.stepIndex} totalSteps={TASKS.length} />
+          <TaskStatus
+            stepIndex={task.stepIndex}
+            totalSteps={PROCESS_STEPS.length}
+          />
           <EnvironmentBadge environment={environment} version={version} />
         </Stack>
       </Stack>

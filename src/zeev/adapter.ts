@@ -1,8 +1,8 @@
 import { ZEEV_FIELDS } from './fields';
 import { ZEEV_SELECTORS } from './selectors';
-import { getTaskByTitle, normalizeTaskTitle } from './tasks';
+import { getStepByTitle, normalizeStepTitle } from './steps';
 import type {
-  TaskContext,
+  ProcessStepContext,
   ZeevFieldElement,
   ZeevFieldName,
 } from './types';
@@ -11,7 +11,7 @@ export interface ZeevAdapterContract {
   getRoot(): HTMLElement | null;
   getForm(): HTMLElement | null;
   getCurrentTaskTitle(): string | null;
-  getCurrentTask(): TaskContext | null;
+  getCurrentTask(): ProcessStepContext | null;
   getField(name: ZeevFieldName): ZeevFieldElement | null;
   getFields(name: ZeevFieldName): readonly ZeevFieldElement[];
   getSelectedField(name: ZeevFieldName): ZeevFieldElement | null;
@@ -33,17 +33,17 @@ function getCurrentTaskTitle(): string | null {
     return null;
   }
 
-  return normalizeTaskTitle(title);
+  return normalizeStepTitle(title);
 }
 
-function getCurrentTask(): TaskContext | null {
+function getCurrentTask(): ProcessStepContext | null {
   const title = getCurrentTaskTitle();
 
   if (!title) {
     return null;
   }
 
-  const metadata = getTaskByTitle(title);
+  const metadata = getStepByTitle(title);
 
   return {
     code: metadata?.code ?? null,

@@ -38,6 +38,18 @@ function renderCompleteZeevDom(): void {
   `;
 }
 
+function renderTaskDom(title: string, actions = ''): void {
+  document.body.innerHTML = `
+    <div id="containerRequest">
+      <div class="page-title"><h1>${title}</h1></div>
+      <section class="main-col">
+        <div id="ContainerForm"><form id="FrmExecute"></form></div>
+      </section>
+      ${actions}
+    </div>
+  `;
+}
+
 beforeEach(() => {
   vi.useFakeTimers();
   vi.spyOn(window, 'getComputedStyle').mockReturnValue({
@@ -74,7 +86,7 @@ describe('diagnóstico de homologação', () => {
     expect(report.passed).toBe(true);
     expect(report.status).toBe('PASS');
     expect(report.task).toEqual({
-      code: 'T0',
+      code: 'START',
       title: 'Solicitar registro',
       known: true,
     });
@@ -160,10 +172,69 @@ describe('diagnóstico de homologação', () => {
       expect.arrayContaining([
         'mount.unique',
         'field.profissao.present',
-        'field.profissao.type',
         'radio.estadoCivil.single',
         'sendButton.native',
       ]),
     );
+    expect(
+      report.checks.find(({ id }) => id === 'field.profissao.type')?.status,
+    ).toBe('SKIP/N/A');
+  });
+
+  it('aprova T1 sem aplicar universalmente o contrato de campos de START', async () => {
+    renderTaskDom('T01 - Fazer o cadastro');
+    const { boot } = await import('../lifecycle');
+
+    const runtime = boot();
+    act((): void => {
+      vi.advanceTimersByTime(100);
+    });
+    const report = runtime.diagnostics();
+
+    expect(report.task.code).toBe('T1');
+    expect(report.status).toBe('PASS');
+    expect(report.passed).toBe(true);
+    expect(
+      report.checks.find(({ id }) => id === 'field.nomeCompleto.present')
+        ?.status,
+    ).toBe('SKIP/N/A');
+    expect(
+      report.checks.find(({ id }) => id === 'radio.estadoCivil.single')
+        ?.status,
+    ).toBe('SKIP/N/A');
+    expect(
+      report.checks.find(({ id }) => id === 'sendButton.native')?.status,
+    ).toBe('SKIP/N/A');
+    expect(
+      report.checks
+        .filter(({ id }) =>
+          [
+            'runtime.initialized',
+            'task.known',
+            'task.synchronized',
+            'mount.unique',
+            'mount.connected',
+            'mount.position',
+            'island.integrity',
+          ].includes(id),
+        )
+        .every(({ status }) => status === 'PASS'),
+    ).toBe(true);
+  });
+
+  it('exige #BtnSend em T1 quando a barra de ações está presente', async () => {
+    renderTaskDom('T01 - Fazer o cadastro', '<div id="controllers"></div>');
+    const { boot } = await import('../lifecycle');
+
+    const runtime = boot();
+    act((): void => {
+      vi.advanceTimersByTime(100);
+    });
+    const report = runtime.diagnostics();
+
+    expect(report.passed).toBe(false);
+    expect(
+      report.checks.find(({ id }) => id === 'sendButton.native')?.status,
+    ).toBe('FAIL');
   });
 });

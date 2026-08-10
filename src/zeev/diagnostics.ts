@@ -1,4 +1,5 @@
 import { zeevAdapter } from './adapter';
+import { TASK_DIAGNOSTIC_CONTRACTS } from './diagnostic-contracts';
 import { ZEEV_FIELDS } from './fields';
 import { ZEEV_SELECTORS } from './selectors';
 import type {
@@ -6,7 +7,7 @@ import type {
   DiagnosticStatus,
   FieldDiagnostic,
   RadioGroupDiagnostic,
-  TaskContext,
+  ProcessStepContext,
   ZeevFiebDiagnostics,
   ZeevFieldElement,
   ZeevFieldName,
@@ -25,7 +26,7 @@ const RADIO_GROUP_NAMES = [
   'tipoDocumento',
 ] as const satisfies readonly RadioGroupDiagnostic['name'][];
 
-function status(passed: boolean): DiagnosticStatus {
+function status(passed: boolean): Exclude<DiagnosticStatus, 'SKIP/N/A'> {
   return passed ? 'PASS' : 'FAIL';
 }
 
@@ -36,13 +37,29 @@ function check(
   expected: DiagnosticCheck['expected'],
   observed: DiagnosticCheck['observed'],
 ): DiagnosticCheck {
-  return {
-    id,
-    label,
-    status: status(passed),
-    expected,
-    observed,
-  };
+  return { id, label, status: status(passed), expected, observed };
+}
+
+function skippedCheck(
+  id: string,
+  label: string,
+  expected: DiagnosticCheck['expected'],
+  observed: DiagnosticCheck['observed'],
+): DiagnosticCheck {
+  return { id, label, status: 'SKIP/N/A', expected, observed };
+}
+
+function conditionalCheck(
+  applies: boolean,
+  id: string,
+  label: string,
+  passed: boolean,
+  expected: DiagnosticCheck['expected'],
+  observed: DiagnosticCheck['observed'],
+): DiagnosticCheck {
+  return applies
+    ? check(id, label, passed, expected, observed)
+    : skippedCheck(id, label, 'N/A para a tarefa atual', observed);
 }
 
 function inputType(element: ZeevFieldElement | null): string | null {
@@ -84,9 +101,9 @@ function radioGroupDiagnostic(
   };
 }
 
-function taskMatches(
-  runtimeTask: TaskContext | null,
-  observedTask: TaskContext | null,
+function stepContextsMatch(
+  runtimeTask: ProcessStepContext | null,
+  observedTask: ProcessStepContext | null,
 ): boolean {
   return (
     runtimeTask?.code === observedTask?.code &&
@@ -97,13 +114,20 @@ function taskMatches(
 export function runDiagnostics(): ZeevFiebDiagnostics {
   const runtime = window.__ZEEV_FIEB__;
   const observedTask = zeevAdapter.getCurrentTask();
+  const stepContract = observedTask?.code
+    ? TASK_DIAGNOSTIC_CONTRACTS[observedTask.code]
+    : null;
   const mounts = Array.from(
     document.querySelectorAll<HTMLElement>('#zeev-fieb-root'),
   );
   const mount = mounts[0] ?? null;
-  const containerForm = zeevAdapter
-    .getRoot()
-    ?.querySelector<HTMLElement>(ZEEV_SELECTORS.containerForm) ?? null;
+  const root = zeevAdapter.getRoot();
+  const containerForm = root?.querySelector<HTMLElement>(
+    ZEEV_SELECTORS.containerForm,
+  ) ?? null;
+  const controllers = root?.querySelector<HTMLElement>(
+    ZEEV_SELECTORS.controllers,
+  ) ?? null;
   const fields = (Object.keys(ZEEV_FIELDS) as ZeevFieldName[]).map(
     fieldDiagnostic,
   );
@@ -111,6 +135,19 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
   const sendButton = zeevAdapter.getSendButton();
   const mountIsBeforeForm =
     mount !== null && mount.nextElementSibling === containerForm;
+  const islandElements = mount
+    ? Array.from(
+        mount.querySelectorAll<HTMLElement>('[data-zeev-fieb-island="true"]'),
+      )
+    : [];
+  const islandIsIntact =
+    runtime?.reactRoot != null &&
+    runtime.reactMountElement === mount &&
+    islandElements.length === 1 &&
+    runtime.reactContentNodes.length > 0 &&
+    runtime.reactContentNodes.every(
+      (node: Node): boolean => node.isConnected && node.parentNode === mount,
+    );
   const checks: DiagnosticCheck[] = [
     check(
       'runtime.initialized',
@@ -121,15 +158,15 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
     ),
     check(
       'task.known',
-      'Tarefa reconhecida',
-      observedTask?.code !== null && observedTask?.code !== undefined,
-      'T0-T5',
+      'Etapa reconhecida',
+      observedTask?.code != null,
+      'START ou T1-T5',
       observedTask?.code ?? null,
     ),
     check(
       'task.synchronized',
       'Contexto do lifecycle sincronizado com o DOM',
-      taskMatches(runtime?.currentTask ?? null, observedTask),
+      stepContextsMatch(runtime?.currentTask ?? null, observedTask),
       observedTask?.code ?? null,
       runtime?.currentTask?.code ?? null,
     ),
@@ -141,22 +178,38 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
       mounts.length,
     ),
     check(
+      'mount.connected',
+      'Mount point conectado ao DOM',
+      mount?.isConnected === true,
+      true,
+      mount?.isConnected ?? false,
+    ),
+    check(
       'mount.position',
       'Mount imediatamente antes de #ContainerForm',
       mountIsBeforeForm,
       'ContainerForm',
       mount?.nextElementSibling?.id ?? null,
     ),
+    check(
+      'island.integrity',
+      'Integridade da React Island',
+      islandIsIntact,
+      'React root associado ao mount e island única conectada',
+      islandElements.length,
+    ),
   ];
 
   for (const field of fields) {
+    const required = stepContract?.fields.has(field.name) === true;
     const isRadioGroup = ZEEV_FIELDS[field.name].structure === 'radio-group';
     const expectedCount = isRadioGroup ? 'uma ou mais opções' : 1;
     const countIsValid = isRadioGroup
       ? field.elementCount > 0
       : field.elementCount === 1;
     checks.push(
-      check(
+      conditionalCheck(
+        required || field.present,
         `field.${field.name}.present`,
         `Campo ${field.name} presente`,
         countIsValid,
@@ -168,29 +221,34 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
 
   for (const name of TEXT_FIELD_NAMES) {
     const field = fields.find((candidate) => candidate.name === name);
+    const applies = field?.present === true;
     checks.push(
-      check(
+      conditionalCheck(
+        applies,
         `field.${name}.type`,
         `Campo ${name} usa input text`,
         field?.tagName === 'INPUT' && field.inputType === 'text',
         'INPUT[type=text]',
         field ? `${field.tagName ?? 'null'}[type=${field.inputType ?? 'null'}]` : null,
       ),
-      check(
+      conditionalCheck(
+        applies,
         `field.${name}.boxSizing`,
         `Campo ${name} usa border-box`,
         field?.boxSizing === 'border-box',
         'border-box',
         field?.boxSizing ?? null,
       ),
-      check(
+      conditionalCheck(
+        applies,
         `field.${name}.height`,
         `Campo ${name} possui altura compacta`,
         field?.height === '40px',
         '40px',
         field?.height ?? null,
       ),
-      check(
+      conditionalCheck(
+        applies,
         `field.${name}.maxWidth`,
         `Campo ${name} respeita a largura do container`,
         field?.maxWidth === '100%',
@@ -202,18 +260,24 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
 
   for (const group of radioGroups) {
     checks.push(
-      check(
+      conditionalCheck(
+        group.optionCount > 0,
         `radio.${group.name}.single`,
         `Grupo ${group.name} possui no máximo uma seleção`,
-        group.optionCount > 0 && group.checkedCount <= 1,
+        group.checkedCount <= 1,
         '0 ou 1',
         group.checkedCount,
       ),
     );
   }
 
+  const sendButtonApplies =
+    stepContract?.sendButton === 'required' ||
+    (stepContract?.sendButton === 'required-with-actions' &&
+      controllers !== null);
   checks.push(
-    check(
+    conditionalCheck(
+      sendButtonApplies,
       'sendButton.native',
       'Botão nativo #BtnSend preservado',
       sendButton instanceof HTMLButtonElement && sendButton.id === 'BtnSend',
@@ -222,20 +286,20 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
     ),
   );
 
-  const overallStatus = status(
-    checks.every((diagnosticCheck) => diagnosticCheck.status === 'PASS'),
+  const passed = checks.every(
+    ({ status: checkStatus }) => checkStatus !== 'FAIL',
   );
 
   return {
-    passed: overallStatus === 'PASS',
-    status: overallStatus,
+    passed,
+    status: status(passed),
     generatedAt: new Date().toISOString(),
     version: runtime?.version ?? null,
     initialized: runtime?.initialized ?? false,
     task: {
       code: observedTask?.code ?? null,
       title: observedTask?.title ?? null,
-      known: observedTask?.code !== null && observedTask?.code !== undefined,
+      known: observedTask?.code != null,
     },
     rootCount: mounts.length,
     mountBefore: mount?.nextElementSibling?.id ?? null,

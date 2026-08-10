@@ -1,6 +1,6 @@
 # Registro do DOM Real — h-Zeev (v0.2.1)
 
-Este documento registra a estrutura HTML real inspecionada no ambiente **h-Zeev** via DevTools durante a execução da tarefa *"Solicitar registro"* do aplicativo `Treinamento - Otávio Katibe`.
+Este documento registra a estrutura HTML real inspecionada no ambiente **h-Zeev** via DevTools durante a execução do Evento de Início *"Solicitar registro"* do aplicativo `Treinamento - Otávio Katibe`.
 
 > **FASE 0 DE DESCOBERTA**: **CONCLUÍDA PARA A TAREFA "SOLICITAR REGISTRO"**
 

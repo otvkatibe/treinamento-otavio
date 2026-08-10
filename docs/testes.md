@@ -4,11 +4,11 @@ Este documento estabelece a matriz de testes funcionais, visuais, de acessibilid
 
 ---
 
-## 1. Cobertura da Tarefa "Solicitar registro"
+## 1. Cobertura do Evento de Início "Solicitar registro"
 
-| ID Tarefa | Nome da Tarefa | Foco da Validação Visual (v0.2.1) | Resultado Esperado |
+| Código da Etapa | Nome da Etapa | Foco da Validação Visual (v0.2.1) | Resultado Esperado |
 | :--- | :--- | :--- | :--- |
-| **INICIO** | Solicitar registro | Formatação escopada sob `#containerRequest #FrmExecute` | Título `#group7724` em azul FIEB, rótulos `td.col0` em 14px 600, barra `#controllers` com botão `#BtnSend` estilizado |
+| **START** | Solicitar registro (Evento de Início) | Formatação escopada sob `#containerRequest #FrmExecute` | Título `#group7724` em azul FIEB, rótulos `td.col0` em 14px 600, barra `#controllers` com botão `#BtnSend` estilizado |
 | **T01** | Fazer o cadastro | Preenchimento dos 7 campos de dados | Textareas compactos com altura ajustada, input CPF com auxílio `.form-text`, checkboxes em linha |
 | **T02** | Validar o cadastro | Campos em modo somente leitura (Read-only / Disabled) | Fundo suave acinzentado `#f1f5f9`, cursor `not-allowed`, sem hover |
 

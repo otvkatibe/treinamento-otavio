@@ -1,6 +1,8 @@
 import type { Root } from 'react-dom/client';
 
-export type TaskCode = 'T0' | 'T1' | 'T2' | 'T3' | 'T4' | 'T5';
+export type ProcessStepCode = 'START' | 'T1' | 'T2' | 'T3' | 'T4' | 'T5';
+
+export type ProcessStepKind = 'start-event' | 'human-task';
 
 export type ZeevFieldName =
   | 'nomeCompleto'
@@ -16,8 +18,9 @@ export type ZeevFieldElement =
   | HTMLSelectElement
   | HTMLTextAreaElement;
 
-export interface TaskMetadata {
-  code: TaskCode;
+export interface ProcessStepMetadata {
+  code: ProcessStepCode;
+  kind: ProcessStepKind;
   title: string;
   label: string;
   heading: string;
@@ -26,17 +29,17 @@ export interface TaskMetadata {
   conditional: boolean;
 }
 
-export interface TaskContext {
-  code: TaskCode | null;
+export interface ProcessStepContext {
+  code: ProcessStepCode | null;
   title: string;
   stepIndex: number | null;
-  metadata: TaskMetadata | null;
+  metadata: ProcessStepMetadata | null;
 }
 
 export interface AppState {
   version: string;
   initialized: boolean;
-  currentTask: TaskContext | null;
+  currentTask: ProcessStepContext | null;
 }
 
 export interface ZeevElements {
@@ -68,7 +71,7 @@ export interface ViewSignature {
   root: HTMLElement | null;
 }
 
-export type DiagnosticStatus = 'PASS' | 'FAIL';
+export type DiagnosticStatus = 'PASS' | 'FAIL' | 'SKIP/N/A';
 
 export type DiagnosticValue = string | number | boolean | null;
 
@@ -120,7 +123,7 @@ export interface ZeevFiebDiagnostics {
   version: string | null;
   initialized: boolean;
   task: {
-    code: TaskCode | null;
+    code: ProcessStepCode | null;
     title: string | null;
     known: boolean;
   };
@@ -141,7 +144,7 @@ export interface ZeevFiebRuntime {
   reactMountElement: HTMLElement | null;
   reactContentNodes: readonly Node[];
   mountElement: HTMLElement | null;
-  currentTask: TaskContext | null;
+  currentTask: ProcessStepContext | null;
   viewSignature: ViewSignature | null;
   syncCount: number;
   lastSyncDuration: number;

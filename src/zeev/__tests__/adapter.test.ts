@@ -3,7 +3,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { zeevAdapter } from '../adapter';
-import { TASKS } from '../tasks';
+import { PROCESS_STEPS } from '../steps';
 
 function renderZeevDom(title: string): void {
   document.body.innerHTML = `
@@ -37,7 +37,7 @@ afterEach(() => {
 });
 
 describe('zeevAdapter', () => {
-  it.each(TASKS)('detecta $code pelo título Zeev exato', (task) => {
+  it.each(PROCESS_STEPS)('detecta $code pelo título Zeev exato', (task) => {
     renderZeevDom(`  ${task.title.replaceAll(' ', '   ')}  `);
 
     expect(zeevAdapter.getCurrentTaskTitle()).toBe(task.title);

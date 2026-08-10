@@ -16,7 +16,7 @@ git diff --check
 
 A suíte cobre automaticamente:
 
-- títulos e detecção das tarefas T0–T5;
+- títulos e detecção do Evento de Início `START` e das tarefas humanas T1–T5;
 - escopo do formulário e presença dos sete campos Zeev;
 - campos simples como `input[type="text"][data-fieldformat="TEXT"]`;
 - grupos `estadoCivil` e `tipoDocumento` como radios e cardinalidade de seleção única;
@@ -70,7 +70,20 @@ O relatório contém:
 
 O aceite determinístico exige `report.passed === true` e `report.status === "PASS"`. Em caso de `FAIL`, exporte o objeto inteiro e registre os checks reprovados; não repita manualmente cada consulta DOM.
 
-O smoke check deve ser executado após cada transição SPA para confirmar apenas que o runtime acompanhou a nova tarefa. T0–T5 devem retornar seus respectivos códigos.
+O smoke check deve ser executado após cada transição SPA para confirmar que o runtime acompanhou a nova etapa. A tela `Solicitar registro` deve retornar `task.code === "START"`; as tarefas humanas seguintes devem retornar T1–T5.
+
+O modelo de domínio possui seis etapas visuais:
+
+| Índice | Código | Tipo Zeev | Título |
+| :--- | :--- | :--- | :--- |
+| 0 | `START` | Evento de Início | Solicitar registro |
+| 1 | `T1` | Tarefa humana | T01 - Fazer o cadastro |
+| 2 | `T2` | Tarefa humana | T02 - Validar o cadastro |
+| 3 | `T3` | Tarefa humana condicional | T03 - Corrigir o cadastro |
+| 4 | `T4` | Tarefa humana | T04 - Fazer o contrato |
+| 5 | `T5` | Tarefa humana | T05 - Validar o contrato |
+
+A configuração BPMN do Evento de Início é responsabilidade do operador no Zeev. O runtime apenas detecta e representa a tela inicial já fornecida pela plataforma.
 
 ## 4. Validação humana reduzida
 
@@ -80,7 +93,7 @@ Validar manualmente somente o que o DOM não comprova adequadamente:
 - radios circulares, alinhados e sem caixa deformada na opção marcada;
 - aparência real do foco por teclado e contraste percebido;
 - ausência de cortes ou sobreposições nos breakpoints de 900, 720 e 600 px;
-- envio pelo botão nativo e transições reais T0 → T1 → T2 → T3 → T2 → T4 → T5;
+- envio pelo botão nativo e transições reais START → T1 → T2 → T3 → T2 → T4 → T5;
 - decisão de correção em T2, correção em T3 e retorno posterior ao fluxo aprovado;
 - preservação dos dados e regras de negócio após cada submit.
 

@@ -1,6 +1,6 @@
-# Contrato Oficial de Seletores CSS — v0.2.1 (Fase 0 Concluída para "Solicitar registro")
+# Contrato Oficial de Seletores CSS — v0.2.1 (Evento de Início "Solicitar registro")
 
-Este documento registra a matriz de seletores da customização `zeev-fieb-theme`, baseada **EXCLUSIVAMENTE no DOM REAL do ambiente h-Zeev** para a tarefa *"Solicitar registro"*.
+Este documento registra a matriz de seletores da customização `zeev-fieb-theme`, baseada **EXCLUSIVAMENTE no DOM REAL do ambiente h-Zeev** para o Evento de Início *"Solicitar registro"*.
 
 > **STATUS DA FASE 0**: **CONCLUÍDA PARA A TAREFA "SOLICITAR REGISTRO"**
 

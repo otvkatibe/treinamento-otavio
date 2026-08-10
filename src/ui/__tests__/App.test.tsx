@@ -2,19 +2,23 @@ import { act, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { installMatchMedia } from '../../test/match-media';
-import { TASKS } from '../../zeev/tasks';
-import type { TaskCode, TaskContext, TaskMetadata } from '../../zeev/types';
+import { PROCESS_STEPS } from '../../zeev/steps';
+import type {
+  ProcessStepCode,
+  ProcessStepContext,
+  ProcessStepMetadata,
+} from '../../zeev/types';
 import { App } from '../App';
 
-function taskByCode(code: TaskCode): TaskMetadata {
-  const task = TASKS.find((candidate) => candidate.code === code);
+function taskByCode(code: ProcessStepCode): ProcessStepMetadata {
+  const task = PROCESS_STEPS.find((candidate) => candidate.code === code);
   if (!task) {
     throw new Error(`Task metadata not found: ${code}`);
   }
   return task;
 }
 
-function taskContext(code: TaskCode): TaskContext {
+function taskContext(code: ProcessStepCode): ProcessStepContext {
   const metadata = taskByCode(code);
   return {
     code: metadata.code,
@@ -25,7 +29,30 @@ function taskContext(code: TaskCode): TaskContext {
 }
 
 describe('React Island', () => {
-  it.each(TASKS)('exibe o contexto visual de $code', (task) => {
+  it('mantém seis etapas visuais de START até T5', () => {
+    expect(
+      PROCESS_STEPS.map(({ code, kind, stepIndex, conditional }) => ({
+        code,
+        kind,
+        stepIndex,
+        conditional,
+      })),
+    ).toEqual([
+      {
+        code: 'START',
+        kind: 'start-event',
+        stepIndex: 0,
+        conditional: false,
+      },
+      { code: 'T1', kind: 'human-task', stepIndex: 1, conditional: false },
+      { code: 'T2', kind: 'human-task', stepIndex: 2, conditional: false },
+      { code: 'T3', kind: 'human-task', stepIndex: 3, conditional: true },
+      { code: 'T4', kind: 'human-task', stepIndex: 4, conditional: false },
+      { code: 'T5', kind: 'human-task', stepIndex: 5, conditional: false },
+    ]);
+  });
+
+  it.each(PROCESS_STEPS)('exibe o contexto visual de $code', (task) => {
     render(<App taskContext={taskContext(task.code)} />);
 
     expect(
@@ -33,7 +60,9 @@ describe('React Island', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(task.description)).toBeInTheDocument();
     expect(
-      screen.getByText(`Etapa ${task.stepIndex + 1} de ${TASKS.length}`),
+      screen.getByText(
+        `Etapa ${task.stepIndex + 1} de ${PROCESS_STEPS.length}`,
+      ),
     ).toBeInTheDocument();
     expect(screen.getByText('Homologação • v0.3.0')).toBeInTheDocument();
     expect(document.querySelector('[data-zeev-fieb-island="true"]')).toHaveAttribute(
@@ -44,7 +73,7 @@ describe('React Island', () => {
 
   it('usa Stepper horizontal sem StepContent a partir de 900 px', () => {
     installMatchMedia(900);
-    render(<App taskContext={taskContext('T0')} />);
+    render(<App taskContext={taskContext('START')} />);
 
     expect(screen.getByLabelText('Progresso do processo')).toHaveAttribute(
       'data-layout',
@@ -55,18 +84,20 @@ describe('React Island', () => {
 
   it('usa Stepper vertical com StepContent abaixo de 900 px', () => {
     installMatchMedia(899);
-    render(<App taskContext={taskContext('T0')} />);
+    render(<App taskContext={taskContext('START')} />);
 
     expect(screen.getByLabelText('Progresso do processo')).toHaveAttribute(
       'data-layout',
       'vertical',
     );
-    expect(screen.getAllByTestId(/^step-content-/)).toHaveLength(TASKS.length);
+    expect(screen.getAllByTestId(/^step-content-/)).toHaveLength(
+      PROCESS_STEPS.length,
+    );
   });
 
   it('reage deterministicamente a mudanças de largura do matchMedia', () => {
     const matchMedia = installMatchMedia(1024);
-    render(<App taskContext={taskContext('T0')} />);
+    render(<App taskContext={taskContext('START')} />);
 
     expect(screen.getByLabelText('Progresso do processo')).toHaveAttribute(
       'data-layout',
@@ -79,13 +110,15 @@ describe('React Island', () => {
       'data-layout',
       'vertical',
     );
-    expect(screen.getAllByTestId(/^step-content-/)).toHaveLength(TASKS.length);
+    expect(screen.getAllByTestId(/^step-content-/)).toHaveLength(
+      PROCESS_STEPS.length,
+    );
   });
 
   it('representa os estados atual, concluído, futuro e condicional', () => {
     render(<App taskContext={taskContext('T4')} />);
 
-    expect(document.querySelector('[data-step-code="T0"]')).toHaveAttribute(
+    expect(document.querySelector('[data-step-code="START"]')).toHaveAttribute(
       'data-step-state',
       'completed',
     );
@@ -105,7 +138,7 @@ describe('React Island', () => {
   });
 
   it('exibe estado neutro sem Stepper para tarefa desconhecida', () => {
-    const unknownTask: TaskContext = {
+    const unknownTask: ProcessStepContext = {
       code: null,
       title: 'T99 - Etapa externa',
       stepIndex: null,

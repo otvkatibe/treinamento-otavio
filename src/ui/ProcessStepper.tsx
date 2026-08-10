@@ -7,16 +7,19 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
-import { TASKS } from '../zeev/tasks';
-import type { TaskMetadata } from '../zeev/types';
+import { PROCESS_STEPS } from '../zeev/steps';
+import type { ProcessStepMetadata } from '../zeev/types';
 
 type StepState = 'current' | 'completed' | 'future' | 'conditional';
 
 export interface ProcessStepperProps {
-  currentTask: TaskMetadata;
+  currentTask: ProcessStepMetadata;
 }
 
-function getStepState(step: TaskMetadata, currentTask: TaskMetadata): StepState {
+function getStepState(
+  step: ProcessStepMetadata,
+  currentTask: ProcessStepMetadata,
+): StepState {
   if (step.code === currentTask.code) {
     return 'current';
   }
@@ -43,7 +46,7 @@ export function ProcessStepper({
       aria-label="Progresso do processo"
       data-layout={orientation}
     >
-      {TASKS.map((step) => {
+      {PROCESS_STEPS.map((step) => {
         const state = getStepState(step, currentTask);
         const optional = step.conditional ? (
           <Typography component="span" variant="caption" color="text.secondary">

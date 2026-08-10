@@ -4,7 +4,7 @@ Customização visual estática, sóbria, moderna e acessível desenvolvida para
 
 - **Aplicativo Zeev Target**: `Treinamento - Otávio Katibe`
 - **Ambiente**: `h-Zeev / Homologação`
-- **Versão do Projeto**: `v0.2.1` (Fase 0 Concluída para a tarefa *"Solicitar registro"*)
+- **Versão do Projeto**: `v0.2.1` (Fase 0 concluída para o Evento de Início *"Solicitar registro"*)
 - **Versão do Tailwind CSS**: `Tailwind CSS v4.3.3` (compilado estaticamente via `@tailwindcss/cli`)
 - **Arquivo CSS Final**: `dist/zeev-fieb.css` (~9.9 KB)
 

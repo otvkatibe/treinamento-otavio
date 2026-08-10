@@ -4,7 +4,7 @@ import { ZEEV_SELECTORS } from './selectors';
 import { renderIsland, unmountIsland } from '../ui/render-island';
 import type {
   LifecycleReason,
-  TaskContext,
+  ProcessStepContext,
   ViewSignature,
   ZeevFiebRuntime,
 } from './types';
@@ -133,8 +133,8 @@ function isSameView(
   );
 }
 
-function taskCode(task: TaskContext | null): string {
-  return task?.code ?? 'unknown';
+function stepCode(step: ProcessStepContext | null): string {
+  return step?.code ?? 'unknown';
 }
 
 export function boot(): ZeevFiebRuntime {
@@ -193,14 +193,14 @@ export function sync(reason: LifecycleReason = 'manual'): ZeevFiebRuntime {
   const viewChanged = !isSameView(previousSignature, runtime.viewSignature);
 
   if (viewChanged && runtime.currentTask?.code) {
-    console.info(`${LOG_PREFIX} task detected: ${runtime.currentTask.code}`);
+    console.info(`${LOG_PREFIX} step detected: ${runtime.currentTask.code}`);
   } else if (viewChanged && runtime.currentTask) {
-    console.warn(`${LOG_PREFIX} task not recognized: ${runtime.currentTask.title}`);
+    console.warn(`${LOG_PREFIX} step not recognized: ${runtime.currentTask.title}`);
   }
 
   if (previousSignature && viewChanged) {
     console.info(
-      `${LOG_PREFIX} view changed: ${taskCode(previousTask)} -> ${taskCode(runtime.currentTask)}`,
+      `${LOG_PREFIX} view changed: ${stepCode(previousTask)} -> ${stepCode(runtime.currentTask)}`,
     );
   }
 

@@ -167,23 +167,38 @@ describe('lifecycle SPA', () => {
     expect(runtime.mountElement?.nextElementSibling?.id).toBe('ContainerForm');
   });
 
-  it('atualiza a tarefa quando somente o título muda', async () => {
+  it('transiciona START para T1 sem estado stale e reutiliza a React root', async () => {
     renderZeevDom();
     const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined);
     const { sync } = await import('../lifecycle');
 
     const initialRuntime = syncWithAct(sync);
+    const initialReactRoot = initialRuntime.reactRoot;
+    expect(initialRuntime.currentTask?.code).toBe('START');
+    expect(initialRuntime.currentTask?.metadata?.kind).toBe('start-event');
     const title = document.querySelector('.page-title h1');
     if (title) title.textContent = 'T01 - Fazer o cadastro';
     const runtime = syncWithAct(sync);
 
     expect(runtime).toBe(initialRuntime);
+    expect(runtime.reactRoot).toBe(initialReactRoot);
+    expect(runtime.reactMountElement).toBe(runtime.mountElement);
+    expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
     expect(typeof runtime.diagnostics).toBe('function');
     expect(runtime.currentTask?.code).toBe('T1');
+    expect(runtime.currentTask?.metadata?.kind).toBe('human-task');
+    expect(runtime.currentTask?.title).toBe('T01 - Fazer o cadastro');
     expect(runtime.diagnostics().task.code).toBe('T1');
+    expect(runtime.diagnostics().checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'task.synchronized', status: 'PASS' }),
+        expect.objectContaining({ id: 'mount.unique', status: 'PASS' }),
+        expect.objectContaining({ id: 'island.integrity', status: 'PASS' }),
+      ]),
+    );
     expect(runtime.viewSignature?.title).toBe('T01 - Fazer o cadastro');
     expect(infoSpy).toHaveBeenCalledWith(
-      '[Zeev FIEB v0.3.0] view changed: T0 -> T1',
+      '[Zeev FIEB v0.3.0] view changed: START -> T1',
     );
   });
 

@@ -6,13 +6,13 @@ import Typography from '@mui/material/Typography';
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 
 import { muiTheme } from '../theme/mui-theme';
-import type { TaskContext, VisualConfig } from '../zeev/types';
+import type { ProcessStepContext, VisualConfig } from '../zeev/types';
 import { EnvironmentBadge } from './EnvironmentBadge';
 import { ProcessStepper } from './ProcessStepper';
 import { TaskHeader } from './TaskHeader';
 
 export interface AppProps {
-  taskContext: TaskContext | null;
+  taskContext: ProcessStepContext | null;
   environment?: VisualConfig['environment'];
   version?: string;
 }

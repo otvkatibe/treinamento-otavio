@@ -1,10 +1,11 @@
-import type { TaskCode, TaskMetadata } from './types';
+import type { ProcessStepCode, ProcessStepMetadata } from './types';
 
-export const TASKS = [
+export const PROCESS_STEPS = [
   {
-    code: 'T0',
+    code: 'START',
+    kind: 'start-event',
     title: 'Solicitar registro',
-    label: 'Solicitação',
+    label: 'Início',
     heading: 'Solicitação de registro',
     description: 'Preencha os dados necessários para iniciar o processo.',
     stepIndex: 0,
@@ -12,6 +13,7 @@ export const TASKS = [
   },
   {
     code: 'T1',
+    kind: 'human-task',
     title: 'T01 - Fazer o cadastro',
     label: 'Cadastro',
     heading: 'Cadastro',
@@ -21,6 +23,7 @@ export const TASKS = [
   },
   {
     code: 'T2',
+    kind: 'human-task',
     title: 'T02 - Validar o cadastro',
     label: 'Validação',
     heading: 'Validação',
@@ -30,6 +33,7 @@ export const TASKS = [
   },
   {
     code: 'T3',
+    kind: 'human-task',
     title: 'T03 - Corrigir o cadastro',
     label: 'Correção',
     heading: 'Correção',
@@ -39,6 +43,7 @@ export const TASKS = [
   },
   {
     code: 'T4',
+    kind: 'human-task',
     title: 'T04 - Fazer o contrato',
     label: 'Contrato',
     heading: 'Contrato',
@@ -48,6 +53,7 @@ export const TASKS = [
   },
   {
     code: 'T5',
+    kind: 'human-task',
     title: 'T05 - Validar o contrato',
     label: 'Validação final',
     heading: 'Validação final',
@@ -55,15 +61,19 @@ export const TASKS = [
     stepIndex: 5,
     conditional: false,
   },
-] as const satisfies readonly TaskMetadata[];
+] as const satisfies readonly ProcessStepMetadata[];
 
-export const TASK_CODES = TASKS.map(({ code }) => code) as readonly TaskCode[];
+export const PROCESS_STEP_CODES = PROCESS_STEPS.map(
+  ({ code }) => code,
+) as readonly ProcessStepCode[];
 
-export function normalizeTaskTitle(title: string): string {
+export function normalizeStepTitle(title: string): string {
   return title.trim().replace(/\s+/g, ' ');
 }
 
-export function getTaskByTitle(title: string): TaskMetadata | null {
-  const normalizedTitle = normalizeTaskTitle(title);
-  return TASKS.find((task) => task.title === normalizedTitle) ?? null;
+export function getStepByTitle(title: string): ProcessStepMetadata | null {
+  const normalizedTitle = normalizeStepTitle(title);
+  return (
+    PROCESS_STEPS.find((step) => step.title === normalizedTitle) ?? null
+  );
 }

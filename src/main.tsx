@@ -12,7 +12,12 @@ export { runDiagnostics } from './zeev/diagnostics';
 export { ZEEV_FIELDS } from './zeev/fields';
 export { boot, scheduleSync, sync, teardown } from './zeev/lifecycle';
 export { ZEEV_SELECTORS } from './zeev/selectors';
-export { getTaskByTitle, normalizeTaskTitle, TASK_CODES, TASKS } from './zeev/tasks';
+export {
+  getStepByTitle,
+  normalizeStepTitle,
+  PROCESS_STEP_CODES,
+  PROCESS_STEPS,
+} from './zeev/steps';
 export type {
   AppState,
   DiagnosticCheck,
@@ -23,9 +28,10 @@ export type {
   MountDiagnostic,
   RadioGroupDiagnostic,
   SendButtonDiagnostic,
-  TaskCode,
-  TaskContext,
-  TaskMetadata,
+  ProcessStepCode,
+  ProcessStepContext,
+  ProcessStepKind,
+  ProcessStepMetadata,
   ViewSignature,
   VisualConfig,
   ZeevElements,

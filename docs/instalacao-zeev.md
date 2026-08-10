@@ -58,7 +58,7 @@ E adicionado à tag em produção:
 
 ## 4. Verificação de Carregamento (`DEBUG EXTERNAL CSS`)
 
-Assim que a tag for inserida e a tela da tarefa (ex: `Solicitar registro` ou `T01 - Fazer o cadastro`) for carregada no `h-Zeev`, um banner discreto azul no topo da página deverá exibir:
+Assim que a tag for inserida e a tela de uma etapa — o Evento de Início `Solicitar registro` ou uma tarefa humana como `T01 - Fazer o cadastro` — for carregada no `h-Zeev`, um banner discreto azul no topo da página deverá exibir:
 
 ```text
 [DEBUG] Tema Zeev FIEB v0.2.0 Ativo no h-Zeev
