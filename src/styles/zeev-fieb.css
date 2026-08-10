@@ -1,6 +1,7 @@
-@layer theme, base, components, utilities;
+@layer theme, base, mui, components, utilities;
 
 @import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
 
 /* ==========================================================================
    PALETA PROVISÓRIA — substituir por tokens oficiais FIEB
