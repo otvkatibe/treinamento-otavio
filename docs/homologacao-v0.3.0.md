@@ -1,121 +1,84 @@
-# FASE 5 — Publicação e homologação v0.3.0
+# Publicação e homologação — v0.3.0
 
-Este roteiro divide a homologação em três camadas. Contratos determinísticos ficam na suíte automatizada; o ambiente real executa um único smoke check consolidado; somente percepção visual e transições reais do workflow permanecem manuais.
+## Gate automatizado
 
-## 1. Testes automatizados
-
-Execute antes de cada publicação:
+Execute na raiz, usando as dependências instaladas pelo operador:
 
 ```bash
-npm run test
 npm run typecheck
+npm run test
 npm run build
 npm audit
-git diff --check
 ```
 
-A suíte cobre automaticamente:
+O build deve produzir `dist/zeev-fieb.js` e `dist/zeev-fieb.css`. Registre os resultados da execução atual; hashes ou commits de builds anteriores não são evidência vigente.
 
-- títulos e detecção do Evento de Início `START` e das tarefas humanas T1–T5;
-- escopo do formulário e presença dos sete campos Zeev;
-- campos simples como `input[type="text"][data-fieldformat="TEXT"]`;
-- grupos `estadoCivil` e `tipoDocumento` como radios e cardinalidade de seleção única;
-- preservação do botão nativo `#BtnSend`;
-- criação de um único `#zeev-fieb-root` antes de `#ContainerForm`;
-- idempotência, debounce e navegação SPA;
-- recuperação do mount e do React root sem duplicação;
-- teardown determinístico e ausência de autoexecução em `lifecycle.ts`.
+## URLs estáveis
 
-Esses contratos não precisam ser repetidos manualmente em cada tarefa.
-
-## 2. Publicação, cache e integridade
-
-Durante a homologação, o Zeev utiliza URLs estáveis, sem query string de versão:
+Configure ambos os artefatos, sem query string de versão:
 
 ```html
 <link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css">
 <script defer src="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.js"></script>
 ```
 
-Após cada publicação, valide o conteúdo efetivamente servido pelo GitHub Pages comparando o SHA-256 remoto com o artefato local. Se o Pages ainda entregar a versão anterior por cache intermediário, aguarde a expiração do TTL antes de iniciar a homologação.
+Depois do deploy, confirme resposta HTTP bem-sucedida para as duas URLs, recarregue a tela com cache desabilitado e valide o conteúdo remoto contra os artefatos gerados nessa publicação.
 
-O reload com cache desabilitado elimina somente o cache local do navegador; ele não invalida o cache intermediário do GitHub Pages.
+## Contrato por stage
 
-Artefatos associados ao commit `55fab2a4527b3454ae3bdf9290aeece33aafd72b`:
+| Stage | Título | Diagnostics/automção | Homologação humana obrigatória |
+| --- | --- | --- | --- |
+| `START` | Solicitar registro | Detecção, root único/conectado antes de `#ContainerForm`, sete campos pessoais, radios e botão nativo quando aplicável | Criar instância, preencher, enviar e confirmar START → T1 |
+| `T1` | T01 - Fazer o cadastro | `telefone`, `logradouro`, `cepEndereco`, `numeroEndereco`, `documentoCadastroPdf` | Persistência, upload, atribuição e T1 → T2 |
+| `T2` | T02 - Validar o cadastro | Stage, dados consultáveis e ações `Aprovar`, `Reprovar`, `Solicitar correção` | Exercitar cada gateway, Mensagens, destinatários e encerramento por reprovação |
+| `T3` | T03 - Corrigir o cadastro | Stage condicional, dados corrigíveis e `correcaoRealizada` quando presente | Confirmar Mensagens/histórico, corrigir dados e executar T2 → T3 → T2 |
+| `T4` | T04 - Fazer o contrato | `numeroContrato`, `dataContrato`, `valorContrato`, `documentoContratoPdf` | Persistência, moeda/data, upload/viewer e T4 → T5 |
+| `T5` | T05 - Validar o contrato | Stage, dados contratuais e ações `Aprovar o contrato`, `Reprovar o contrato` | Exercitar as duas decisões, eventos de mensagem e os dois encerramentos |
+| desconhecido | qualquer outro título | `known: false`, `code: null`, UI neutra e sem Stepper | Confirmar que a tela nativa permanece funcional |
 
-- CSS v0.3.0: `ae21b34ed7c3137cbc65cc5834c10be300e44804b5f15222a8a2c92353dd1af0`;
-- JS v0.3.0: `c46580a803831f0a8ca36c7247b42de282f838f072d76375ae1c86cdbb325632`;
-- CSS rollback v0.2.1: `acd01866ad5a20f510d3cfbf331e1280ffef0ec8d24be6dc61e830983f28541e`.
+`T0` não é um stage válido. START é evento inicial; T1–T5 são tarefas humanas. T3 é rota condicional observada, e T5 é uma validação decisória final.
 
-Esses hashes comprovam a integridade e identificam inequivocamente a versão homologada, mesmo com URLs estáveis.
+## Smoke check em cada tela
 
-## 3. Smoke check no h-Zeev
-
-Depois de confirmar os hashes remotos e fazer reload completo com o cache local desabilitado, execute uma vez por tela no console:
+No console da janela ou do frame que contém o Zeev:
 
 ```js
 const report = window.__ZEEV_FIEB__?.diagnostics();
 console.table(report?.checks);
-report;
+console.log(report?.status, report?.task, report?.mount, report?.failedChecks);
 ```
 
-O relatório contém:
+Quando o processo estiver em frame, use `top.frames[0].__ZEEV_FIEB__?.diagnostics()`. Espere `PASS` quando todos os elementos aplicáveis estiverem presentes; `SKIP/N/A` é aceitável apenas para controles não aplicáveis à tela. Investigue todo `FAIL` antes de prosseguir.
 
-- status consolidado `PASS` ou `FAIL`;
-- versão, inicialização, tarefa observada e sincronização do lifecycle;
-- quantidade e posição dos mounts;
-- presença, tipo e estilos mensuráveis dos campos;
-- quantidade de opções e radios marcados por grupo;
-- presença, tipo e estado disabled do `#BtnSend`.
+Em todas as transições, confirme:
 
-O aceite determinístico exige `report.passed === true` e `report.status === "PASS"`. Em caso de `FAIL`, exporte o objeto inteiro e registre os checks reprovados; não repita manualmente cada consulta DOM.
+- um lifecycle em `window.__ZEEV_FIEB__`;
+- um `#zeev-fieb-root`, conectado e antes de `#ContainerForm`;
+- título/stage atualizados sem reload completo;
+- inputs e botões nativos operantes;
+- Stepper horizontal em 900 px ou mais e vertical abaixo de 900 px.
 
-O smoke check deve ser executado após cada transição SPA para confirmar que o runtime acompanhou a nova etapa. A tela `Solicitar registro` deve retornar `task.code === "START"`; as tarefas humanas seguintes devem retornar T1–T5.
+## Papéis e Mensagens
 
-O modelo de domínio possui seis etapas visuais:
+Valide separadamente responsabilidade funcional e atribuição executável. Requisitante/Solicitante/Atendente atua em START, T1 e T3. Gestor Imediato ou Superior/Administrativo atua em T2, T4 e T5. A raia BPMN não substitui a configuração de atribuição do Zeev.
 
-| Índice | Código | Tipo Zeev | Título |
-| :--- | :--- | :--- | :--- |
-| 0 | `START` | Evento de Início | Solicitar registro |
-| 1 | `T1` | Tarefa humana | T01 - Fazer o cadastro |
-| 2 | `T2` | Tarefa humana | T02 - Validar o cadastro |
-| 3 | `T3` | Tarefa humana condicional | T03 - Corrigir o cadastro |
-| 4 | `T4` | Tarefa humana | T04 - Fazer o contrato |
-| 5 | `T5` | Tarefa humana | T05 - Validar o contrato |
+Em solicitação de correção, o validador registra pendências nas Mensagens; T3 consulta o histórico, corrige os dados originais e retorna a T2. Não espere `pendenciasCadastro`.
 
-A configuração BPMN do Evento de Início é responsabilidade do operador no Zeev. O runtime apenas detecta e representa a tela inicial já fornecida pela plataforma.
+## Publicação e rollback
 
-## 4. Validação humana reduzida
+Publique os artefatos gerados e então atualize a configuração do Zeev. O operador humano é responsável por commit, push, deploy e transições reais.
 
-Validar manualmente somente o que o DOM não comprova adequadamente:
+Rollback completo para o Zeev nativo:
 
-- hierarquia visual, legibilidade e coerência entre Island e formulário nativo;
-- radios circulares, alinhados e sem caixa deformada na opção marcada;
-- aparência real do foco por teclado e contraste percebido;
-- ausência de cortes ou sobreposições nos breakpoints de 900, 720 e 600 px;
-- envio pelo botão nativo e transições reais START → T1 → T2 → T3 → T2 → T4 → T5;
-- decisão de correção em T2, correção em T3 e retorno posterior ao fluxo aprovado;
-- preservação dos dados e regras de negócio após cada submit.
+1. remova o `<script>`;
+2. remova o `<link>`;
+3. salve/publique e recarregue sem cache;
+4. confirme ausência de `#zeev-fieb-root` e `window.__ZEEV_FIEB__`.
 
-## 5. Rollback
-
-Remova completamente o script, substitua o stylesheet pelo CSS v0.2.1 e publique a configuração:
+Rollback visual histórico:
 
 ```html
-<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/releases/v0.2.1/zeev-fieb.css?v=0.2.1">
+<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/releases/v0.2.1/zeev-fieb.css">
 ```
 
-Faça reload completo ignorando o cache antes de validar:
-
-```js
-({
-  runtime: typeof window.__ZEEV_FIEB__,
-  roots: document.querySelectorAll('#zeev-fieb-root').length,
-})
-```
-
-O resultado esperado é `{ runtime: "undefined", roots: 0 }`.
-
-## 6. Futuro E2E
-
-Esta fase não adiciona ferramenta E2E. Se uma etapa futura exigir automação de navegador, a dependência e sua versão exata deverão ser propostas antes da implementação, acompanhadas do comando `npm` completo e da justificativa para instalação manual pelo operador, conforme `AGENTS.md`.
+Remova o script v0.3.0 antes de usar esse CSS. A release v0.2.1 é preservada para recuperação, mas não implementa o contrato START/T1–T5 atual.

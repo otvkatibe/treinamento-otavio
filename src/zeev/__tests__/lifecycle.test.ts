@@ -5,13 +5,30 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type {
   LifecycleReason,
+  ProcessExecutionIdentity,
   ZeevFiebRuntime,
 } from '../types';
 
-function zeevMarkup(title = 'Solicitar registro'): string {
+const DEFAULT_IDENTITY: ProcessExecutionIdentity = {
+  uid: 'UID-A',
+  flowExecute: '6683',
+};
+
+function hiddenInput(id: string, value: string | null): string {
+  return value === null
+    ? ''
+    : `<input type="hidden" id="${id}" value="${value}">`;
+}
+
+function zeevMarkup(
+  title = 'Solicitar registro',
+  identity: ProcessExecutionIdentity = DEFAULT_IDENTITY,
+): string {
   return `
     <div id="containerRequest">
       <div class="page-title"><h1>${title}</h1></div>
+      ${hiddenInput('inpCodFlowExecuteUID', identity.uid)}
+      ${hiddenInput('inpCodFlowExecute', identity.flowExecute)}
       <section class="main-col">
         <div id="ContainerForm"><form id="FrmExecute"></form></div>
       </section>
@@ -22,8 +39,23 @@ function zeevMarkup(title = 'Solicitar registro'): string {
   `;
 }
 
-function renderZeevDom(title = 'Solicitar registro'): void {
-  document.body.innerHTML = zeevMarkup(title);
+function renderZeevDom(
+  title = 'Solicitar registro',
+  identity: ProcessExecutionIdentity = DEFAULT_IDENTITY,
+): void {
+  document.body.innerHTML = zeevMarkup(title, identity);
+}
+
+function setIdentity(identity: ProcessExecutionIdentity): void {
+  document.querySelector('#inpCodFlowExecuteUID')?.remove();
+  document.querySelector('#inpCodFlowExecute')?.remove();
+  document.querySelector('#containerRequest')?.insertAdjacentHTML(
+    'afterbegin',
+    `${hiddenInput('inpCodFlowExecuteUID', identity.uid)}${hiddenInput(
+      'inpCodFlowExecute',
+      identity.flowExecute,
+    )}`,
+  );
 }
 
 async function flushMutationObserver(): Promise<void> {
@@ -60,7 +92,7 @@ function syncWithAct(
 beforeEach(() => {
   vi.useFakeTimers();
   document.body.innerHTML = '';
-  window.history.replaceState(null, '', '/processo?instance=1');
+  window.history.replaceState(null, '', '/2.0/request?c=TOKEN-A');
   delete window.__ZEEV_FIEB__;
 });
 
@@ -124,12 +156,14 @@ describe('lifecycle SPA', () => {
     const runtime = boot();
     advanceTimersByTime(100);
     Reflect.deleteProperty(runtime, 'diagnostics');
+    Reflect.deleteProperty(runtime, 'executionIdentity');
 
     const hydratedRuntime = boot();
 
     expect(hydratedRuntime).toBe(runtime);
     expect(window.__ZEEV_FIEB__).toBe(runtime);
     expect(typeof hydratedRuntime.diagnostics).toBe('function');
+    expect(hydratedRuntime.executionIdentity).toBeNull();
   });
 
   it('mantém um mount point após múltiplos syncs manuais', async () => {
@@ -202,6 +236,181 @@ describe('lifecycle SPA', () => {
     );
   });
 
+  it('memoriza a rota observada no ciclo T2 para T3 para T2 sem duplicar stages', async () => {
+    renderZeevDom();
+    window.history.replaceState(null, '', '/2.0/request?c=TOKEN-A');
+    const { sync } = await import('../lifecycle');
+    const titles = [
+      'Solicitar registro',
+      'T01 - Fazer o cadastro',
+      'T02 - Validar o cadastro',
+      'T03 - Corrigir o cadastro',
+      'T02 - Validar o cadastro',
+      'T04 - Fazer o contrato',
+      'T05 - Validar o contrato',
+    ] as const;
+    let runtime = syncWithAct(sync);
+
+    titles.forEach((title, index): void => {
+      const titleElement = document.querySelector('.page-title h1');
+      if (titleElement) titleElement.textContent = title;
+      if (index === 1) {
+        window.history.replaceState(null, '', '/2.0/task?c=TOKEN-B');
+      }
+      runtime = syncWithAct(sync);
+    });
+
+    expect(runtime.currentTask?.code).toBe('T5');
+    expect(runtime.visitedStages).toEqual([
+      'START',
+      'T1',
+      'T2',
+      'T3',
+      'T4',
+      'T5',
+    ]);
+    expect(runtime.viewSignature).toMatchObject({
+      pathname: '/2.0/task',
+      observedExecutionIdentity: DEFAULT_IDENTITY,
+    });
+    expect(runtime.executionIdentity).toEqual(DEFAULT_IDENTITY);
+  });
+
+  it('preserva a rota de T1 para T2 quando c muda e a identidade permanece', async () => {
+    renderZeevDom('T01 - Fazer o cadastro');
+    window.history.replaceState(null, '', '/2.0/task?c=TOKEN-B');
+    const { sync } = await import('../lifecycle');
+
+    const runtime = syncWithAct(sync);
+    expect(runtime.visitedStages).toEqual(['T1']);
+
+    window.history.replaceState(null, '', '/2.0/task?c=TOKEN-C');
+    const title = document.querySelector('.page-title h1');
+    if (title) title.textContent = 'T02 - Validar o cadastro';
+    syncWithAct(sync);
+
+    expect(runtime.visitedStages).toEqual(['T1', 'T2']);
+    expect(runtime.executionIdentity).toEqual(DEFAULT_IDENTITY);
+  });
+
+  it.each([
+    {
+      label: 'UID ausente com flowExecute estavel',
+      observed: { uid: null, flowExecute: '6683' },
+    },
+    {
+      label: 'flowExecute ausente com UID estavel',
+      observed: { uid: 'UID-A', flowExecute: null },
+    },
+  ] as const)('preserva a identidade quando $label', ({ observed }) => {
+    renderZeevDom('T01 - Fazer o cadastro');
+    return import('../lifecycle').then(({ sync }): void => {
+      const runtime = syncWithAct(sync);
+      setIdentity(observed);
+      const title = document.querySelector('.page-title h1');
+      if (title) title.textContent = 'T02 - Validar o cadastro';
+      syncWithAct(sync);
+
+      expect(runtime.executionIdentity).toEqual(DEFAULT_IDENTITY);
+      expect(runtime.visitedStages).toEqual(['T1', 'T2']);
+    });
+  });
+
+  it.each([
+    {
+      label: 'UID primeiro e flowExecute depois',
+      initial: { uid: 'UID-A', flowExecute: null },
+      observed: { uid: null, flowExecute: '6683' },
+    },
+    {
+      label: 'flowExecute primeiro e UID depois',
+      initial: { uid: null, flowExecute: '6683' },
+      observed: { uid: 'UID-A', flowExecute: null },
+    },
+  ] as const)(
+    'complementa aliases sem reiniciar quando $label',
+    ({ initial, observed }) => {
+      renderZeevDom('T01 - Fazer o cadastro', initial);
+      return import('../lifecycle').then(({ sync }): void => {
+        const runtime = syncWithAct(sync);
+        setIdentity(observed);
+        const title = document.querySelector('.page-title h1');
+        if (title) title.textContent = 'T02 - Validar o cadastro';
+        syncWithAct(sync);
+
+        expect(runtime.executionIdentity).toEqual(DEFAULT_IDENTITY);
+        expect(runtime.visitedStages).toEqual(['T1', 'T2']);
+      });
+    },
+  );
+
+  it.each([
+    {
+      label: 'UID conhecido',
+      observed: { uid: 'UID-B', flowExecute: '6683' },
+    },
+    {
+      label: 'flowExecute conhecido',
+      observed: { uid: 'UID-A', flowExecute: '6691' },
+    },
+  ] as const)(
+    'reinicia o historico quando muda o $label',
+    ({ observed }) => {
+      renderZeevDom('T01 - Fazer o cadastro');
+      return import('../lifecycle').then(({ sync }): void => {
+        const runtime = syncWithAct(sync);
+        setIdentity(observed);
+        const title = document.querySelector('.page-title h1');
+        if (title) title.textContent = 'T02 - Validar o cadastro';
+        syncWithAct(sync);
+
+        expect(runtime.executionIdentity).toEqual(observed);
+        expect(runtime.visitedStages).toEqual(['T2']);
+      });
+    },
+  );
+
+  it('preserva estado com observacao inconclusiva e aceita o reaparecimento', async () => {
+    renderZeevDom('T01 - Fazer o cadastro');
+    const { sync } = await import('../lifecycle');
+    const runtime = syncWithAct(sync);
+
+    setIdentity({ uid: null, flowExecute: null });
+    const title = document.querySelector('.page-title h1');
+    if (title) title.textContent = 'T02 - Validar o cadastro';
+    syncWithAct(sync);
+    expect(runtime.executionIdentity).toEqual(DEFAULT_IDENTITY);
+    expect(runtime.visitedStages).toEqual(['T1', 'T2']);
+
+    setIdentity(DEFAULT_IDENTITY);
+    if (title) title.textContent = 'T03 - Corrigir o cadastro';
+    syncWithAct(sync);
+    expect(runtime.executionIdentity).toEqual(DEFAULT_IDENTITY);
+    expect(runtime.visitedStages).toEqual(['T1', 'T2', 'T3']);
+  });
+
+  it('normaliza whitespace e reinicia uma unica vez para nova identidade', async () => {
+    renderZeevDom('T01 - Fazer o cadastro', {
+      uid: '  UID-A  ',
+      flowExecute: ' 6683 ',
+    });
+    const { sync } = await import('../lifecycle');
+    const runtime = syncWithAct(sync);
+    expect(runtime.executionIdentity).toEqual(DEFAULT_IDENTITY);
+
+    setIdentity({ uid: ' UID-B ', flowExecute: ' 6691 ' });
+    const title = document.querySelector('.page-title h1');
+    if (title) title.textContent = 'T02 - Validar o cadastro';
+    syncWithAct(sync);
+    syncWithAct(sync);
+
+    expect(runtime.executionIdentity).toEqual({
+      uid: 'UID-B',
+      flowExecute: '6691',
+    });
+    expect(runtime.visitedStages).toEqual(['T2']);
+  });
+
   it('detecta a substituição completa de containerRequest', async () => {
     renderZeevDom();
     const { sync } = await import('../lifecycle');
@@ -224,6 +433,40 @@ describe('lifecycle SPA', () => {
     expect(initialMount?.isConnected).toBe(false);
     expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
     expect(updatedRuntime.currentTask?.code).toBe('T1');
+    expect(updatedRuntime.executionIdentity).toEqual(DEFAULT_IDENTITY);
+    expect(updatedRuntime.visitedStages).toEqual(['START', 'T1']);
+  });
+
+  it('encerra de forma neutra quando container ou titulo deixam de existir', async () => {
+    renderZeevDom('T05 - Validar o contrato');
+    const { sync } = await import('../lifecycle');
+
+    const runtime = syncWithAct(sync);
+    expect(runtime.visitedStages).toEqual(['T5']);
+
+    document.querySelector('.page-title')?.remove();
+    syncWithAct(sync);
+    expect(runtime.currentTask).toBeNull();
+    expect(runtime.visitedStages).toEqual(['T5']);
+    expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
+
+    document.querySelector('#containerRequest')?.remove();
+    syncWithAct(sync);
+    expect(runtime.currentTask).toBeNull();
+    expect(runtime.executionIdentity).toEqual(DEFAULT_IDENTITY);
+    expect(runtime.visitedStages).toEqual(['T5']);
+    expect(runtime.mountElement).toBeNull();
+    expect(runtime.reactRoot).toBeNull();
+    expect(document.querySelector('#zeev-fieb-root')).toBeNull();
+
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      zeevMarkup('T01 - Fazer o cadastro', DEFAULT_IDENTITY),
+    );
+    syncWithAct(sync);
+    expect(runtime.executionIdentity).toEqual(DEFAULT_IDENTITY);
+    expect(runtime.visitedStages).toEqual(['T5', 'T1']);
+    expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
   });
 
   it('sincroniza mutações estruturais após debounce de 100 ms', async () => {
@@ -310,6 +553,8 @@ describe('lifecycle SPA', () => {
     expect(window.__ZEEV_FIEB__).toBeUndefined();
     expect(runtime.reactRoot).toBeNull();
     expect(runtime.reactMountElement).toBeNull();
+    expect(runtime.executionIdentity).toBeNull();
+    expect(runtime.visitedStages).toEqual([]);
     expect(document.querySelector('#zeev-fieb-root')).toBeNull();
     expect(vi.getTimerCount()).toBe(0);
   });
@@ -337,6 +582,8 @@ describe('lifecycle SPA', () => {
     expect(recoveredRuntime.reactRoot).not.toBe(initialReactRoot);
     expect(recoveredRuntime.reactMountElement).toBe(recoveredRuntime.mountElement);
     expect(recoveredRuntime.mountElement?.isConnected).toBe(true);
+    expect(recoveredRuntime.executionIdentity).toEqual(DEFAULT_IDENTITY);
+    expect(recoveredRuntime.visitedStages).toEqual(['START']);
     expect(
       recoveredRuntime.mountElement?.querySelector(
         '[data-zeev-fieb-island="true"]',

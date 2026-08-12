@@ -61,7 +61,7 @@ describe('React Island', () => {
     expect(screen.getByText(task.description)).toBeInTheDocument();
     expect(
       screen.getByText(
-        `Etapa ${task.stepIndex + 1} de ${PROCESS_STEPS.length}`,
+        new RegExp(`^Etapa ${task.stepIndex + 1} de ${PROCESS_STEPS.length}`),
       ),
     ).toBeInTheDocument();
     expect(screen.getByText('Homologação • v0.3.0')).toBeInTheDocument();
@@ -135,6 +135,36 @@ describe('React Island', () => {
       'future',
     );
     expect(screen.getByText('Condicional')).toBeInTheDocument();
+  });
+
+  it('representa T3 como concluída quando a rota condicional foi observada', () => {
+    render(
+      <App
+        taskContext={taskContext('T2')}
+        visitedStages={['T2', 'T3']}
+      />,
+    );
+
+    expect(document.querySelector('[data-step-code="T3"]')).toHaveAttribute(
+      'data-step-state',
+      'completed',
+    );
+    expect(screen.getByText('Rota percorrida')).toBeInTheDocument();
+    expect(screen.getByText('Etapa 3 de 6 • Revalidação')).toBeInTheDocument();
+  });
+
+  it('explicita a decisão final ao validar o contrato', () => {
+    render(<App taskContext={taskContext('T5')} visitedStages={['T4', 'T5']} />);
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Validar o contrato' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Etapa 6 de 6 • Decisão final')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Revise o contrato e use as ações nativas para aprovar ou reprovar o contrato.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('exibe estado neutro sem Stepper para tarefa desconhecida', () => {

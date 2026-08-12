@@ -1,8 +1,51 @@
 import type { Root } from 'react-dom/client';
 
-export type ProcessStepCode = 'START' | 'T1' | 'T2' | 'T3' | 'T4' | 'T5';
+export type StageCode = 'START' | 'T1' | 'T2' | 'T3' | 'T4' | 'T5';
+
+/** @deprecated Prefer StageCode for new domain contracts. */
+export type ProcessStepCode = StageCode;
 
 export type ProcessStepKind = 'start-event' | 'human-task';
+
+export type ProcessLane =
+  | 'SOLICITANTE'
+  | 'ATENDENTE'
+  | 'ADMINISTRATIVO';
+
+export type ExecutableRole =
+  | 'SOLICITANTE'
+  | 'ATENDENTE'
+  | 'REQUISITANTE'
+  | 'GESTOR_IMEDIATO'
+  | 'SUPERIOR'
+  | 'ADMINISTRATIVO';
+
+export type DecisionCode =
+  | 'APPROVE_REGISTRATION'
+  | 'REQUEST_CORRECTION'
+  | 'REJECT_REGISTRATION'
+  | 'APPROVE_CONTRACT'
+  | 'REJECT_CONTRACT';
+
+export type DecisionOutcome = 'advance' | 'correction-loop' | 'terminate';
+
+export type ZeevFieldKind =
+  | 'text'
+  | 'cpf'
+  | 'single-choice'
+  | 'phone'
+  | 'postal-code'
+  | 'date'
+  | 'currency'
+  | 'long-text'
+  | 'file-or-viewer';
+
+export type StageFieldAccess = 'hidden' | 'read' | 'edit';
+
+export type StageFieldPresence =
+  | 'required'
+  | 'optional'
+  | 'not-applicable';
 
 export type ZeevFieldName =
   | 'nomeCompleto'
@@ -11,12 +54,49 @@ export type ZeevFieldName =
   | 'estadoCivil'
   | 'profissao'
   | 'tipoDocumento'
-  | 'numeroDocumento';
+  | 'numeroDocumento'
+  | 'telefone'
+  | 'logradouro'
+  | 'cepEndereco'
+  | 'numeroEndereco'
+  | 'documentoCadastroPdf'
+  | 'correcaoRealizada'
+  | 'numeroContrato'
+  | 'dataContrato'
+  | 'valorContrato'
+  | 'documentoContratoPdf';
 
 export type ZeevFieldElement =
   | HTMLInputElement
   | HTMLSelectElement
   | HTMLTextAreaElement;
+
+export interface ZeevFieldContract {
+  name: ZeevFieldName;
+  kind: ZeevFieldKind;
+}
+
+export interface StageFieldRule {
+  access: StageFieldAccess;
+  presence: StageFieldPresence;
+}
+
+export interface NativeDecisionContract {
+  code: DecisionCode;
+  zeevLabel: string;
+  outcome: DecisionOutcome;
+}
+
+export interface StageContract {
+  code: StageCode;
+  kind: ProcessStepKind;
+  title: string;
+  lane: ProcessLane;
+  executableRoles: readonly ExecutableRole[];
+  conditional: boolean;
+  fields: Readonly<Record<ZeevFieldName, StageFieldRule>>;
+  decisions: readonly NativeDecisionContract[];
+}
 
 export interface ProcessStepMetadata {
   code: ProcessStepCode;
@@ -34,6 +114,11 @@ export interface ProcessStepContext {
   title: string;
   stepIndex: number | null;
   metadata: ProcessStepMetadata | null;
+}
+
+export interface ProcessExecutionIdentity {
+  uid: string | null;
+  flowExecute: string | null;
 }
 
 export interface AppState {
@@ -68,6 +153,7 @@ export interface ViewSignature {
   title: string | null;
   pathname: string;
   search: string;
+  observedExecutionIdentity: ProcessExecutionIdentity | null;
   root: HTMLElement | null;
 }
 
@@ -109,6 +195,13 @@ export interface SendButtonDiagnostic {
   disabled: boolean | null;
 }
 
+export interface NativeActionDiagnostic {
+  label: string;
+  present: boolean;
+  tagName: string | null;
+  disabled: boolean | null;
+}
+
 export interface MountDiagnostic {
   count: number;
   id: string | null;
@@ -133,7 +226,9 @@ export interface ZeevFiebDiagnostics {
   fields: readonly FieldDiagnostic[];
   radioGroups: readonly RadioGroupDiagnostic[];
   sendButton: SendButtonDiagnostic;
+  actions: readonly NativeActionDiagnostic[];
   checks: readonly DiagnosticCheck[];
+  failedChecks: readonly DiagnosticCheck[];
 }
 
 export interface ZeevFiebRuntime {
@@ -145,6 +240,8 @@ export interface ZeevFiebRuntime {
   reactContentNodes: readonly Node[];
   mountElement: HTMLElement | null;
   currentTask: ProcessStepContext | null;
+  executionIdentity: ProcessExecutionIdentity | null;
+  visitedStages: readonly StageCode[];
   viewSignature: ViewSignature | null;
   syncCount: number;
   lastSyncDuration: number;

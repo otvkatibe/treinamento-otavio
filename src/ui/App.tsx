@@ -6,19 +6,21 @@ import Typography from '@mui/material/Typography';
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 
 import { muiTheme } from '../theme/mui-theme';
-import type { ProcessStepContext, VisualConfig } from '../zeev/types';
+import type { ProcessStepContext, StageCode, VisualConfig } from '../zeev/types';
 import { EnvironmentBadge } from './EnvironmentBadge';
 import { ProcessStepper } from './ProcessStepper';
 import { TaskHeader } from './TaskHeader';
 
 export interface AppProps {
   taskContext: ProcessStepContext | null;
+  visitedStages?: readonly StageCode[];
   environment?: VisualConfig['environment'];
   version?: string;
 }
 
 export function App({
   taskContext,
+  visitedStages = [],
   environment = 'homologacao',
   version = '0.3.0',
 }: AppProps): React.JSX.Element {
@@ -48,10 +50,14 @@ export function App({
                 <Stack spacing={2.5}>
                   <TaskHeader
                     task={task}
+                    correctionRouteObserved={visitedStages.includes('T3')}
                     environment={environment}
                     version={version}
                   />
-                  <ProcessStepper currentTask={task} />
+                  <ProcessStepper
+                    currentTask={task}
+                    visitedStages={visitedStages}
+                  />
                 </Stack>
               </Paper>
             ) : (

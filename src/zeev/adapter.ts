@@ -15,6 +15,8 @@ export interface ZeevAdapterContract {
   getField(name: ZeevFieldName): ZeevFieldElement | null;
   getFields(name: ZeevFieldName): readonly ZeevFieldElement[];
   getSelectedField(name: ZeevFieldName): ZeevFieldElement | null;
+  getNativeActions(): readonly HTMLElement[];
+  getNativeAction(label: string): HTMLElement | null;
   getSendButton(): HTMLButtonElement | null;
 }
 
@@ -90,6 +92,41 @@ function getSendButton(): HTMLButtonElement | null {
   return getRoot()?.querySelector<HTMLButtonElement>(ZEEV_SELECTORS.sendButton) ?? null;
 }
 
+function nativeActionLabel(element: HTMLElement): string {
+  const value =
+    element instanceof HTMLInputElement || element instanceof HTMLButtonElement
+      ? element.value.trim()
+      : '';
+  const textContent = element.textContent?.trim() ?? '';
+  const ariaLabel = element.getAttribute('aria-label')?.trim() ?? '';
+  const rawLabel = value || textContent || ariaLabel;
+
+  return normalizeStepTitle(rawLabel);
+}
+
+function getNativeActions(): readonly HTMLElement[] {
+  const root = getRoot();
+  if (!root) {
+    return [];
+  }
+
+  return Array.from(
+    root.querySelectorAll<HTMLElement>(
+      '#controllers button, #controllers input[type="button"], #controllers input[type="submit"], #controllers a, #buttons button, #buttons input[type="button"], #buttons input[type="submit"], #buttons a, #commands button, #commands input[type="button"], #commands input[type="submit"], #commands a',
+    ),
+  );
+}
+
+function getNativeAction(label: string): HTMLElement | null {
+  const normalizedLabel = normalizeStepTitle(label);
+  return (
+    getNativeActions().find(
+      (element: HTMLElement): boolean =>
+        nativeActionLabel(element) === normalizedLabel,
+    ) ?? null
+  );
+}
+
 export const zeevAdapter: ZeevAdapterContract = Object.freeze({
   getRoot,
   getForm,
@@ -98,5 +135,7 @@ export const zeevAdapter: ZeevAdapterContract = Object.freeze({
   getField,
   getFields,
   getSelectedField,
+  getNativeActions,
+  getNativeAction,
   getSendButton,
 });

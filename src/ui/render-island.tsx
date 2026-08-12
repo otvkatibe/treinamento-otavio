@@ -91,6 +91,7 @@ export function renderIsland(
     runtime.reactRoot?.render(
       <App
         taskContext={runtime.currentTask}
+        visitedStages={runtime.visitedStages}
         environment="homologacao"
         version={runtime.version}
       />,

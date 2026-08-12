@@ -1,42 +1,41 @@
-# Roteiro de Testes e Validação — v0.2.1 (h-Zeev)
+# Testes e homologação — v0.3.0
 
-Este documento estabelece a matriz de testes funcionais, visuais, de acessibilidade e de resiliência para o tema `zeev-fieb-theme` v0.2.1 no ambiente `h-Zeev`.
+## Suíte automatizada
 
----
+```bash
+npm run typecheck
+npm run test
+npm run build
+npm audit
+```
 
-## 1. Cobertura do Evento de Início "Solicitar registro"
+A suíte cobre detecção START/T1–T5 e unknown, campos por `data-name`, lifecycle SPA, root único/reparo/teardown, diagnostics, Stepper responsivo e rota observada T2 → T3 → T2. Testes simulados não comprovam execução BPMN real.
 
-| Código da Etapa | Nome da Etapa | Foco da Validação Visual (v0.2.1) | Resultado Esperado |
-| :--- | :--- | :--- | :--- |
-| **START** | Solicitar registro (Evento de Início) | Formatação escopada sob `#containerRequest #FrmExecute` | Título `#group7724` em azul FIEB, rótulos `td.col0` em 14px 600, barra `#controllers` com botão `#BtnSend` estilizado |
-| **T01** | Fazer o cadastro | Preenchimento dos 7 campos de dados | Textareas compactos com altura ajustada, input CPF com auxílio `.form-text`, checkboxes em linha |
-| **T02** | Validar o cadastro | Campos em modo somente leitura (Read-only / Disabled) | Fundo suave acinzentado `#f1f5f9`, cursor `not-allowed`, sem hover |
+## Matriz
 
----
+| Stage | Automatizado | Homologação humana |
+| --- | --- | --- |
+| START | Título → `START`, sete campos, radios, mount | Abrir evento inicial, preencher e enviar para T1 |
+| T1 | Detecção e cinco campos recentes | Editar, anexar PDF, persistir e concluir para T2 |
+| T2 | Detecção e contrato das três ações | Aprovar, reprovar e solicitar correção em execuções controladas |
+| T3 | Detecção condicional, campos corrigíveis e rota observada | Ler Mensagens, corrigir dados e retornar a T2 |
+| T4 | Detecção e quatro campos contratuais | Validar data/moeda/upload/viewer e concluir para T5 |
+| T5 | Detecção, UI de decisão final e duas ações | Aprovar e reprovar o contrato; confirmar eventos e encerramentos |
+| unknown | `known: false`, `code: null`, sem Stepper | Confirmar tela nativa funcional |
 
-## 2. Matriz de Testes por Componente Real
+Também valide papéis: Requisitante/Solicitante/Atendente em START, T1 e T3; Gestor Imediato ou Superior/Administrativo em T2, T4 e T5. Raia funcional e atribuição executável são verificadas separadamente.
 
-### A. Campos de Texto e Textareas
-- [ ] **`nomeCompleto` (Textarea)**: Caixa com `min-height: 2.75rem`, borda neutra e foco azul.
-- [ ] **`cpfCliente` (Input Text)**: Borda neutra, foco visível, mensagem auxiliar `#td1cpfCliente .form-text` visível abaixo do input.
-- [ ] **`nacionalidade` (Textarea)**: Formatado via `:is(...)` e `@apply`.
-- [ ] **`profissao` (Textarea)**: Textarea limpo sem estouro da tabela.
-- [ ] **`numeroDocumento` (Textarea)**: Estilização consistente com o tema.
+## Checklist visual e SPA
 
-### B. Checkboxes Reais (`estadoCivil` e `tipoDocumento`)
-- [ ] **`estadoCivil` (Checkboxes)**: Renderizados com flexbox (`.form-check`), destaque institucional FIEB ao marcar.
-- [ ] **`tipoDocumento` (Checkboxes)**: Opções CIN, RG, CNH, Passaporte em linha com rótulos `.form-check-label`.
+- exatamente um `#zeev-fieb-root`, antes de `#ContainerForm`;
+- header, status e Stepper coerentes com o título;
+- T3 aparece condicional antes da rota e percorrida após ser observada;
+- T5 exibe `Validar o contrato` e decisão final;
+- Stepper horizontal em largura ≥ 900 px e vertical em largura < 900 px;
+- inputs, Mensagens e botões nativos permanecem operantes;
+- transições SPA não duplicam lifecycle/root;
+- styling de texto, telefone, endereço, CEP, número, data, moeda, arquivo/viewer, textarea e radios permanece escopado.
 
-### C. Barra Inferior e Botão de Envio
-- [ ] **Barra `#controllers`**: Posicionamento `fixed bottom: 0; z-index: 93;` preservado, fundo branco com borda e sombra discreta.
-- [ ] **Botão `#BtnSend`**: Azul FIEB (`#004085`), texto em branco, efeito hover ativado apenas quando habilitado.
-- [ ] **Estado `#BtnSend:disabled`**: Cor acinzentada, sem efeito de hover.
+## Diagnostics
 
----
-
-## 3. Prevenção de Vazamento Visual e Resiliência
-
-- [ ] **Isolamento em Outros Contêineres Zeev**:
-  - Garantir que `#inpDsMessage`, `#inpDsReasonInputReason`, `#btnAddMessage` e `#btnAddFile` em `#containerMessages` / `#containerFiles` não recebam regras globais de formulário.
-- [ ] **Fallback de Rede (Bloqueio do CSS)**:
-  - Se a URL do GitHub Pages for bloqueada, o Zeev exibe o layout nativo sem impedir o envio do formulário.
+Execute `window.__ZEEV_FIEB__?.diagnostics()` (ou pelo frame). Espere `PASS`, investigue `FAIL` e aceite `SKIP/N/A` somente quando o controle não se aplicar. O relatório valida DOM/mount/stage; persistência, atribuição, SLA, Mensagens e gateways exigem homologação humana.

@@ -3,6 +3,12 @@
 import { act } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { ZeevFieldName } from '../types';
+import {
+  EXPECTED_STAGE_FIXTURES,
+  type ExpectedStageFixture,
+} from './fixtures/stage-contracts.fixture';
+
 function textInput(name: string): string {
   return `<input
     type="text"
@@ -38,12 +44,34 @@ function renderCompleteZeevDom(): void {
   `;
 }
 
-function renderTaskDom(title: string, actions = ''): void {
+function fieldMarkup(name: ZeevFieldName): string {
+  if (name === 'estadoCivil' || name === 'tipoDocumento') {
+    return `<input type="radio" name="${name}" data-name="${name}" value="opcao" checked>`;
+  }
+  if (name === 'correcaoRealizada') {
+    return `<textarea data-name="${name}"></textarea>`;
+  }
+  return `<input data-name="${name}">`;
+}
+
+function fixtureFieldsMarkup(fixture: ExpectedStageFixture): string {
+  return [...fixture.fields.requiredEdit, ...fixture.fields.requiredRead]
+    .map((name) => fieldMarkup(name))
+    .join('');
+}
+
+function actionMarkup(labels: readonly string[]): string {
+  return `<div id="controllers"><div id="buttons"><button id="BtnSend">Enviar</button>${labels
+    .map((label) => `<button type="button"> ${label.replaceAll(' ', '   ')} </button>`)
+    .join('')}</div></div>`;
+}
+
+function renderTaskDom(title: string, formContent = '', actions = ''): void {
   document.body.innerHTML = `
     <div id="containerRequest">
       <div class="page-title"><h1>${title}</h1></div>
       <section class="main-col">
-        <div id="ContainerForm"><form id="FrmExecute"></form></div>
+        <div id="ContainerForm"><form id="FrmExecute">${formContent}</form></div>
       </section>
       ${actions}
     </div>
@@ -99,7 +127,7 @@ describe('diagnóstico de homologação', () => {
       connected: true,
       before: 'ContainerForm',
     });
-    expect(report.fields).toHaveLength(7);
+    expect(report.fields).toHaveLength(17);
     expect(report.radioGroups).toEqual([
       {
         name: 'estadoCivil',
@@ -119,7 +147,7 @@ describe('diagnóstico de homologação', () => {
       tagName: 'BUTTON',
       id: 'BtnSend',
     });
-    expect(report.checks.every(({ status }) => status === 'PASS')).toBe(true);
+    expect(report.failedChecks).toEqual([]);
 
     const selectedEstadoCivil = document.querySelector<HTMLInputElement>(
       '[data-name="estadoCivil"]:checked',
@@ -168,6 +196,9 @@ describe('diagnóstico de homologação', () => {
 
     expect(report.status).toBe('FAIL');
     expect(report.passed).toBe(false);
+    expect(report.failedChecks.map(({ id }) => id).sort()).toEqual(
+      failedChecks.sort(),
+    );
     expect(failedChecks).toEqual(
       expect.arrayContaining([
         'mount.unique',
@@ -182,7 +213,10 @@ describe('diagnóstico de homologação', () => {
   });
 
   it('aprova T1 sem aplicar universalmente o contrato de campos de START', async () => {
-    renderTaskDom('T01 - Fazer o cadastro');
+    renderTaskDom(
+      EXPECTED_STAGE_FIXTURES.T1.title,
+      fixtureFieldsMarkup(EXPECTED_STAGE_FIXTURES.T1),
+    );
     const { boot } = await import('../lifecycle');
 
     const runtime = boot();
@@ -223,7 +257,11 @@ describe('diagnóstico de homologação', () => {
   });
 
   it('exige #BtnSend em T1 quando a barra de ações está presente', async () => {
-    renderTaskDom('T01 - Fazer o cadastro', '<div id="controllers"></div>');
+    renderTaskDom(
+      EXPECTED_STAGE_FIXTURES.T1.title,
+      fixtureFieldsMarkup(EXPECTED_STAGE_FIXTURES.T1),
+      '<div id="controllers"></div>',
+    );
     const { boot } = await import('../lifecycle');
 
     const runtime = boot();

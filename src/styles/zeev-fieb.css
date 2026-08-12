@@ -97,12 +97,19 @@
    2. CAMPOS DE TEXTO E TEXTAREAS (ESCOPADOS SOB #FrmExecute)
    ========================================================================== */
 
-#containerRequest #FrmExecute input[type="text"]:is(
+#containerRequest #FrmExecute input:is(
   [data-name="nomeCompleto"],
   [data-name="cpfCliente"],
   [data-name="nacionalidade"],
   [data-name="profissao"],
-  [data-name="numeroDocumento"]
+  [data-name="numeroDocumento"],
+  [data-name="telefone"],
+  [data-name="logradouro"],
+  [data-name="cepEndereco"],
+  [data-name="numeroEndereco"],
+  [data-name="numeroContrato"],
+  [data-name="dataContrato"],
+  [data-name="valorContrato"]
 ) {
   @apply bg-white border border-slate-300 rounded-md text-slate-800 text-sm px-3 py-2 transition-colors duration-150 ease-in-out shadow-xs w-full;
   box-sizing: border-box;
@@ -110,12 +117,19 @@
   max-width: 100%;
 }
 
-#containerRequest #FrmExecute input[type="text"]:is(
+#containerRequest #FrmExecute input:is(
   [data-name="nomeCompleto"],
   [data-name="cpfCliente"],
   [data-name="nacionalidade"],
   [data-name="profissao"],
-  [data-name="numeroDocumento"]
+  [data-name="numeroDocumento"],
+  [data-name="telefone"],
+  [data-name="logradouro"],
+  [data-name="cepEndereco"],
+  [data-name="numeroEndereco"],
+  [data-name="numeroContrato"],
+  [data-name="dataContrato"],
+  [data-name="valorContrato"]
 ):focus-visible {
   @apply outline-2 outline-blue-900 outline-offset-1 border-blue-800 shadow-md;
 }
@@ -132,6 +146,97 @@
 
 #containerRequest #FrmExecute textarea:focus-visible {
   @apply outline-2 outline-blue-900 outline-offset-1 border-blue-800 shadow-md;
+}
+
+/* O resumo da correção é texto longo; as mensagens continuam nativas do Zeev. */
+#containerRequest #FrmExecute textarea[data-name="correcaoRealizada"] {
+  min-height: 7rem;
+}
+
+/* Data e moeda preservam o controle entregue pelo Zeev, sem substituir widgets. */
+#containerRequest #FrmExecute input[data-name="dataContrato"] {
+  color-scheme: light;
+}
+
+#containerRequest #FrmExecute input[data-name="valorContrato"] {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Arquivos: estiliza somente os dois contratos conhecidos e seus viewers locais. */
+#containerRequest #FrmExecute input[type="file"]:is(
+  [data-name="documentoCadastroPdf"],
+  [data-name="documentoContratoPdf"]
+) {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  color: var(--zeev-fieb-text-muted);
+  font-size: 0.875rem;
+  border: 1px solid var(--zeev-fieb-border);
+  border-radius: var(--zeev-fieb-radius-md);
+  background-color: var(--zeev-fieb-surface);
+  overflow: hidden;
+}
+
+#containerRequest #FrmExecute input[type="file"]:is(
+  [data-name="documentoCadastroPdf"],
+  [data-name="documentoContratoPdf"]
+)::file-selector-button {
+  min-height: 40px;
+  margin-right: 0.75rem;
+  padding: 0.5rem 0.875rem;
+  border: 0;
+  border-right: 1px solid var(--zeev-fieb-border);
+  background-color: var(--zeev-fieb-primary-light);
+  color: var(--zeev-fieb-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#containerRequest #FrmExecute input[type="file"]:is(
+  [data-name="documentoCadastroPdf"],
+  [data-name="documentoContratoPdf"]
+):focus-visible {
+  outline: 2px solid var(--zeev-fieb-border-focus);
+  outline-offset: 1px;
+}
+
+#containerRequest #FrmExecute :is(
+  [data-name="documentoCadastroPdf"],
+  [data-name="documentoContratoPdf"]
+) :is(a, iframe, object, embed),
+#containerRequest #FrmExecute a:is(
+  [data-name="documentoCadastroPdf"],
+  [data-name="documentoContratoPdf"]
+) {
+  max-width: 100%;
+  border-radius: var(--zeev-fieb-radius-md);
+}
+
+#containerRequest #FrmExecute :is(
+  [data-name="documentoCadastroPdf"],
+  [data-name="documentoContratoPdf"]
+) a,
+#containerRequest #FrmExecute a:is(
+  [data-name="documentoCadastroPdf"],
+  [data-name="documentoContratoPdf"]
+) {
+  color: var(--zeev-fieb-primary);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+#containerRequest #FrmExecute :is(
+  [data-name="documentoCadastroPdf"],
+  [data-name="documentoContratoPdf"]
+) :is(iframe, object, embed) {
+  display: block;
+  width: 100%;
+  min-height: 20rem;
+  border: 1px solid var(--zeev-fieb-border);
+  background-color: var(--zeev-fieb-background);
 }
 
 /* Mensagem Auxiliar do CPF (CONFIRMADO: #td1cpfCliente .form-text) */

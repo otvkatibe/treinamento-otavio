@@ -1,122 +1,68 @@
-# Tema Visual Corporativo FIEB para Zeev (Ambiente h-Zeev v0.2.1)
+# Zeev FIEB v0.3.0
 
-Customização visual estática, sóbria, moderna e acessível desenvolvida para a plataforma Zeev, compatível com a identidade institucional do **Sistema FIEB**.
+Customização React/TypeScript/Tailwind/MUI do processo `Treinamento - Otávio Katibe` no h-Zeev. O Zeev permanece como fonte de verdade de workflow, formulários, persistência, atribuição, histórico, Mensagens, SLA e ações nativas. A customização acrescenta contexto visual, detecção de etapa, diagnostics e styling escopado.
 
-- **Aplicativo Zeev Target**: `Treinamento - Otávio Katibe`
-- **Ambiente**: `h-Zeev / Homologação`
-- **Versão do Projeto**: `v0.2.1` (Fase 0 concluída para o Evento de Início *"Solicitar registro"*)
-- **Versão do Tailwind CSS**: `Tailwind CSS v4.3.3` (compilado estaticamente via `@tailwindcss/cli`)
-- **Arquivo CSS Final**: `dist/zeev-fieb.css` (~9.9 KB)
+## Contrato do processo
 
----
+| Código | Título Zeev | Natureza | Responsabilidade funcional |
+| --- | --- | --- | --- |
+| `START` | Solicitar registro | Evento inicial | Requisitante / Solicitante / Atendente |
+| `T1` | T01 - Fazer o cadastro | Tarefa humana | Requisitante / Atendente |
+| `T2` | T02 - Validar o cadastro | Tarefa humana decisória | Gestor Imediato ou Superior / Administrativo |
+| `T3` | T03 - Corrigir o cadastro | Tarefa humana condicional | Requisitante / Atendente |
+| `T4` | T04 - Fazer o contrato | Tarefa humana | Gestor Imediato ou Superior / Administrativo |
+| `T5` | T05 - Validar o contrato | Tarefa humana decisória final | Gestor Imediato ou Superior / Administrativo |
 
-## 1. Arquitetura e Decisões de Projeto (v0.2.1)
+`START` é semanticamente distinto de tarefa humana. `T0` não pertence ao contrato vigente. T3 só integra a rota quando T2 solicita correção; no retorno T3 → T2, a interface indica revalidação. Em T5, as decisões reais são `Aprovar o contrato` e `Reprovar o contrato`.
 
-- **CSS Estático Puro no Zeev**: O Zeev recebe unicamente um arquivo CSS compilado (`dist/zeev-fieb.css`). Não há dependência de Node.js, CDN runtime ou scripts JS no navegador.
-- **Escopo Estrito via ID Real (`#containerRequest #FrmExecute`)**: Todas as regras CSS de entrada são escopadas sob `#containerRequest #FrmExecute`, prevenindo vazamentos visuais para contêineres como `#containerMessages` ou `#containerFiles`.
-- **Seletores 100% Confirmados via `data-name`**: Todos os campos utilizam a síntese `[data-name="..."]` (`nomeCompleto`, `cpfCliente`, `nacionalidade`, `estadoCivil`, `profissao`, `tipoDocumento`, `numeroDocumento`).
-- **Checkboxes Reais**: Suporte nativo ao layout dos seletores `estadoCivil` e `tipoDocumento` (CIN, RG, CNH, Passaporte) renderizados como `input[type="checkbox"]` dentro de `.form-check`.
-- **Barra de Botões e Ações (`#controllers` / `#BtnSend`)**: Estilização institucional sóbria da barra inferior (`#controllers` com `position: fixed; bottom: 0; z-index: 93;` preservados) e do botão de submissão (`#BtnSend`).
-- **Design Tokens FIEB**: As cores e medidas principais estão centralizadas em variáveis CSS (`:root`).
-  > `/* PALETA PROVISÓRIA — substituir por tokens oficiais FIEB */`
+Pendências de cadastro são registradas nas Mensagens nativas do Zeev. Não há campo estruturado `pendenciasCadastro` no contrato atual.
 
----
+## Campos por etapa
 
-## 2. Estrutura do Projeto
+- START: `nomeCompleto`, `cpfCliente`, `nacionalidade`, `estadoCivil`, `profissao`, `tipoDocumento`, `numeroDocumento`.
+- T1: `telefone`, `logradouro`, `cepEndereco`, `numeroEndereco`, `documentoCadastroPdf`, além dos dados de origem aplicáveis.
+- T2: dados de cadastro para consulta e ações nativas `Aprovar`, `Reprovar` e `Solicitar correção`.
+- T3: dados originais corrigíveis e `correcaoRealizada` quando entregue pelo DOM.
+- T4: `numeroContrato`, `dataContrato`, `valorContrato`, `documentoContratoPdf`.
+- T5: dados contratuais e ações nativas `Aprovar o contrato` e `Reprovar o contrato`.
 
-```text
-treinamento-otavio/
-├── package.json               # Dependências do build (Tailwind v4.3.3 / Version v0.2.1)
-├── README.md                  # Documentação principal
-├── LIMITACOES.md              # Limitações técnicas e próximos passos
-├── .gitignore                 # Arquivos ignorados pelo Git (.env, zeev-docs, etc.)
-│
-├── src/
-│   └── zeev-fieb.css          # Stylesheet fonte v0.2.1 com tokens e seletores escopados
-│
-├── dist/
-│   └── zeev-fieb.css          # Stylesheet estático compilado para homologação (~9.9 KB)
-│
-├── docs/
-│   ├── seletores.md           # Contrato oficial de seletores confirmados (Fase 0 concluída)
-│   ├── instalacao-zeev.md     # Guia de injeção no h-Zeev e Rollback
-│   ├── debug-h-zeev.md        # Roteiro passo a passo para diagnósticos DevTools
-│   ├── dom-a-validar.md       # Fragmentos de HTML real inspecionados no h-Zeev
-│   └── testes.md              # Roteiro de testes funcionais, acessibilidade e resiliência
-│
-└── index.html                 # Demonstrador local reproduzindo o DOM real do Zeev (100% alinhado)
-```
+## Arquitetura e contrato DOM
 
----
+O lifecycle SPA observa mutações e navegação, mantém um singleton em `window.__ZEEV_FIEB__` e monta exatamente um `#zeev-fieb-root` antes de `#ContainerForm`. A React Island nunca substitui inputs, botões ou decisões nativas.
 
-## 3. Instalação e Build Local
+Seletores estruturais estáveis: `#containerRequest`, `.page-title h1`, `#controllers`, `#buttons`, `#BtnSend`, `#commands`, `#ContainerForm`, `#BoxFrmExecute` e `#FrmExecute`. Campos são localizados preferencialmente por `[data-name="<identificador>"]`, sempre sob o namespace `#containerRequest #FrmExecute` no CSS.
 
-### Pré-requisitos
-- Node.js (v18+)
-- npm (v9+)
+O Stepper tem seis estágios; é horizontal a partir de 900 px e vertical abaixo de 900 px. Telas fora do contrato mantêm fallback neutro (`known: false`, `code: null`) e preservam o título nativo.
 
-### Comandos principais
+## Desenvolvimento e validação
+
+Dependências são gerenciadas exclusivamente pelo operador humano. Com o ambiente já preparado:
 
 ```bash
-# Instalar dependências
-npm install
-
-# Compilar CSS em tempo de desenvolvimento (Watch mode)
-npm run dev
-
-# Compilar CSS estático de produção
+npm run typecheck
+npm run test
 npm run build
+npm audit
 ```
 
-O comando `npm run build` gerará/atualizará o arquivo `dist/zeev-fieb.css`.
+O build produz os artefatos autoritativos `dist/zeev-fieb.js` e `dist/zeev-fieb.css`. Não publique se typecheck, testes ou build falharem.
 
----
+## Publicação
 
-## 4. Publicação para homologação (v0.2.1)
-
-### Passo A: Compilar e Enviar Alterações ao GitHub
-
-Execute os comandos no terminal:
-
-```bash
-npm run build
-
-git add .
-git commit -m "feat: Zeev FIEB theme v0.2.1"
-git push
-```
-
-### Passo B: Configurar o GitHub Pages
-
-1. Acesse o repositório no GitHub: `https://github.com/otvkatibe/treinamento-otavio`
-2. Acesse: **Settings** → **Pages**
-3. Em **Build and deployment** / **Source**: selecione `Deploy from a branch`
-4. Selecione a branch `main` e a pasta `/ (root)`
-5. Clique em **Save**
-
-### URLs Esperadas
-- **URL do Site / Demonstrador**:
-  `https://otvkatibe.github.io/treinamento-otavio/`
-- **URL do CSS Compilado**:
-  `https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css`
-
-### Tag de Injeção no Zeev
-
-Copie a seguinte tag para inserir no ambiente **h-Zeev** (*Scripts e Estilos → Fontes externas → Scripts e estilos nas atividades*):
+Use URLs estáveis, sem query string conflitante:
 
 ```html
-<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css?v=0.2.1">
+<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css">
+<script defer src="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.js"></script>
 ```
 
-> **Controle de Cache**: O parâmetro `?v=0.2.1` força a atualização pelo navegador e previne cache durante a homologação no h-Zeev.
+Depois do deploy, faça reload com cache desabilitado e execute `window.__ZEEV_FIEB__?.diagnostics()` em cada stage. Consulte [homologação v0.3.0](docs/homologacao-v0.3.0.md) para a matriz completa.
 
----
+## Rollback
 
-## 5. Procedimento de Rollback Trivial
+1. Remova o `<script>` v0.3.0.
+2. Para voltar ao Zeev nativo, remova também o `<link>`.
+3. Para restaurar somente o visual estável anterior, use o artefato histórico `releases/v0.2.1/zeev-fieb.css`.
+4. Salve/publique a configuração e confirme que não existe `#zeev-fieb-root` nem `window.__ZEEV_FIEB__`.
 
-Caso haja qualquer instabilidade ou seja necessário reverter para o visual nativo do Zeev:
-
-1. Acesse o Zeev no aplicativo `Treinamento - Otávio Katibe`.
-2. Vá em **Scripts e Estilos** -> **Fontes externas** -> **Scripts e estilos nas atividades**.
-3. Remova ou comente a tag `<link>` do CSS.
-4. Salve e publique a alteração. O formulário voltará imediatamente ao estilo nativo sem afetar dados ou regras de negócio.
+O diretório `releases/v0.2.1` é histórico e não descreve o contrato vigente.

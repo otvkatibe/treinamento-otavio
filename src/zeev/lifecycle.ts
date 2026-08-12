@@ -4,6 +4,7 @@ import { ZEEV_SELECTORS } from './selectors';
 import { renderIsland, unmountIsland } from '../ui/render-island';
 import type {
   LifecycleReason,
+  ProcessExecutionIdentity,
   ProcessStepContext,
   ViewSignature,
   ZeevFiebRuntime,
@@ -24,6 +25,8 @@ function createRuntime(): ZeevFiebRuntime {
     reactContentNodes: [],
     mountElement: null,
     currentTask: null,
+    executionIdentity: null,
+    visitedStages: [],
     viewSignature: null,
     syncCount: 0,
     lastSyncDuration: 0,
@@ -38,9 +41,30 @@ function createRuntime(): ZeevFiebRuntime {
 
 function getOrCreateRuntime(): ZeevFiebRuntime {
   const runtime = window.__ZEEV_FIEB__ ?? createRuntime();
+  if (!isProcessExecutionIdentity(runtime.executionIdentity)) {
+    runtime.executionIdentity = null;
+  }
+  if (!Array.isArray(runtime.visitedStages)) {
+    runtime.visitedStages = [];
+  }
   runtime.diagnostics = runDiagnostics;
   window.__ZEEV_FIEB__ = runtime;
   return runtime;
+}
+
+function isProcessExecutionIdentity(
+  value: unknown,
+): value is ProcessExecutionIdentity {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const candidate = value as Partial<ProcessExecutionIdentity>;
+  return (
+    (typeof candidate.uid === 'string' || candidate.uid === null) &&
+    (typeof candidate.flowExecute === 'string' ||
+      candidate.flowExecute === null)
+  );
 }
 
 function initialize(runtime: ZeevFiebRuntime): void {
@@ -111,11 +135,33 @@ function ensureMountPoint(): HTMLElement | null {
   return mountElement;
 }
 
+function hiddenInputValue(id: string): string | null {
+  const element = document.getElementById(id);
+  if (!(element instanceof HTMLInputElement)) {
+    return null;
+  }
+
+  return element.value.trim() || null;
+}
+
+function readExecutionIdentity(): ProcessExecutionIdentity | null {
+  if (!zeevAdapter.getRoot()) {
+    return null;
+  }
+
+  return {
+    uid: hiddenInputValue('inpCodFlowExecuteUID'),
+    flowExecute: hiddenInputValue('inpCodFlowExecute'),
+  };
+}
+
 function createViewSignature(): ViewSignature {
+  const search = window.location.search;
   return {
     title: zeevAdapter.getCurrentTaskTitle(),
     pathname: window.location.pathname,
-    search: window.location.search,
+    search,
+    observedExecutionIdentity: readExecutionIdentity(),
     root: zeevAdapter.getRoot(),
   };
 }
@@ -129,8 +175,60 @@ function isSameView(
     previous.title === current.title &&
     previous.pathname === current.pathname &&
     previous.search === current.search &&
+    previous.observedExecutionIdentity?.uid ===
+      current.observedExecutionIdentity?.uid &&
+    previous.observedExecutionIdentity?.flowExecute ===
+      current.observedExecutionIdentity?.flowExecute &&
     previous.root === current.root
   );
+}
+
+function hasIdentityValue(identity: ProcessExecutionIdentity): boolean {
+  return identity.uid !== null || identity.flowExecute !== null;
+}
+
+function identityConflicts(
+  known: ProcessExecutionIdentity,
+  observed: ProcessExecutionIdentity,
+): boolean {
+  const uidChanged =
+    known.uid !== null &&
+    observed.uid !== null &&
+    known.uid !== observed.uid;
+  const flowExecuteChanged =
+    known.flowExecute !== null &&
+    observed.flowExecute !== null &&
+    known.flowExecute !== observed.flowExecute;
+
+  return uidChanged || flowExecuteChanged;
+}
+
+function updateVisitedStages(
+  runtime: ZeevFiebRuntime,
+  current: ViewSignature,
+): void {
+  const observed = current.observedExecutionIdentity;
+
+  if (observed && hasIdentityValue(observed)) {
+    const known = runtime.executionIdentity;
+
+    if (known === null) {
+      runtime.executionIdentity = observed;
+    } else if (identityConflicts(known, observed)) {
+      runtime.executionIdentity = observed;
+      runtime.visitedStages = [];
+    } else {
+      runtime.executionIdentity = {
+        uid: known.uid ?? observed.uid,
+        flowExecute: known.flowExecute ?? observed.flowExecute,
+      };
+    }
+  }
+
+  const currentCode = runtime.currentTask?.code;
+  if (currentCode && !runtime.visitedStages.includes(currentCode)) {
+    runtime.visitedStages = [...runtime.visitedStages, currentCode];
+  }
 }
 
 function stepCode(step: ProcessStepContext | null): string {
@@ -188,6 +286,7 @@ export function sync(reason: LifecycleReason = 'manual'): ZeevFiebRuntime {
   runtime.mountElement = nextMountElement;
   runtime.currentTask = zeevAdapter.getCurrentTask();
   runtime.viewSignature = createViewSignature();
+  updateVisitedStages(runtime, runtime.viewSignature);
   runtime.syncCount += 1;
 
   const viewChanged = !isSameView(previousSignature, runtime.viewSignature);
@@ -237,6 +336,8 @@ export function teardown(): void {
     runtime.reactContentNodes = [];
     runtime.mountElement = null;
     runtime.currentTask = null;
+    runtime.executionIdentity = null;
+    runtime.visitedStages = [];
     runtime.viewSignature = null;
     runtime.syncTimer = null;
     runtime.pendingReason = null;

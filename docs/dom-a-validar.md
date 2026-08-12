@@ -1,5 +1,7 @@
 # Registro do DOM Real — h-Zeev (v0.2.1)
 
+> Registro histórico preservado da v0.2.1. Não use este arquivo como contrato vigente: na v0.3.0, `estadoCivil` e `tipoDocumento` são radios, START substitui qualquer semântica antiga de T0 e os novos campos estão documentados em `docs/seletores.md`.
+
 Este documento registra a estrutura HTML real inspecionada no ambiente **h-Zeev** via DevTools durante a execução do Evento de Início *"Solicitar registro"* do aplicativo `Treinamento - Otávio Katibe`.
 
 > **FASE 0 DE DESCOBERTA**: **CONCLUÍDA PARA A TAREFA "SOLICITAR REGISTRO"**

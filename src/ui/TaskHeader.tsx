@@ -10,12 +10,14 @@ import { TaskStatus } from './TaskStatus';
 
 export interface TaskHeaderProps {
   task: ProcessStepMetadata;
+  correctionRouteObserved?: boolean;
   environment: VisualConfig['environment'];
   version: string;
 }
 
 export function TaskHeader({
   task,
+  correctionRouteObserved = false,
   environment,
   version,
 }: TaskHeaderProps): React.JSX.Element {
@@ -48,8 +50,9 @@ export function TaskHeader({
           sx={{ flexWrap: 'wrap' }}
         >
           <TaskStatus
-            stepIndex={task.stepIndex}
+            task={task}
             totalSteps={PROCESS_STEPS.length}
+            correctionRouteObserved={correctionRouteObserved}
           />
           <EnvironmentBadge environment={environment} version={version} />
         </Stack>

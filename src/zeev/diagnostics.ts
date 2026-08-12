@@ -1,11 +1,12 @@
 import { zeevAdapter } from './adapter';
-import { TASK_DIAGNOSTIC_CONTRACTS } from './diagnostic-contracts';
+import { STAGE_CONTRACTS } from './domain-contracts';
 import { ZEEV_FIELDS } from './fields';
 import { ZEEV_SELECTORS } from './selectors';
 import type {
   DiagnosticCheck,
   DiagnosticStatus,
   FieldDiagnostic,
+  NativeActionDiagnostic,
   RadioGroupDiagnostic,
   ProcessStepContext,
   ZeevFiebDiagnostics,
@@ -115,7 +116,7 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
   const runtime = window.__ZEEV_FIEB__;
   const observedTask = zeevAdapter.getCurrentTask();
   const stepContract = observedTask?.code
-    ? TASK_DIAGNOSTIC_CONTRACTS[observedTask.code]
+    ? STAGE_CONTRACTS[observedTask.code]
     : null;
   const mounts = Array.from(
     document.querySelectorAll<HTMLElement>('#zeev-fieb-root'),
@@ -201,7 +202,9 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
   ];
 
   for (const field of fields) {
-    const required = stepContract?.fields.has(field.name) === true;
+    const fieldRule = stepContract?.fields[field.name];
+    const required = fieldRule?.presence === 'required';
+    const optional = fieldRule?.presence === 'optional';
     const isRadioGroup = ZEEV_FIELDS[field.name].structure === 'radio-group';
     const expectedCount = isRadioGroup ? 'uma ou mais opções' : 1;
     const countIsValid = isRadioGroup
@@ -209,7 +212,7 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
       : field.elementCount === 1;
     checks.push(
       conditionalCheck(
-        required || field.present,
+        required || (optional && field.present),
         `field.${field.name}.present`,
         `Campo ${field.name} presente`,
         countIsValid,
@@ -272,9 +275,8 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
   }
 
   const sendButtonApplies =
-    stepContract?.sendButton === 'required' ||
-    (stepContract?.sendButton === 'required-with-actions' &&
-      controllers !== null);
+    observedTask?.code === 'START' ||
+    (observedTask?.code != null && controllers !== null);
   checks.push(
     conditionalCheck(
       sendButtonApplies,
@@ -286,9 +288,39 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
     ),
   );
 
-  const passed = checks.every(
-    ({ status: checkStatus }) => checkStatus !== 'FAIL',
+  const actions: NativeActionDiagnostic[] = (stepContract?.decisions ?? []).map(
+    ({ zeevLabel }): NativeActionDiagnostic => {
+      const element = zeevAdapter.getNativeAction(zeevLabel);
+      const disabled =
+        element instanceof HTMLButtonElement || element instanceof HTMLInputElement
+          ? element.disabled
+          : element?.getAttribute('aria-disabled') === 'true';
+
+      return {
+        label: zeevLabel,
+        present: element !== null,
+        tagName: element?.tagName ?? null,
+        disabled: element ? disabled : null,
+      };
+    },
   );
+
+  actions.forEach((action: NativeActionDiagnostic): void => {
+    checks.push(
+      check(
+        `action.${action.label}`,
+        `Ação nativa ${action.label} disponível`,
+        action.present,
+        action.label,
+        action.present ? action.label : null,
+      ),
+    );
+  });
+
+  const failedChecks = checks.filter(
+    ({ status: checkStatus }) => checkStatus === 'FAIL',
+  );
+  const passed = failedChecks.length === 0;
 
   return {
     passed,
@@ -317,6 +349,8 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
       id: sendButton?.id ?? null,
       disabled: sendButton?.disabled ?? null,
     },
+    actions,
     checks,
+    failedChecks,
   };
 }

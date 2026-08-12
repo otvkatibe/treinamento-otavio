@@ -8,23 +8,25 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
 import { PROCESS_STEPS } from '../zeev/steps';
-import type { ProcessStepMetadata } from '../zeev/types';
+import type { ProcessStepMetadata, StageCode } from '../zeev/types';
 
 type StepState = 'current' | 'completed' | 'future' | 'conditional';
 
 export interface ProcessStepperProps {
   currentTask: ProcessStepMetadata;
+  visitedStages?: readonly StageCode[];
 }
 
 function getStepState(
   step: ProcessStepMetadata,
   currentTask: ProcessStepMetadata,
+  visitedStages: ReadonlySet<StageCode>,
 ): StepState {
   if (step.code === currentTask.code) {
     return 'current';
   }
   if (step.conditional) {
-    return 'conditional';
+    return visitedStages.has(step.code) ? 'completed' : 'conditional';
   }
   if (step.stepIndex < currentTask.stepIndex) {
     return 'completed';
@@ -34,10 +36,12 @@ function getStepState(
 
 export function ProcessStepper({
   currentTask,
+  visitedStages = [],
 }: ProcessStepperProps): React.JSX.Element {
   const theme = useTheme();
   const isCompact = useMediaQuery(theme.breakpoints.down('md'));
   const orientation = isCompact ? 'vertical' : 'horizontal';
+  const visitedStageSet = new Set<StageCode>(visitedStages);
 
   return (
     <Stepper
@@ -47,10 +51,10 @@ export function ProcessStepper({
       data-layout={orientation}
     >
       {PROCESS_STEPS.map((step) => {
-        const state = getStepState(step, currentTask);
+        const state = getStepState(step, currentTask, visitedStageSet);
         const optional = step.conditional ? (
           <Typography component="span" variant="caption" color="text.secondary">
-            Condicional
+            {visitedStageSet.has(step.code) ? 'Rota percorrida' : 'Condicional'}
           </Typography>
         ) : undefined;
 

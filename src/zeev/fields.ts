@@ -8,44 +8,87 @@ interface ZeevFieldDefinition {
 
 export const ZEEV_FIELDS = {
   nomeCompleto: {
-    selector:
-      'input[type="text"][data-name="nomeCompleto"][data-fieldformat="TEXT"]',
+    selector: '[data-name="nomeCompleto"]',
     valueCardinality: 'single',
     structure: 'control',
   },
   cpfCliente: {
-    selector:
-      'input[type="text"][data-name="cpfCliente"][data-fieldformat="TEXT"]',
+    selector: '[data-name="cpfCliente"]',
     valueCardinality: 'single',
     structure: 'control',
   },
   nacionalidade: {
-    selector:
-      'input[type="text"][data-name="nacionalidade"][data-fieldformat="TEXT"]',
+    selector: '[data-name="nacionalidade"]',
     valueCardinality: 'single',
     structure: 'control',
   },
   estadoCivil: {
-    selector:
-      'input[type="radio"][data-name="estadoCivil"][data-fieldformat="RADIO"]',
+    selector: '[data-name="estadoCivil"]',
     valueCardinality: 'single',
     structure: 'radio-group',
   },
   profissao: {
-    selector:
-      'input[type="text"][data-name="profissao"][data-fieldformat="TEXT"]',
+    selector: '[data-name="profissao"]',
     valueCardinality: 'single',
     structure: 'control',
   },
   tipoDocumento: {
-    selector:
-      'input[type="radio"][data-name="tipoDocumento"][data-fieldformat="RADIO"]',
+    selector: '[data-name="tipoDocumento"]',
     valueCardinality: 'single',
     structure: 'radio-group',
   },
   numeroDocumento: {
-    selector:
-      'input[type="text"][data-name="numeroDocumento"][data-fieldformat="TEXT"]',
+    selector: '[data-name="numeroDocumento"]',
+    valueCardinality: 'single',
+    structure: 'control',
+  },
+  telefone: {
+    selector: '[data-name="telefone"]',
+    valueCardinality: 'single',
+    structure: 'control',
+  },
+  logradouro: {
+    selector: '[data-name="logradouro"]',
+    valueCardinality: 'single',
+    structure: 'control',
+  },
+  cepEndereco: {
+    selector: '[data-name="cepEndereco"]',
+    valueCardinality: 'single',
+    structure: 'control',
+  },
+  numeroEndereco: {
+    selector: '[data-name="numeroEndereco"]',
+    valueCardinality: 'single',
+    structure: 'control',
+  },
+  documentoCadastroPdf: {
+    selector: '[data-name="documentoCadastroPdf"]',
+    valueCardinality: 'single',
+    structure: 'control',
+  },
+  correcaoRealizada: {
+    selector: '[data-name="correcaoRealizada"]',
+    valueCardinality: 'single',
+    structure: 'control',
+  },
+  numeroContrato: {
+    selector: '[data-name="numeroContrato"]',
+    valueCardinality: 'single',
+    structure: 'control',
+  },
+  dataContrato: {
+    selector: '[data-name="dataContrato"]',
+    valueCardinality: 'single',
+    structure: 'control',
+  },
+  valorContrato: {
+    selector: '[data-name="valorContrato"]',
+    valueCardinality: 'single',
+    structure: 'control',
+  },
+  documentoContratoPdf: {
+    selector: '[data-name="documentoContratoPdf"]',
     valueCardinality: 'single',
     structure: 'control',
   },
