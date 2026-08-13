@@ -91,7 +91,11 @@ function syncWithAct(
 
 beforeEach(() => {
   vi.useFakeTimers();
+  if (!document.body) {
+    document.documentElement.append(document.createElement('body'));
+  }
   document.body.innerHTML = '';
+  sessionStorage.clear();
   window.history.replaceState(null, '', '/2.0/request?c=TOKEN-A');
   delete window.__ZEEV_FIEB__;
 });
@@ -99,6 +103,9 @@ beforeEach(() => {
 afterEach(async () => {
   const { teardown } = await import('../lifecycle');
   act((): void => teardown());
+  if (!document.body) {
+    document.documentElement.append(document.createElement('body'));
+  }
   document.body.innerHTML = '';
   vi.restoreAllMocks();
   vi.useRealTimers();
@@ -232,7 +239,7 @@ describe('lifecycle SPA', () => {
     );
     expect(runtime.viewSignature?.title).toBe('T01 - Fazer o cadastro');
     expect(infoSpy).toHaveBeenCalledWith(
-      '[Zeev FIEB v0.3.0] view changed: START -> T1',
+      '[Zeev FIEB v0.3.1] view changed: START -> T1',
     );
   });
 
@@ -512,18 +519,19 @@ describe('lifecycle SPA', () => {
     const { boot } = await import('../lifecycle');
 
     const runtime = boot();
-    expect(runtime.initialized).toBe(false);
-    expect(runtime.domReadyHandler).not.toBeNull();
+    expect(runtime.initialized).toBe(true);
+    expect(runtime.bootstrapStatus).toBe('waiting-document');
 
     const body = document.createElement('body');
     body.innerHTML = zeevMarkup();
     document.documentElement.append(body);
     document.dispatchEvent(new Event('DOMContentLoaded'));
+    await flushMutationObserver();
     advanceTimersByTime(100);
 
     expect(runtime.initialized).toBe(true);
-    expect(runtime.domReadyHandler).toBeNull();
     expect(runtime.observer).not.toBeNull();
+    expect(runtime.bootstrapStatus).toBe('mounted');
     expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
   });
 
@@ -641,5 +649,103 @@ describe('lifecycle SPA', () => {
     expect(document.querySelectorAll('[data-zeev-fieb-island="true"]')).toHaveLength(
       1,
     );
+  });
+
+  it('hidrata T2 -> T3 -> T2 como novos documentos da mesma sessão', async () => {
+    const { sync, teardown } = await import('../lifecycle');
+
+    for (const title of [
+      'T02 - Validar o cadastro',
+      'T03 - Corrigir o cadastro',
+      'T02 - Validar o cadastro',
+    ]) {
+      renderZeevDom(title);
+      syncWithAct(sync);
+      act((): void => teardown());
+    }
+
+    renderZeevDom('T02 - Validar o cadastro');
+    const runtime = syncWithAct(sync);
+
+    expect(runtime.executionIdentity).toEqual(DEFAULT_IDENTITY);
+    expect(runtime.visitedStages).toEqual(['T2', 'T3']);
+    expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
+  });
+
+  it('monta quando o container chega durante os retries iniciais', async () => {
+    const { boot } = await import('../lifecycle');
+    const runtime = boot();
+
+    expect(runtime.bootstrapStatus).toBe('waiting-container');
+    document.body.innerHTML = zeevMarkup('T01 - Fazer o cadastro');
+    advanceTimersByTime(100);
+
+    expect(runtime.bootstrapStatus).toBe('mounted');
+    expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
+  });
+
+  it('recupera chegada tardia posterior à janela de retries', async () => {
+    const { boot } = await import('../lifecycle');
+    const runtime = boot();
+
+    advanceTimersByTime(2_000);
+    expect(runtime.bootstrapStatus).toBe('mount-failed');
+
+    document.body.innerHTML = zeevMarkup('T02 - Validar o cadastro');
+    await flushMutationObserver();
+    advanceTimersByTime(100);
+
+    expect(runtime.bootstrapStatus).toBe('mounted');
+    expect(runtime.currentTask?.code).toBe('T2');
+    expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
+  });
+
+  it('repara o mount após substituição de ContainerForm', async () => {
+    renderZeevDom('T02 - Validar o cadastro');
+    const { boot } = await import('../lifecycle');
+    const runtime = boot();
+    const oldContainer = document.querySelector('#ContainerForm');
+
+    oldContainer?.insertAdjacentHTML(
+      'afterend',
+      '<div id="ContainerForm"><form id="FrmExecute"></form></div>',
+    );
+    oldContainer?.remove();
+    await flushMutationObserver();
+    advanceTimersByTime(100);
+
+    expect(runtime.bootstrapStatus).toBe('mounted');
+    expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
+    expect(document.querySelector('#zeev-fieb-root')?.nextElementSibling?.id).toBe(
+      'ContainerForm',
+    );
+  });
+
+  it('continua observando após substituição completa do body', async () => {
+    renderZeevDom('T01 - Fazer o cadastro');
+    const { boot } = await import('../lifecycle');
+    const runtime = boot();
+    const replacement = document.createElement('body');
+    replacement.innerHTML = zeevMarkup('T03 - Corrigir o cadastro');
+
+    document.documentElement.replaceChild(replacement, document.body);
+    await flushMutationObserver();
+    advanceTimersByTime(100);
+
+    expect(runtime.bootstrapStatus).toBe('mounted');
+    expect(runtime.currentTask?.code).toBe('T3');
+    expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
+  });
+
+  it('sincroniza imediatamente ao restaurar o documento por pageshow', async () => {
+    renderZeevDom('T01 - Fazer o cadastro');
+    const { boot } = await import('../lifecycle');
+    const runtime = boot();
+    document.querySelector('#zeev-fieb-root')?.remove();
+
+    window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+
+    expect(runtime.bootstrapStatus).toBe('mounted');
+    expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
   });
 });

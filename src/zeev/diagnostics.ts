@@ -1,12 +1,19 @@
-import { zeevAdapter } from './adapter';
+import {
+  canonicalizeNativeActionLabel,
+  observeNativeAction,
+  zeevAdapter,
+} from './adapter';
 import { STAGE_CONTRACTS } from './domain-contracts';
 import { ZEEV_FIELDS } from './fields';
+import { resolveFieldObservation } from './field-resolver';
+import { resolveNativeStageControls } from './native-controls';
 import { ZEEV_SELECTORS } from './selectors';
 import type {
   DiagnosticCheck,
   DiagnosticStatus,
   FieldDiagnostic,
   NativeActionDiagnostic,
+  NativeControlDiagnostic,
   RadioGroupDiagnostic,
   ProcessStepContext,
   ZeevFiebDiagnostics,
@@ -67,15 +74,36 @@ function inputType(element: ZeevFieldElement | null): string | null {
   return element instanceof HTMLInputElement ? element.type : null;
 }
 
-function fieldDiagnostic(name: ZeevFieldName): FieldDiagnostic {
-  const elements = zeevAdapter.getFields(name);
-  const element = elements[0] ?? null;
+function fieldDiagnostic(
+  name: ZeevFieldName,
+  access: 'hidden' | 'read' | 'edit' = 'edit',
+): FieldDiagnostic {
+  const observation = resolveFieldObservation(name, access);
+  const element = observation.primaryControl;
   const styles = element ? window.getComputedStyle(element) : null;
+  const functionalCandidateCount = observation.candidates.filter(
+    ({ visible }): boolean => visible,
+  ).length;
 
   return {
     name,
-    present: element !== null,
-    elementCount: elements.length,
+    access,
+    present: observation.presence === 'functional',
+    presence: observation.presence,
+    elementCount: observation.logicalElementCount,
+    candidateCount: observation.candidates.length,
+    functionalCandidateCount,
+    technicalCandidateCount:
+      observation.candidates.length - functionalCandidateCount,
+    uploadButtonPresent:
+      observation.uploadButton !== null &&
+      observation.candidates.some(
+        ({ role, visible }): boolean => role === 'upload-button' && visible,
+      ),
+    downloadButtonCount: observation.downloadButtons.length,
+    viewerCount: observation.viewerElements.length,
+    editable: observation.editable,
+    readable: observation.readable,
     tagName: element?.tagName ?? null,
     inputType: inputType(element),
     fieldFormat: element?.getAttribute('data-fieldformat') ?? null,
@@ -126,14 +154,32 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
   const containerForm = root?.querySelector<HTMLElement>(
     ZEEV_SELECTORS.containerForm,
   ) ?? null;
-  const controllers = root?.querySelector<HTMLElement>(
-    ZEEV_SELECTORS.controllers,
-  ) ?? null;
   const fields = (Object.keys(ZEEV_FIELDS) as ZeevFieldName[]).map(
-    fieldDiagnostic,
+    (name: ZeevFieldName): FieldDiagnostic =>
+      fieldDiagnostic(name, stepContract?.fields[name].access ?? 'hidden'),
   );
   const radioGroups = RADIO_GROUP_NAMES.map(radioGroupDiagnostic);
   const sendButton = zeevAdapter.getSendButton();
+  const resolvedNativeControls = stepContract
+    ? resolveNativeStageControls(stepContract, root ?? document)
+    : null;
+  const primaryControl = resolvedNativeControls?.primaryControl ?? null;
+  const primaryObservation = primaryControl
+    ? observeNativeAction(primaryControl)
+    : null;
+  const primaryContract = resolvedNativeControls?.contract.primaryControl ?? null;
+  const nativeControl: NativeControlDiagnostic = {
+    context: resolvedNativeControls?.contract.context ?? null,
+    expectedId: primaryContract?.id ?? null,
+    expectedLabel: primaryContract?.label ?? null,
+    present: primaryControl !== null,
+    tagName: primaryControl?.tagName ?? null,
+    id: primaryControl?.id ?? null,
+    rawLabel: primaryObservation?.rawLabel ?? null,
+    canonicalLabel: primaryObservation?.label ?? null,
+    visible: primaryObservation?.visible ?? false,
+    disabled: primaryObservation?.disabled ?? null,
+  };
   const mountIsBeforeForm =
     mount !== null && mount.nextElementSibling === containerForm;
   const islandElements = mount
@@ -205,19 +251,15 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
     const fieldRule = stepContract?.fields[field.name];
     const required = fieldRule?.presence === 'required';
     const optional = fieldRule?.presence === 'optional';
-    const isRadioGroup = ZEEV_FIELDS[field.name].structure === 'radio-group';
-    const expectedCount = isRadioGroup ? 'uma ou mais opções' : 1;
-    const countIsValid = isRadioGroup
-      ? field.elementCount > 0
-      : field.elementCount === 1;
+    const countIsValid = field.elementCount === 1 && field.present;
     checks.push(
       conditionalCheck(
         required || (optional && field.present),
         `field.${field.name}.present`,
         `Campo ${field.name} presente`,
         countIsValid,
-        expectedCount,
-        field.elementCount,
+        'functional',
+        field.presence,
       ),
     );
   }
@@ -274,33 +316,46 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
     );
   }
 
-  const sendButtonApplies =
-    observedTask?.code === 'START' ||
-    (observedTask?.code != null && controllers !== null);
-  checks.push(
-    conditionalCheck(
-      sendButtonApplies,
-      'sendButton.native',
-      'Botão nativo #BtnSend preservado',
-      sendButton instanceof HTMLButtonElement && sendButton.id === 'BtnSend',
-      'BUTTON#BtnSend',
-      sendButton ? `${sendButton.tagName}#${sendButton.id}` : null,
-    ),
-  );
+  if (primaryContract) {
+    const canonicalExpectedLabel = canonicalizeNativeActionLabel(
+      primaryContract.label,
+    );
+    checks.push(
+      check(
+        primaryContract.id === 'BtnSend'
+          ? 'sendButton.native'
+          : 'completionButton.native',
+        `Controle nativo ${primaryContract.label} preservado`,
+        primaryControl !== null &&
+          primaryControl.id === primaryContract.id &&
+          primaryObservation?.label === canonicalExpectedLabel &&
+          primaryObservation.visible,
+        `${primaryContract.id}:${canonicalExpectedLabel}`,
+        primaryControl
+          ? `${primaryControl.id}:${primaryObservation?.label ?? ''}`
+          : null,
+      ),
+    );
+  }
 
+  const directActionObservations =
+    resolvedNativeControls?.directActions.map(observeNativeAction) ?? [];
   const actions: NativeActionDiagnostic[] = (stepContract?.decisions ?? []).map(
     ({ zeevLabel }): NativeActionDiagnostic => {
-      const element = zeevAdapter.getNativeAction(zeevLabel);
-      const disabled =
-        element instanceof HTMLButtonElement || element instanceof HTMLInputElement
-          ? element.disabled
-          : element?.getAttribute('aria-disabled') === 'true';
+      const canonicalLabel = canonicalizeNativeActionLabel(zeevLabel);
+      const observation = directActionObservations
+        .find(({ label }): boolean => label === canonicalLabel);
+      const element = observation?.element ?? null;
 
       return {
-        label: zeevLabel,
+        label: canonicalLabel,
+        canonicalLabel,
+        rawLabel: observation?.rawLabel ?? null,
         present: element !== null,
         tagName: element?.tagName ?? null,
-        disabled: element ? disabled : null,
+        id: element?.id || null,
+        visible: observation?.visible ?? false,
+        disabled: observation?.disabled ?? null,
       };
     },
   );
@@ -310,7 +365,7 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
       check(
         `action.${action.label}`,
         `Ação nativa ${action.label} disponível`,
-        action.present,
+        action.present && action.visible,
         action.label,
         action.present ? action.label : null,
       ),
@@ -328,6 +383,7 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
     generatedAt: new Date().toISOString(),
     version: runtime?.version ?? null,
     initialized: runtime?.initialized ?? false,
+    bootstrapStatus: runtime?.bootstrapStatus ?? null,
     task: {
       code: observedTask?.code ?? null,
       title: observedTask?.title ?? null,
@@ -343,6 +399,7 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
     },
     fields,
     radioGroups,
+    nativeControl,
     sendButton: {
       present: sendButton !== null,
       tagName: sendButton?.tagName ?? null,

@@ -144,10 +144,19 @@ export interface VisualConfig {
 
 export type LifecycleReason =
   | 'boot'
+  | 'domcontentloaded'
   | 'mutation'
+  | 'pageshow'
   | 'popstate'
   | 'hashchange'
+  | 'retry'
   | 'manual';
+
+export type BootstrapStatus =
+  | 'waiting-document'
+  | 'waiting-container'
+  | 'mounted'
+  | 'mount-failed';
 
 export interface ViewSignature {
   title: string | null;
@@ -171,8 +180,18 @@ export interface DiagnosticCheck {
 
 export interface FieldDiagnostic {
   name: ZeevFieldName;
+  access: StageFieldAccess;
   present: boolean;
+  presence: 'functional' | 'technical-only' | 'absent';
   elementCount: number;
+  candidateCount: number;
+  functionalCandidateCount: number;
+  technicalCandidateCount: number;
+  uploadButtonPresent: boolean;
+  downloadButtonCount: number;
+  viewerCount: number;
+  editable: boolean;
+  readable: boolean;
   tagName: string | null;
   inputType: string | null;
   fieldFormat: string | null;
@@ -196,9 +215,27 @@ export interface SendButtonDiagnostic {
 }
 
 export interface NativeActionDiagnostic {
+  /** Canonical business label retained for backwards compatibility. */
   label: string;
+  canonicalLabel: string;
+  rawLabel: string | null;
   present: boolean;
   tagName: string | null;
+  id: string | null;
+  visible: boolean;
+  disabled: boolean | null;
+}
+
+export interface NativeControlDiagnostic {
+  context: 'start' | 'human-task' | 'decision' | null;
+  expectedId: 'BtnSend' | 'btnFinish' | null;
+  expectedLabel: string | null;
+  present: boolean;
+  tagName: string | null;
+  id: string | null;
+  rawLabel: string | null;
+  canonicalLabel: string | null;
+  visible: boolean;
   disabled: boolean | null;
 }
 
@@ -215,6 +252,7 @@ export interface ZeevFiebDiagnostics {
   generatedAt: string;
   version: string | null;
   initialized: boolean;
+  bootstrapStatus: BootstrapStatus | null;
   task: {
     code: ProcessStepCode | null;
     title: string | null;
@@ -225,6 +263,8 @@ export interface ZeevFiebDiagnostics {
   mount: MountDiagnostic;
   fields: readonly FieldDiagnostic[];
   radioGroups: readonly RadioGroupDiagnostic[];
+  nativeControl: NativeControlDiagnostic;
+  /** @deprecated Prefer nativeControl, which is stage-aware. */
   sendButton: SendButtonDiagnostic;
   actions: readonly NativeActionDiagnostic[];
   checks: readonly DiagnosticCheck[];
@@ -250,6 +290,9 @@ export interface ZeevFiebRuntime {
   popstateHandler: EventListener | null;
   hashchangeHandler: EventListener | null;
   domReadyHandler: EventListener | null;
+  pageshowHandler: EventListener | null;
+  retryTimers: readonly number[];
+  bootstrapStatus: BootstrapStatus;
   diagnostics: () => ZeevFiebDiagnostics;
 }
 

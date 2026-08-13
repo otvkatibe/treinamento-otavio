@@ -2,7 +2,10 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { zeevAdapter } from '../adapter';
+import {
+  canonicalizeNativeActionLabel,
+  zeevAdapter,
+} from '../adapter';
 import { PROCESS_STEPS } from '../steps';
 
 function renderZeevDom(title: string): void {
@@ -56,6 +59,22 @@ afterEach(() => {
 });
 
 describe('zeevAdapter', () => {
+  it.each([
+    ['Reprovar...', 'Reprovar'],
+    ['Reprovar…', 'Reprovar'],
+    ['Solicitar   correção ...', 'Solicitar correção'],
+    ['Solicitar\ncorreção\t…  ', 'Solicitar correção'],
+    ['Aprovar', 'Aprovar'],
+    ['aprovar', 'aprovar'],
+    ['Revisão: aprovar, depois corrigir?', 'Revisão: aprovar, depois corrigir?'],
+    ['Aprovar o contrato', 'Aprovar o contrato'],
+  ] as const)(
+    'canonicaliza conservadoramente o label de ação %j',
+    (rawLabel, expectedLabel): void => {
+      expect(canonicalizeNativeActionLabel(rawLabel)).toBe(expectedLabel);
+    },
+  );
+
   it.each(PROCESS_STEPS)('detecta $code pelo título Zeev exato', (task) => {
     renderZeevDom(`  ${task.title.replaceAll(' ', '   ')}  `);
 
@@ -269,6 +288,88 @@ describe('zeevAdapter', () => {
     `);
 
     expect(zeevAdapter.getNativeAction('Aprovar')?.id).toBe('first-approve');
+  });
+
+  it('resolve as ações decisórias T02 pelo label canônico e preserva a observação real', () => {
+    renderNativeActionsDom(`
+      <div id="controllers">
+        <div id="buttons">
+          <button id="customBtn_Cancelado" type="button">Reprovar...</button>
+          <button id="customBtn_Revisão solicitada" type="button" disabled>
+            Solicitar correção...
+          </button>
+          <button id="btnApprove" type="button" data-result="1">Aprovar</button>
+        </div>
+      </div>
+    `);
+
+    expect(zeevAdapter.getNativeAction('Aprovar')?.id).toBe('btnApprove');
+    expect(zeevAdapter.getNativeAction('Solicitar correção')?.id).toBe(
+      'customBtn_Revisão solicitada',
+    );
+    expect(zeevAdapter.getNativeAction('Reprovar')?.id).toBe(
+      'customBtn_Cancelado',
+    );
+
+    const correction = zeevAdapter
+      .getNativeActionObservations()
+      .find(({ element }): boolean => element.id === 'customBtn_Revisão solicitada');
+
+    expect(correction).toMatchObject({
+      rawLabel: '\n            Solicitar correção...\n          ',
+      label: 'Solicitar correção',
+      visible: true,
+      disabled: true,
+    });
+    expect(correction?.element).toBe(
+      document.getElementById('customBtn_Revisão solicitada'),
+    );
+  });
+
+  it('resolve as duas ações T05 com IDs que contêm espaços sem interpolá-los em CSS', () => {
+    renderNativeActionsDom(`
+      <div id="controllers">
+        <div id="buttons">
+          <button id="customBtn_Reprovar o contrato" type="button">
+            Reprovar o contrato
+          </button>
+          <button id="customBtn_Aprovar o contrato" type="button">
+            Aprovar o contrato
+          </button>
+        </div>
+      </div>
+    `);
+
+    expect(zeevAdapter.getNativeAction('Reprovar o contrato')?.id).toBe(
+      'customBtn_Reprovar o contrato',
+    );
+    expect(zeevAdapter.getNativeAction('Aprovar o contrato')?.id).toBe(
+      'customBtn_Aprovar o contrato',
+    );
+  });
+
+  it('prioriza #buttons, ignora controles funcionalmente ocultos e mantém disabled', () => {
+    renderNativeActionsDom(`
+      <div id="controllers">
+        <button id="fallback-approve" type="button">Aprovar</button>
+        <div id="buttons">
+          <button id="primary-approve" type="button" disabled>Aprovar</button>
+          <div style="display: none">
+            <button id="hidden-reject" type="button">Reprovar</button>
+          </div>
+        </div>
+      </div>
+    `);
+
+    expect(zeevAdapter.getNativeAction('Aprovar')?.id).toBe('primary-approve');
+    expect(zeevAdapter.getNativeAction('Reprovar')).toBeNull();
+    expect(zeevAdapter.getNativeActions()).not.toContain(
+      document.getElementById('hidden-reject'),
+    );
+    expect(zeevAdapter.getNativeActionObservations()[0]).toMatchObject({
+      disabled: true,
+      visible: true,
+    });
   });
 
   it('retorna valores seguros quando o DOM Zeev está ausente', () => {

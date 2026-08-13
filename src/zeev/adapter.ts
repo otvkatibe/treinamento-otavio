@@ -1,4 +1,10 @@
 import { ZEEV_FIELDS } from './fields';
+import {
+  getFunctionalFieldScope,
+  getSemanticFieldCandidates,
+  isElementVisible,
+  selectOperationalField,
+} from './field-resolver';
 import { ZEEV_SELECTORS } from './selectors';
 import { getStepByTitle, normalizeStepTitle } from './steps';
 import type {
@@ -10,14 +16,24 @@ import type {
 export interface ZeevAdapterContract {
   getRoot(): HTMLElement | null;
   getForm(): HTMLElement | null;
+  getForms(): readonly HTMLElement[];
   getCurrentTaskTitle(): string | null;
   getCurrentTask(): ProcessStepContext | null;
   getField(name: ZeevFieldName): ZeevFieldElement | null;
   getFields(name: ZeevFieldName): readonly ZeevFieldElement[];
   getSelectedField(name: ZeevFieldName): ZeevFieldElement | null;
   getNativeActions(): readonly HTMLElement[];
+  getNativeActionObservations(): readonly NativeActionObservation[];
   getNativeAction(label: string): HTMLElement | null;
   getSendButton(): HTMLButtonElement | null;
+}
+
+export interface NativeActionObservation {
+  element: HTMLElement;
+  rawLabel: string;
+  label: string;
+  visible: boolean;
+  disabled: boolean;
 }
 
 function getRoot(): HTMLElement | null {
@@ -25,7 +41,14 @@ function getRoot(): HTMLElement | null {
 }
 
 function getForm(): HTMLElement | null {
-  return getRoot()?.querySelector<HTMLElement>(ZEEV_SELECTORS.form) ?? null;
+  return getForms()[0] ?? null;
+}
+
+function getForms(): readonly HTMLElement[] {
+  const scope = getFunctionalFieldScope();
+  return scope
+    ? Array.from(scope.querySelectorAll<HTMLElement>(ZEEV_SELECTORS.form))
+    : [];
 }
 
 function getCurrentTaskTitle(): string | null {
@@ -56,19 +79,11 @@ function getCurrentTask(): ProcessStepContext | null {
 }
 
 function getFields(name: ZeevFieldName): readonly ZeevFieldElement[] {
-  const form = getForm();
-
-  if (!form) {
-    return [];
-  }
-
-  return Array.from(
-    form.querySelectorAll<ZeevFieldElement>(ZEEV_FIELDS[name].selector),
-  );
+  return getSemanticFieldCandidates(name);
 }
 
 function getField(name: ZeevFieldName): ZeevFieldElement | null {
-  return getFields(name)[0] ?? null;
+  return selectOperationalField(name, getFields(name));
 }
 
 function getSelectedField(name: ZeevFieldName): ZeevFieldElement | null {
@@ -92,16 +107,41 @@ function getSendButton(): HTMLButtonElement | null {
   return getRoot()?.querySelector<HTMLButtonElement>(ZEEV_SELECTORS.sendButton) ?? null;
 }
 
-function nativeActionLabel(element: HTMLElement): string {
+function nativeActionRawLabel(element: HTMLElement): string {
   const value =
     element instanceof HTMLInputElement || element instanceof HTMLButtonElement
-      ? element.value.trim()
+      ? element.value
       : '';
-  const textContent = element.textContent?.trim() ?? '';
-  const ariaLabel = element.getAttribute('aria-label')?.trim() ?? '';
-  const rawLabel = value || textContent || ariaLabel;
+  const textContent = element.textContent ?? '';
+  const ariaLabel = element.getAttribute('aria-label') ?? '';
 
-  return normalizeStepTitle(rawLabel);
+  return value.trim() ? value : textContent.trim() ? textContent : ariaLabel;
+}
+
+export function canonicalizeNativeActionLabel(label: string): string {
+  return label
+    .replace(/\s+/g, ' ')
+    .replace(/\s*(?:\.\.\.|…)\s*$/, '')
+    .trim();
+}
+
+export function observeNativeAction(
+  element: HTMLElement,
+): NativeActionObservation {
+  const rawLabel = nativeActionRawLabel(element);
+  const nativelyDisabled =
+    element instanceof HTMLButtonElement || element instanceof HTMLInputElement
+      ? element.disabled
+      : false;
+
+  return {
+    element,
+    rawLabel,
+    label: canonicalizeNativeActionLabel(rawLabel),
+    visible: isElementVisible(element),
+    disabled:
+      nativelyDisabled || element.getAttribute('aria-disabled') === 'true',
+  };
 }
 
 function getNativeActions(): readonly HTMLElement[] {
@@ -110,32 +150,51 @@ function getNativeActions(): readonly HTMLElement[] {
     return [];
   }
 
-  return Array.from(
-    root.querySelectorAll<HTMLElement>(
-      '#controllers button, #controllers input[type="button"], #controllers input[type="submit"], #controllers a, #buttons button, #buttons input[type="button"], #buttons input[type="submit"], #buttons a, #commands button, #commands input[type="button"], #commands input[type="submit"], #commands a',
-    ),
+  const actionSelector =
+    'button, input[type="button"], input[type="submit"], a';
+  const primaryRegions = Array.from(
+    root.querySelectorAll<HTMLElement>('#buttons'),
   );
+  const fallbackRegions = Array.from(
+    root.querySelectorAll<HTMLElement>('#controllers, #commands'),
+  );
+  const actions = new Set<HTMLElement>();
+
+  [...primaryRegions, ...fallbackRegions].forEach((region: HTMLElement): void => {
+    region
+      .querySelectorAll<HTMLElement>(actionSelector)
+      .forEach((element: HTMLElement): void => {
+        if (isElementVisible(element)) actions.add(element);
+      });
+  });
+
+  return Array.from(actions);
+}
+
+function getNativeActionObservations(): readonly NativeActionObservation[] {
+  return getNativeActions().map(observeNativeAction);
 }
 
 function getNativeAction(label: string): HTMLElement | null {
-  const normalizedLabel = normalizeStepTitle(label);
+  const normalizedLabel = canonicalizeNativeActionLabel(label);
   return (
-    getNativeActions().find(
-      (element: HTMLElement): boolean =>
-        nativeActionLabel(element) === normalizedLabel,
-    ) ?? null
+    getNativeActionObservations().find(
+      ({ label: observedLabel }): boolean => observedLabel === normalizedLabel,
+    )?.element ?? null
   );
 }
 
 export const zeevAdapter: ZeevAdapterContract = Object.freeze({
   getRoot,
   getForm,
+  getForms,
   getCurrentTaskTitle,
   getCurrentTask,
   getField,
   getFields,
   getSelectedField,
   getNativeActions,
+  getNativeActionObservations,
   getNativeAction,
   getSendButton,
 });

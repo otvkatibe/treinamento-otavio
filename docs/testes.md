@@ -1,4 +1,4 @@
-# Testes e homologação — v0.3.0
+# Testes e homologação — v0.3.1
 
 ## Suíte automatizada
 

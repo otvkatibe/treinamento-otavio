@@ -64,7 +64,7 @@ describe('React Island', () => {
         new RegExp(`^Etapa ${task.stepIndex + 1} de ${PROCESS_STEPS.length}`),
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText('Homologação • v0.3.0')).toBeInTheDocument();
+    expect(screen.getByText('Homologação • v0.3.1')).toBeInTheDocument();
     expect(document.querySelector('[data-zeev-fieb-island="true"]')).toHaveAttribute(
       'data-zeev-fieb-task-known',
       'true',
@@ -181,7 +181,7 @@ describe('React Island', () => {
       screen.getByRole('heading', { level: 2, name: 'Etapa não identificada' }),
     ).toBeInTheDocument();
     expect(screen.queryByLabelText('Progresso do processo')).not.toBeInTheDocument();
-    expect(screen.getByText('Homologação • v0.3.0')).toBeInTheDocument();
+    expect(screen.getByText('Homologação • v0.3.1')).toBeInTheDocument();
     expect(document.querySelector('[data-zeev-fieb-island="true"]')).toHaveAttribute(
       'data-zeev-fieb-task-known',
       'false',

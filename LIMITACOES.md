@@ -1,4 +1,4 @@
-# Limitações e fronteiras técnicas — v0.3.0
+# Limitações e fronteiras técnicas — v0.3.1
 
 ## Responsabilidade do Zeev
 
@@ -30,4 +30,4 @@ Testes automatizados usam DOM simulado. Homologação humana continua obrigatór
 
 As URLs de `dist/zeev-fieb.js` e `dist/zeev-fieb.css` são estáveis. Cache e propagação do host podem atrasar a versão efetivamente servida; valide a resposta remota e recarregue sem cache. Não trate hashes ou commits antigos como evidência da build atual.
 
-O rollback para `releases/v0.2.1/zeev-fieb.css` remove a camada React/TypeScript e restaura apenas o visual histórico. Essa versão não conhece o contrato v0.3.0.
+O rollback para `releases/v0.2.1/zeev-fieb.css` remove a camada React/TypeScript e restaura apenas o visual histórico. Essa versão não conhece o contrato v0.3.1.

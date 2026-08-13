@@ -1,4 +1,4 @@
-# Contrato de DOM e seletores — v0.3.0
+# Contrato de DOM e seletores — v0.3.1
 
 ## Estrutura estável
 

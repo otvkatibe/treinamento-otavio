@@ -1,4 +1,4 @@
-# Zeev FIEB v0.3.0
+# Zeev FIEB v0.3.1
 
 Customização React/TypeScript/Tailwind/MUI do processo `Treinamento - Otávio Katibe` no h-Zeev. O Zeev permanece como fonte de verdade de workflow, formulários, persistência, atribuição, histórico, Mensagens, SLA e ações nativas. A customização acrescenta contexto visual, detecção de etapa, diagnostics e styling escopado.
 
@@ -60,7 +60,7 @@ Depois do deploy, faça reload com cache desabilitado e execute `window.__ZEEV_F
 
 ## Rollback
 
-1. Remova o `<script>` v0.3.0.
+1. Remova o `<script>` v0.3.1.
 2. Para voltar ao Zeev nativo, remova também o `<link>`.
 3. Para restaurar somente o visual estável anterior, use o artefato histórico `releases/v0.2.1/zeev-fieb.css`.
 4. Salve/publique a configuração e confirme que não existe `#zeev-fieb-root` nem `window.__ZEEV_FIEB__`.

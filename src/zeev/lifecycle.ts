@@ -1,6 +1,7 @@
 import { zeevAdapter } from './adapter';
 import { runDiagnostics } from './diagnostics';
 import { ZEEV_SELECTORS } from './selectors';
+import { reconcileVisualHistory } from './visual-history';
 import { renderIsland, unmountIsland } from '../ui/render-island';
 import type {
   LifecycleReason,
@@ -10,10 +11,11 @@ import type {
   ZeevFiebRuntime,
 } from './types';
 
-const VERSION = '0.3.0';
+const VERSION = '0.3.1';
 const LOG_PREFIX = `[Zeev FIEB v${VERSION}]`;
 const MOUNT_ID = 'zeev-fieb-root';
 const SYNC_DEBOUNCE_MS = 100;
+const BOOTSTRAP_RETRY_DELAYS_MS = [100, 250, 500, 1_000, 2_000] as const;
 
 function createRuntime(): ZeevFiebRuntime {
   return {
@@ -35,6 +37,9 @@ function createRuntime(): ZeevFiebRuntime {
     popstateHandler: null,
     hashchangeHandler: null,
     domReadyHandler: null,
+    pageshowHandler: null,
+    retryTimers: [],
+    bootstrapStatus: 'waiting-document',
     diagnostics: runDiagnostics,
   };
 }
@@ -47,6 +52,20 @@ function getOrCreateRuntime(): ZeevFiebRuntime {
   if (!Array.isArray(runtime.visitedStages)) {
     runtime.visitedStages = [];
   }
+  if (!Array.isArray(runtime.retryTimers)) {
+    runtime.retryTimers = [];
+  }
+  if (
+    ![
+      'waiting-document',
+      'waiting-container',
+      'mounted',
+      'mount-failed',
+    ].includes(runtime.bootstrapStatus)
+  ) {
+    runtime.bootstrapStatus = 'waiting-document';
+  }
+  runtime.pageshowHandler ??= null;
   runtime.diagnostics = runDiagnostics;
   window.__ZEEV_FIEB__ = runtime;
   return runtime;
@@ -67,12 +86,40 @@ function isProcessExecutionIdentity(
   );
 }
 
+function cancelBootstrapRetries(runtime: ZeevFiebRuntime): void {
+  runtime.retryTimers.forEach((timer: number): void => {
+    window.clearTimeout(timer);
+  });
+  runtime.retryTimers = [];
+}
+
+function scheduleBootstrapRetries(runtime: ZeevFiebRuntime): void {
+  cancelBootstrapRetries(runtime);
+  const timers: number[] = [];
+  BOOTSTRAP_RETRY_DELAYS_MS.forEach((delay: number, index: number): void => {
+    const timer = window.setTimeout((): void => {
+      runtime.retryTimers = runtime.retryTimers.filter(
+        (candidate: number): boolean => candidate !== timer,
+      );
+      const synced = sync('retry');
+      const isLast = index === BOOTSTRAP_RETRY_DELAYS_MS.length - 1;
+      if (isLast && synced.bootstrapStatus !== 'mounted') {
+        synced.bootstrapStatus = document.body
+          ? 'mount-failed'
+          : 'waiting-document';
+      }
+    }, delay);
+    timers.push(timer);
+  });
+  runtime.retryTimers = timers;
+}
+
 function initialize(runtime: ZeevFiebRuntime): void {
   if (runtime.initialized) {
     return;
   }
 
-  if (!document.body) {
+  if (!document.documentElement) {
     if (!runtime.domReadyHandler) {
       runtime.domReadyHandler = () => {
         runtime.domReadyHandler = null;
@@ -86,18 +133,37 @@ function initialize(runtime: ZeevFiebRuntime): void {
   }
 
   runtime.observer = new MutationObserver(() => scheduleSync('mutation'));
-  runtime.observer.observe(document.body, {
+  runtime.observer.observe(document.documentElement, {
     childList: true,
     subtree: true,
   });
 
   runtime.popstateHandler = () => scheduleSync('popstate');
   runtime.hashchangeHandler = () => scheduleSync('hashchange');
+  runtime.pageshowHandler = () => {
+    scheduleBootstrapRetries(runtime);
+    sync('pageshow');
+  };
   window.addEventListener('popstate', runtime.popstateHandler);
   window.addEventListener('hashchange', runtime.hashchangeHandler);
+  window.addEventListener('pageshow', runtime.pageshowHandler);
+
+  if (document.readyState === 'loading' && !runtime.domReadyHandler) {
+    runtime.domReadyHandler = () => {
+      runtime.domReadyHandler = null;
+      sync('domcontentloaded');
+    };
+    document.addEventListener('DOMContentLoaded', runtime.domReadyHandler, {
+      once: true,
+    });
+  }
 
   runtime.initialized = true;
-  scheduleSync('boot');
+  runtime.bootstrapStatus = document.body
+    ? 'waiting-container'
+    : 'waiting-document';
+  scheduleBootstrapRetries(runtime);
+  sync('boot');
 }
 
 function ensureMountPoint(): HTMLElement | null {
@@ -183,52 +249,20 @@ function isSameView(
   );
 }
 
-function hasIdentityValue(identity: ProcessExecutionIdentity): boolean {
-  return identity.uid !== null || identity.flowExecute !== null;
-}
-
-function identityConflicts(
-  known: ProcessExecutionIdentity,
-  observed: ProcessExecutionIdentity,
-): boolean {
-  const uidChanged =
-    known.uid !== null &&
-    observed.uid !== null &&
-    known.uid !== observed.uid;
-  const flowExecuteChanged =
-    known.flowExecute !== null &&
-    observed.flowExecute !== null &&
-    known.flowExecute !== observed.flowExecute;
-
-  return uidChanged || flowExecuteChanged;
-}
-
 function updateVisitedStages(
   runtime: ZeevFiebRuntime,
   current: ViewSignature,
 ): void {
-  const observed = current.observedExecutionIdentity;
-
-  if (observed && hasIdentityValue(observed)) {
-    const known = runtime.executionIdentity;
-
-    if (known === null) {
-      runtime.executionIdentity = observed;
-    } else if (identityConflicts(known, observed)) {
-      runtime.executionIdentity = observed;
-      runtime.visitedStages = [];
-    } else {
-      runtime.executionIdentity = {
-        uid: known.uid ?? observed.uid,
-        flowExecute: known.flowExecute ?? observed.flowExecute,
-      };
-    }
-  }
-
-  const currentCode = runtime.currentTask?.code;
-  if (currentCode && !runtime.visitedStages.includes(currentCode)) {
-    runtime.visitedStages = [...runtime.visitedStages, currentCode];
-  }
+  const history = reconcileVisualHistory(
+    {
+      identity: runtime.executionIdentity,
+      visitedStages: runtime.visitedStages,
+    },
+    current.observedExecutionIdentity,
+    runtime.currentTask?.code ?? null,
+  );
+  runtime.executionIdentity = history.identity;
+  runtime.visitedStages = history.visitedStages;
 }
 
 function stepCode(step: ProcessStepContext | null): string {
@@ -284,6 +318,14 @@ export function sync(reason: LifecycleReason = 'manual'): ZeevFiebRuntime {
   }
 
   runtime.mountElement = nextMountElement;
+  if (nextMountElement) {
+    runtime.bootstrapStatus = 'mounted';
+    cancelBootstrapRetries(runtime);
+  } else if (!document.body) {
+    runtime.bootstrapStatus = 'waiting-document';
+  } else if (reason !== 'retry' || runtime.bootstrapStatus !== 'mount-failed') {
+    runtime.bootstrapStatus = 'waiting-container';
+  }
   runtime.currentTask = zeevAdapter.getCurrentTask();
   runtime.viewSignature = createViewSignature();
   updateVisitedStages(runtime, runtime.viewSignature);
@@ -317,6 +359,7 @@ export function teardown(): void {
       window.clearTimeout(runtime.syncTimer);
     }
     runtime.observer?.disconnect();
+    cancelBootstrapRetries(runtime);
     unmountIsland(runtime);
 
     if (runtime.popstateHandler) {
@@ -324,6 +367,9 @@ export function teardown(): void {
     }
     if (runtime.hashchangeHandler) {
       window.removeEventListener('hashchange', runtime.hashchangeHandler);
+    }
+    if (runtime.pageshowHandler) {
+      window.removeEventListener('pageshow', runtime.pageshowHandler);
     }
     if (runtime.domReadyHandler) {
       document.removeEventListener('DOMContentLoaded', runtime.domReadyHandler);
@@ -344,6 +390,9 @@ export function teardown(): void {
     runtime.popstateHandler = null;
     runtime.hashchangeHandler = null;
     runtime.domReadyHandler = null;
+    runtime.pageshowHandler = null;
+    runtime.retryTimers = [];
+    runtime.bootstrapStatus = 'waiting-document';
   }
 
   document

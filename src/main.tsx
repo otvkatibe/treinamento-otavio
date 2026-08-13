@@ -7,8 +7,26 @@ boot();
 export { App } from './ui/App';
 export { muiTheme } from './theme/mui-theme';
 export { tokens } from './theme/tokens';
-export { zeevAdapter } from './zeev/adapter';
+export {
+  canonicalizeNativeActionLabel,
+  observeNativeAction,
+  zeevAdapter,
+} from './zeev/adapter';
+export type {
+  NativeActionObservation,
+  ZeevAdapterContract,
+} from './zeev/adapter';
 export { runDiagnostics } from './zeev/diagnostics';
+export {
+  getNativeStageControlContract,
+  resolveNativeStageControls,
+} from './zeev/native-controls';
+export type {
+  NativeControlContext,
+  NativePrimaryControlContract,
+  NativeStageControlContract,
+  ResolvedNativeStageControls,
+} from './zeev/native-controls';
 export {
   CONTRACT_DECISIONS,
   CONTRACT_FIELD_NAMES,
@@ -20,6 +38,15 @@ export {
   ZEEV_FIELD_CONTRACTS,
 } from './zeev/domain-contracts';
 export { ZEEV_FIELDS } from './zeev/fields';
+export {
+  reconcileVisualHistory,
+  VISUAL_HISTORY_STORAGE_PREFIX,
+} from './zeev/visual-history';
+export type {
+  StoredVisualHistory,
+  VisualHistoryState,
+  VisualHistoryStorage,
+} from './zeev/visual-history';
 export { boot, scheduleSync, sync, teardown } from './zeev/lifecycle';
 export { ZEEV_SELECTORS } from './zeev/selectors';
 export {
@@ -30,6 +57,7 @@ export {
 } from './zeev/steps';
 export type {
   AppState,
+  BootstrapStatus,
   DiagnosticCheck,
   DiagnosticStatus,
   DiagnosticValue,
@@ -40,6 +68,7 @@ export type {
   LifecycleReason,
   MountDiagnostic,
   NativeActionDiagnostic,
+  NativeControlDiagnostic,
   RadioGroupDiagnostic,
   SendButtonDiagnostic,
   NativeDecisionContract,

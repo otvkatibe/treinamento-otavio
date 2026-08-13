@@ -65,6 +65,22 @@ function renderStage(
     ...(options.additionalFields ?? []),
   ];
   const labels = options.actionLabels ?? fixture.actions;
+  const nativeControls = fixture.code === 'START'
+    ? '<button id="BtnSend">Enviar solicitação</button>'
+    : fixture.actions.length === 0
+      ? '<button id="btnFinish">Concluir</button>'
+      : labels
+          .map((label) => {
+            const rawLabel =
+              fixture.code === 'T2' && label !== 'Aprovar'
+                ? `${label}...`
+                : label;
+            const id = label === 'Aprovar'
+              ? 'btnApprove'
+              : `customBtn_${label}`;
+            return `<div class="mb-2 mr-lg-1 btn-mobile"><button id="${id}" type="button"> ${rawLabel.replaceAll(' ', '   ')} </button></div>`;
+          })
+          .join('');
 
   document.body.innerHTML = `
     <div id="containerRequest">
@@ -73,13 +89,7 @@ function renderStage(
         .map(fieldMarkup)
         .join('')}</form></div></div>
       <div id="controllers"><div id="buttons">
-        <button id="BtnSend">Enviar</button>
-        ${labels
-          .map(
-            (label) =>
-              `<button type="button"> ${label.replaceAll(' ', '   ')} </button>`,
-          )
-          .join('')}
+        ${nativeControls}
       </div></div>
     </div>`;
 }
@@ -129,6 +139,27 @@ describe('diagnostics por fixture literal de stages', () => {
         known: true,
       });
       expect(report.actions.map(({ label }) => label)).toEqual(fixture.actions);
+      if (fixture.actions.length === 0) {
+        expect(report.nativeControl).toMatchObject(
+          fixture.code === 'START'
+            ? {
+                context: 'start',
+                id: 'BtnSend',
+                canonicalLabel: 'Enviar solicitação',
+              }
+            : {
+                context: 'human-task',
+                id: 'btnFinish',
+                canonicalLabel: 'Concluir',
+              },
+        );
+      } else {
+        expect(report.nativeControl).toMatchObject({
+          context: 'decision',
+          expectedId: null,
+          present: false,
+        });
+      }
       expect(report.failedChecks).toEqual([]);
       expect(report.status).toBe('PASS');
 
@@ -237,6 +268,168 @@ describe('diagnostics por fixture literal de stages', () => {
       ]);
     },
   );
+
+  it.each(['sibling', 'deeply-nested'] as const)(
+    'não aceita ação decisória fora do conjunto direto de #buttons: %s',
+    async (placement): Promise<void> => {
+      const fixture = EXPECTED_STAGE_FIXTURES.T2;
+      renderStage(fixture, {
+        actionLabels: fixture.actions.filter(
+          (label) => label !== 'Solicitar correção',
+        ),
+      });
+      const markup =
+        '<button id="outside-correction">Solicitar correção...</button>';
+      const buttons = document.getElementById('buttons');
+      if (!buttons) throw new Error('região #buttons ausente na fixture');
+      if (placement === 'deeply-nested') {
+        buttons.insertAdjacentHTML('beforeend', `<div><div>${markup}</div></div>`);
+      } else {
+        buttons.insertAdjacentHTML('afterend', markup);
+      }
+
+      const { boot } = await import('../lifecycle');
+      const report = boot().diagnostics();
+
+      expect(
+        report.checks.find(
+          ({ id }) => id === 'action.Solicitar correção',
+        )?.status,
+      ).toBe('FAIL');
+    },
+  );
+
+  it('preserva labels brutos de T02 e reporta matching canonicalizado, id e disabled', async () => {
+    renderStage(EXPECTED_STAGE_FIXTURES.T2);
+    const correction = document.getElementById('customBtn_Solicitar correção');
+    const rejection = document.getElementById('customBtn_Reprovar');
+    if (!(correction instanceof HTMLButtonElement) ||
+        !(rejection instanceof HTMLButtonElement)) {
+      throw new Error('ações T02 ausentes na fixture');
+    }
+    correction.textContent = 'Solicitar correção...';
+    rejection.textContent = 'Reprovar...';
+    rejection.disabled = true;
+
+    const { boot } = await import('../lifecycle');
+    const report = boot().diagnostics();
+
+    expect(report.actions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Solicitar correção',
+          canonicalLabel: 'Solicitar correção',
+          rawLabel: 'Solicitar correção...',
+          id: 'customBtn_Solicitar correção',
+          visible: true,
+          disabled: false,
+        }),
+        expect.objectContaining({
+          label: 'Reprovar',
+          rawLabel: 'Reprovar...',
+          disabled: true,
+        }),
+      ]),
+    );
+    expect(report.failedChecks).toEqual([]);
+  });
+
+  it('preserva ids com espaços nas duas ações diretas de T05', async () => {
+    const { report } = await diagnosticReport(EXPECTED_STAGE_FIXTURES.T5);
+
+    expect(report.actions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          canonicalLabel: 'Aprovar o contrato',
+          id: 'customBtn_Aprovar o contrato',
+        }),
+        expect.objectContaining({
+          canonicalLabel: 'Reprovar o contrato',
+          id: 'customBtn_Reprovar o contrato',
+        }),
+      ]),
+    );
+  });
+
+  it('diagnostica Arquivo readonly como composite funcional de viewer e download', async () => {
+    const fixture = EXPECTED_STAGE_FIXTURES.T5;
+    const remainingFields = requiredFieldNames(fixture)
+      .filter((name) => name !== 'documentoContratoPdf')
+      .map(fieldMarkup)
+      .join('');
+    document.body.innerHTML = `
+      <div id="containerRequest">
+        <div class="page-title"><h1>${fixture.title}</h1></div>
+        <div><div id="ContainerForm"><form id="FrmExecute">
+          ${remainingFields}
+          <div id="divdocumentoContratoPdf">
+            <input type="hidden" data-name="documentoContratoPdf">
+            <a href="/arquivo/contrato.pdf">contrato.pdf</a>
+            <button id="btnDownload_documentoContratoPdf">Download</button>
+          </div>
+        </form></div></div>
+        <div id="controllers"><div id="buttons">
+          <button id="customBtn_Aprovar o contrato">Aprovar o contrato</button>
+          <button id="customBtn_Reprovar o contrato">Reprovar o contrato</button>
+        </div></div>
+      </div>`;
+    const { boot } = await import('../lifecycle');
+    const report = boot().diagnostics();
+    const file = report.fields.find(
+      ({ name }) => name === 'documentoContratoPdf',
+    );
+
+    expect(file).toMatchObject({
+      access: 'read',
+      present: true,
+      presence: 'functional',
+      elementCount: 1,
+      downloadButtonCount: 1,
+      viewerCount: 1,
+      editable: false,
+      readable: true,
+      functionalCandidateCount: 2,
+      technicalCandidateCount: 1,
+    });
+    expect(
+      report.checks.find(
+        ({ id }) => id === 'field.documentoContratoPdf.present',
+      )?.status,
+    ).toBe('PASS');
+  });
+
+  it('não aceita Arquivo somente leitura quando o stage exige edição', async () => {
+    const fixture = EXPECTED_STAGE_FIXTURES.T2;
+    renderStage(fixture);
+    document.querySelector('[data-name="documentoCadastroPdf"]')?.remove();
+    const form = document.querySelector('#ContainerForm #FrmExecute');
+    if (!form) throw new Error('formulário ausente na fixture');
+    form.insertAdjacentHTML(
+      'beforeend',
+      `<div id="divdocumentoCadastroPdf">
+        <input type="hidden" data-name="documentoCadastroPdf">
+        <a href="/arquivo/cadastro.pdf">cadastro.pdf</a>
+        <button id="btnDownload_documentoCadastroPdf">Download</button>
+      </div>`,
+    );
+    const { boot } = await import('../lifecycle');
+    const report = boot().diagnostics();
+    const file = report.fields.find(
+      ({ name }) => name === 'documentoCadastroPdf',
+    );
+
+    expect(file).toMatchObject({
+      access: 'edit',
+      presence: 'technical-only',
+      editable: false,
+      readable: true,
+    });
+    expect(
+      report.checks.find(
+        ({ id }) => id === 'field.documentoCadastroPdf.present',
+      )?.status,
+    ).toBe('FAIL');
+  });
 
   it('mantém UNKNOWN neutro, observável e sem contrato de campos ou ações', async () => {
     document.body.innerHTML = `

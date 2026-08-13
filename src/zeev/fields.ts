@@ -3,7 +3,7 @@ import type { ZeevFieldName } from './types';
 interface ZeevFieldDefinition {
   selector: string;
   valueCardinality: 'single';
-  structure: 'control' | 'radio-group';
+  structure: 'control' | 'radio-group' | 'file-composite';
 }
 
 export const ZEEV_FIELDS = {
@@ -65,7 +65,7 @@ export const ZEEV_FIELDS = {
   documentoCadastroPdf: {
     selector: '[data-name="documentoCadastroPdf"]',
     valueCardinality: 'single',
-    structure: 'control',
+    structure: 'file-composite',
   },
   correcaoRealizada: {
     selector: '[data-name="correcaoRealizada"]',
@@ -90,6 +90,6 @@ export const ZEEV_FIELDS = {
   documentoContratoPdf: {
     selector: '[data-name="documentoContratoPdf"]',
     valueCardinality: 'single',
-    structure: 'control',
+    structure: 'file-composite',
   },
 } as const satisfies Record<ZeevFieldName, ZeevFieldDefinition>;

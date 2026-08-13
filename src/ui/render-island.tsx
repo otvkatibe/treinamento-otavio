@@ -33,7 +33,7 @@ export function unmountIsland(runtime: ZeevFiebRuntime): void {
     try {
       root.unmount();
     } catch (error: unknown) {
-      console.warn('[Zeev FIEB v0.3.0] React root unmount failed', error);
+      console.warn('[Zeev FIEB v0.3.1] React root unmount failed', error);
     }
 
     if (associatedMount) {

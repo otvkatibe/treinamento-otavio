@@ -38,7 +38,7 @@ function renderCompleteZeevDom(): void {
         </div>
       </section>
       <div id="controllers">
-        <div id="buttons"><button id="BtnSend">Enviar</button></div>
+        <div id="buttons"><button id="BtnSend">Enviar solicitação</button></div>
       </div>
     </div>
   `;
@@ -58,12 +58,6 @@ function fixtureFieldsMarkup(fixture: ExpectedStageFixture): string {
   return [...fixture.fields.requiredEdit, ...fixture.fields.requiredRead]
     .map((name) => fieldMarkup(name))
     .join('');
-}
-
-function actionMarkup(labels: readonly string[]): string {
-  return `<div id="controllers"><div id="buttons"><button id="BtnSend">Enviar</button>${labels
-    .map((label) => `<button type="button"> ${label.replaceAll(' ', '   ')} </button>`)
-    .join('')}</div></div>`;
 }
 
 function renderTaskDom(title: string, formContent = '', actions = ''): void {
@@ -147,6 +141,15 @@ describe('diagnóstico de homologação', () => {
       tagName: 'BUTTON',
       id: 'BtnSend',
     });
+    expect(report.nativeControl).toMatchObject({
+      context: 'start',
+      expectedId: 'BtnSend',
+      id: 'BtnSend',
+      rawLabel: 'Enviar solicitação',
+      canonicalLabel: 'Enviar solicitação',
+      visible: true,
+      disabled: false,
+    });
     expect(report.failedChecks).toEqual([]);
 
     const selectedEstadoCivil = document.querySelector<HTMLInputElement>(
@@ -216,6 +219,7 @@ describe('diagnóstico de homologação', () => {
     renderTaskDom(
       EXPECTED_STAGE_FIXTURES.T1.title,
       fixtureFieldsMarkup(EXPECTED_STAGE_FIXTURES.T1),
+      '<div id="controllers"><div id="buttons"><button id="btnFinish">Concluir</button></div></div>',
     );
     const { boot } = await import('../lifecycle');
 
@@ -237,8 +241,15 @@ describe('diagnóstico de homologação', () => {
         ?.status,
     ).toBe('SKIP/N/A');
     expect(
-      report.checks.find(({ id }) => id === 'sendButton.native')?.status,
-    ).toBe('SKIP/N/A');
+      report.checks.find(({ id }) => id === 'completionButton.native')?.status,
+    ).toBe('PASS');
+    expect(report.nativeControl).toMatchObject({
+      context: 'human-task',
+      expectedId: 'btnFinish',
+      expectedLabel: 'Concluir',
+      id: 'btnFinish',
+      canonicalLabel: 'Concluir',
+    });
     expect(
       report.checks
         .filter(({ id }) =>
@@ -256,7 +267,7 @@ describe('diagnóstico de homologação', () => {
     ).toBe(true);
   });
 
-  it('exige #BtnSend em T1 quando a barra de ações está presente', async () => {
+  it('exige #btnFinish em T1 quando o controle nativo está ausente', async () => {
     renderTaskDom(
       EXPECTED_STAGE_FIXTURES.T1.title,
       fixtureFieldsMarkup(EXPECTED_STAGE_FIXTURES.T1),
@@ -272,7 +283,85 @@ describe('diagnóstico de homologação', () => {
 
     expect(report.passed).toBe(false);
     expect(
+      report.checks.find(({ id }) => id === 'completionButton.native')?.status,
+    ).toBe('FAIL');
+  });
+
+  it('rejeita controle START com id e label corretos quando não é BUTTON', async () => {
+    renderCompleteZeevDom();
+    const send = document.getElementById('BtnSend');
+    if (!send) throw new Error('controle START ausente na fixture');
+    send.outerHTML = '<div id="BtnSend">Enviar solicitação</div>';
+    const { boot } = await import('../lifecycle');
+    const report = boot().diagnostics();
+
+    expect(report.nativeControl).toMatchObject({
+      context: 'start',
+      expectedId: 'BtnSend',
+      present: false,
+    });
+    expect(
       report.checks.find(({ id }) => id === 'sendButton.native')?.status,
     ).toBe('FAIL');
+  });
+
+  it('diagnostica campos distribuídos em FrmExecute repetidos e arquivo composto', async () => {
+    document.body.innerHTML = `
+      <div id="containerRequest">
+        <div class="page-title"><h1>T01 - Fazer o cadastro</h1></div>
+        <section class="main-col">
+          <div id="ContainerForm">
+            <table id="FrmExecute"><tr><td>
+              ${textInput('nomeCompleto')}
+              ${textInput('cpfCliente')}
+            </td></tr></table>
+            <table id="FrmExecute"><tr><td>
+              ${textInput('telefone')}
+            </td></tr></table>
+            <table id="FrmExecute"><tr><td>
+              ${textInput('logradouro')}
+              ${textInput('cepEndereco')}
+              ${textInput('numeroEndereco')}
+            </td></tr></table>
+            <table id="FrmExecute"><tr><td id="td1documentoCadastroPdf">
+              <div id="divdocumentoCadastroPdf"></div>
+              <input style="display:none" type="text" id="inpdocumentoCadastroPdf" data-name="documentoCadastroPdf" data-fieldformat="FILE">
+              <button type="button" id="btnUploaddocumentoCadastroPdf">anexar arquivo</button>
+            </td></tr></table>
+          </div>
+        </section>
+      </div>
+    `;
+    const { boot } = await import('../lifecycle');
+    const runtime = boot();
+    const report = runtime.diagnostics();
+
+    for (const name of [
+      'telefone',
+      'logradouro',
+      'cepEndereco',
+      'numeroEndereco',
+      'documentoCadastroPdf',
+    ] as const) {
+      expect(report.fields.find((field) => field.name === name)).toMatchObject({
+        present: true,
+        presence: 'functional',
+        elementCount: 1,
+      });
+      expect(
+        report.checks.find(({ id }) => id === `field.${name}.present`)?.status,
+      ).toBe('PASS');
+    }
+
+    expect(
+      report.fields.find(({ name }) => name === 'documentoCadastroPdf'),
+    ).toMatchObject({
+      candidateCount: 2,
+      functionalCandidateCount: 1,
+      technicalCandidateCount: 1,
+      uploadButtonPresent: true,
+      viewerCount: 0,
+    });
+    expect(report.bootstrapStatus).toBe('mounted');
   });
 });
