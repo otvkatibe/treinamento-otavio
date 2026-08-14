@@ -258,6 +258,11 @@ export interface VisualExperienceDiagnostic {
   readonlyScalarRendererCount: number;
   fileShellCount: number;
   decisionPanelCount: number;
+  hostSidebarCount: number;
+  testEnvironmentBarCount: number;
+  messageRegionCount: number;
+  attachmentRegionCount: number;
+  uploadModalCount: number;
 }
 
 export interface ZeevFiebDiagnostics {

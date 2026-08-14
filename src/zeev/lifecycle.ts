@@ -15,7 +15,7 @@ import type {
   ZeevFiebRuntime,
 } from './types';
 
-const VERSION = '0.4.0-rc.1';
+const VERSION = '0.4.0-rc.2';
 const LOG_PREFIX = `[Zeev FIEB v${VERSION}]`;
 const MOUNT_ID = 'zeev-fieb-root';
 const SYNC_DEBOUNCE_MS = 100;

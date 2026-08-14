@@ -1,4 +1,4 @@
-# Instalação da candidata v0.4.0-rc.1 no Zeev
+# Instalação da candidata v0.4.0-rc.2 no Zeev
 
 ## Pré-requisitos
 
@@ -11,8 +11,8 @@
 Cadastre as URLs estáveis abaixo em Scripts e Estilos → Fontes externas → Scripts e estilos nas atividades:
 
 ```html
-<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css?v=0.4.0-rc.1">
-<script defer src="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.js?v=0.4.0-rc.1"></script>
+<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css?v=0.4.0-rc.2">
+<script defer src="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.js?v=0.4.0-rc.2"></script>
 ```
 
 Não misture query strings de releases anteriores. Controle a publicação pelo conteúdo dos artefatos e valide a resposta remota após o deploy.
@@ -25,7 +25,7 @@ Abra START (`Solicitar registro`) e uma tarefa humana. Confirme uma React Island
 window.__ZEEV_FIEB__?.diagnostics()
 ```
 
-Consulte `docs/homologacao-v0.4.0-rc.1.md` para a matriz START/T1–T5 e o retorno T02 → T03 → T02.
+Consulte `docs/homologacao-v0.4.0-rc.2.md` para a homologação exclusiva do START.
 
 ## Rollback
 

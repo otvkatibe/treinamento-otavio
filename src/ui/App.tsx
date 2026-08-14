@@ -21,7 +21,7 @@ export function App({
   taskContext,
   visitedStages = [],
   environment = 'homologacao',
-  version = '0.4.0-rc.1',
+  version = '0.4.0-rc.2',
 }: AppProps): React.JSX.Element {
   const task = taskContext?.metadata ?? null;
 

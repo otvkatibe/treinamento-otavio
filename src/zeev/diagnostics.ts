@@ -215,6 +215,11 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
     readonlyScalarRendererCount: visualRoleCount('readonly-scalar-renderer'),
     fileShellCount: visualRoleCount('file-shell'),
     decisionPanelCount: visualRoleCount('decision-panel'),
+    hostSidebarCount: visualRoleCount('host-sidebar'),
+    testEnvironmentBarCount: visualRoleCount('test-environment-bar'),
+    messageRegionCount: visualRoleCount('start-messages'),
+    attachmentRegionCount: visualRoleCount('start-attachments'),
+    uploadModalCount: visualRoleCount('start-upload-modal'),
   };
   const checks: DiagnosticCheck[] = [
     check(
@@ -375,6 +380,46 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
       visualExperience.decisionPanelCount === 1,
       1,
       visualExperience.decisionPanelCount,
+    ),
+    conditionalCheck(
+      observedTask?.code === 'START' && visualExperience.hostSidebarCount > 0,
+      'visual.start.hostSidebar',
+      'Navegação lateral do START integrada',
+      visualExperience.hostSidebarCount === 1,
+      1,
+      visualExperience.hostSidebarCount,
+    ),
+    conditionalCheck(
+      observedTask?.code === 'START' && visualExperience.testEnvironmentBarCount > 0,
+      'visual.start.testEnvironmentBar',
+      'Faixa de ambiente de teste integrada',
+      visualExperience.testEnvironmentBarCount === 1,
+      1,
+      visualExperience.testEnvironmentBarCount,
+    ),
+    conditionalCheck(
+      observedTask?.code === 'START' && visualExperience.messageRegionCount > 0,
+      'visual.start.messages',
+      'Mensagens do START integradas',
+      visualExperience.messageRegionCount === 1,
+      1,
+      visualExperience.messageRegionCount,
+    ),
+    conditionalCheck(
+      observedTask?.code === 'START' && visualExperience.attachmentRegionCount > 0,
+      'visual.start.attachments',
+      'Anexos do START integrados',
+      visualExperience.attachmentRegionCount === 1,
+      1,
+      visualExperience.attachmentRegionCount,
+    ),
+    conditionalCheck(
+      observedTask?.code === 'START' && visualExperience.uploadModalCount > 0,
+      'visual.start.uploadModal',
+      'Modal Enviar arquivos integrado',
+      visualExperience.uploadModalCount === 1,
+      1,
+      visualExperience.uploadModalCount,
     ),
   );
 

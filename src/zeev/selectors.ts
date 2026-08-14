@@ -13,4 +13,6 @@ export const ZEEV_SELECTORS = {
   formGroups: '#ContainerForm #FrmExecute',
   personalDataGroup: '[data-groupid="7724"]',
   personalDataGroupTitle: '#group7724',
+  messages: '#containerMessages',
+  attachments: '#containerFiles',
 } as const;
