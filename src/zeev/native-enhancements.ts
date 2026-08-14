@@ -10,28 +10,41 @@ const ENHANCED_VALUE = 'native';
 const OWNED_CLASSES_ATTRIBUTE = 'data-zeev-fieb-classes';
 
 const START_CLASSES = {
-  fieldGrid: ['grid', 'w-full', 'grid-cols-12', 'gap-x-5', 'gap-y-4'],
-  fieldRow12: ['col-span-12', 'block', 'min-w-0', 'border-0', 'p-0'],
+  formScope: ['box-border', '!w-full', '!min-w-0', '!max-w-full', '!overflow-x-clip'],
+  formTable: ['!block', '!w-full', '!max-w-full', '!min-w-0', '!table-auto', 'overflow-visible'],
+  structuralContents: ['!contents'],
+  fieldGrid: ['!grid', '!w-full', '!max-w-full', '!min-w-0', 'grid-cols-12', 'gap-x-5', 'gap-y-4', 'overflow-visible'],
+  sectionHeadingRow: ['col-span-12', '!block', '!w-full', '!max-w-full', '!min-w-0', '!border-0', '!p-0'],
+  sectionHeadingCell: ['!block', '!w-full', '!max-w-full', '!min-w-0', '!p-0', '!text-left', '!align-top', '!whitespace-normal', 'text-lg', 'font-bold', 'leading-tight', 'text-slate-900'],
+  fieldCell: ['!block', '!w-full', '!max-w-full', '!min-w-0', '!p-0', '!text-left', '!align-top'],
+  fieldRow12: ['col-span-12', '!block', '!w-auto', '!max-w-full', '!min-w-0', '!border-0', '!p-0', '!text-left', '!align-top'],
   fieldRow6: [
     'col-span-6',
     'max-md:col-span-12',
-    'block',
-    'min-w-0',
-    'border-0',
-    'p-0',
+    '!block',
+    '!w-auto',
+    '!max-w-full',
+    '!min-w-0',
+    '!border-0',
+    '!p-0',
+    '!text-left',
+    '!align-top',
   ],
   fieldLabel: [
     'mb-1.5',
-    'block',
-    'w-full',
-    'min-w-0',
-    'p-0',
+    '!block',
+    '!w-full',
+    '!max-w-full',
+    '!min-w-0',
+    '!p-0',
+    '!text-left',
+    '!align-top',
     'text-[0.8125rem]',
     'font-bold',
     'leading-snug',
     'text-slate-700',
   ],
-  fieldShell: ['block', 'w-full', 'min-w-0', 'box-border', 'p-0'],
+  fieldShell: ['!block', '!w-full', '!max-w-full', '!min-w-0', 'box-border', '!p-0', '!text-left', '!align-top'],
   input: [
     'h-[42px]',
     'w-full',
@@ -51,26 +64,24 @@ const START_CLASSES = {
     'focus-visible:outline-offset-1',
     'focus-visible:outline-blue-700',
   ],
-  radioGrid: [
-    'grid',
-    'grid-cols-[repeat(auto-fit,minmax(9.5rem,1fr))]',
-    'gap-2.5',
-    'max-[390px]:grid-cols-1',
-  ],
+  radioGroup: ['!flex', '!w-full', '!max-w-full', '!min-w-0', 'flex-wrap', 'items-stretch', 'gap-2.5', 'overflow-visible'],
   radioChoice: [
-    'm-0',
-    'flex',
-    'min-h-11',
-    'w-full',
-    'items-center',
-    'gap-2',
-    'whitespace-normal',
-    'rounded-[0.625rem]',
-    'border',
-    'border-slate-300',
-    'bg-white',
-    'px-3',
-    'py-2.5',
+    '!m-0',
+    '!inline-flex',
+    '!flex-none',
+    'basis-auto',
+    '!min-h-11',
+    '!w-auto',
+    '!max-w-full',
+    '!items-center',
+    '!gap-2',
+    '!whitespace-nowrap',
+    '!rounded-[0.625rem]',
+    '!border',
+    '!border-slate-300',
+    '!bg-white',
+    '!px-3',
+    '!py-2.5',
     'transition-colors',
     'duration-150',
     'hover:border-blue-300',
@@ -188,6 +199,10 @@ const START_CLASSES = {
   ],
   actionArea: [
     'relative',
+    'box-border',
+    'w-full',
+    'max-w-full',
+    'overflow-x-clip',
     'col-start-1',
     'bottom-auto',
     'm-0',
@@ -678,19 +693,100 @@ function enhanceStartUploadModal(): Pick<
   };
 }
 
+function startSectionHeadingRows(scope: ParentNode): HTMLElement[] {
+  return Array.from(scope.querySelectorAll<HTMLElement>('tr')).filter(
+    (row): boolean =>
+      Array.from(row.children).some(
+        (cell): boolean =>
+          cell instanceof HTMLElement && normalizedText(cell) === 'dados pessoais',
+      ),
+  );
+}
+
+function normalizeStartFormStructure(
+  fieldShells: readonly HTMLElement[],
+): void {
+  const formScope = document.querySelector<HTMLElement>(
+    ZEEV_SELECTORS.containerForm,
+  );
+  if (!formScope) return;
+  decorate(formScope, 'start-form-scope', START_CLASSES.formScope);
+
+  const fieldRows = Array.from(
+    new Set(
+      fieldShells
+        .map((shell): HTMLElement | null => shell.closest<HTMLElement>('tr'))
+        .filter((row): row is HTMLElement => row !== null),
+    ),
+  );
+  const headingRows = startSectionHeadingRows(formScope);
+  const layoutRows = [...headingRows, ...fieldRows];
+  if (layoutRows.length === 0) return;
+
+  const gridRoot = commonAncestor(layoutRows);
+  if (!gridRoot || !formScope.contains(gridRoot)) return;
+  decorate(gridRoot, 'start-field-grid', START_CLASSES.fieldGrid);
+
+  const tables = new Set<HTMLElement>();
+  const bodies = new Set<HTMLElement>();
+  layoutRows.forEach((row): void => {
+    const table = row.closest<HTMLElement>('table');
+    const body = row.closest<HTMLElement>('tbody');
+    if (table) tables.add(table);
+    if (body) bodies.add(body);
+  });
+
+  tables.forEach((table): void => {
+    decorate(
+      table,
+      'start-form-table',
+      table === gridRoot || table.contains(gridRoot)
+        ? START_CLASSES.formTable
+        : START_CLASSES.structuralContents,
+    );
+  });
+  bodies.forEach((body): void => {
+    if (body === gridRoot) return;
+    decorate(body, 'start-form-body', START_CLASSES.structuralContents);
+  });
+
+  layoutRows.forEach((row): void => {
+    let ancestor = row.parentElement;
+    while (ancestor && ancestor !== gridRoot) {
+      if (!tables.has(ancestor) && !bodies.has(ancestor)) {
+        decorate(
+          ancestor,
+          'start-form-structural-wrapper',
+          START_CLASSES.structuralContents,
+        );
+      }
+      ancestor = ancestor.parentElement;
+    }
+  });
+
+  headingRows.forEach((row): void => {
+    decorate(row, 'start-section-heading-row', START_CLASSES.sectionHeadingRow);
+    Array.from(row.children).forEach((cell): void => {
+      if (cell instanceof HTMLElement) {
+        decorate(
+          cell,
+          'start-section-heading',
+          START_CLASSES.sectionHeadingCell,
+        );
+      }
+    });
+  });
+}
+
 function enhanceStartFields(fieldShells: readonly HTMLElement[]): void {
+  normalizeStartFormStructure(fieldShells);
   fieldShells.forEach((shell): void => {
     const name = shell.getAttribute('data-zeev-fieb-field');
     shell.setAttribute(
       'data-zeev-fieb-grid-span',
       name === 'cpfCliente' || name === 'nacionalidade' ? '6' : '12',
     );
-    decorate(shell, 'field-shell', [
-      ...START_CLASSES.fieldShell,
-      ...(name === 'estadoCivil' || name === 'tipoDocumento'
-        ? START_CLASSES.radioGrid
-        : []),
-    ], {
+    decorate(shell, 'field-shell', START_CLASSES.fieldShell, {
       'data-zeev-fieb-field': name ?? '',
       'data-zeev-fieb-access': 'edit',
     });
@@ -704,17 +800,21 @@ function enhanceStartFields(fieldShells: readonly HTMLElement[]): void {
           : START_CLASSES.fieldRow12,
         { 'data-zeev-fieb-field': name ?? '' },
       );
-      const labelCell = row.querySelector<HTMLElement>('td.col0');
+      Array.from(row.children).forEach((cell): void => {
+        if (cell instanceof HTMLElement && cell !== shell) {
+          decorate(cell, 'start-field-cell', START_CLASSES.fieldCell, {
+            'data-zeev-fieb-field': name ?? '',
+          });
+        }
+      });
+      const previousCell = shell.previousElementSibling;
+      const labelCell =
+        row.querySelector<HTMLElement>('td.col0, th.col0') ??
+        (previousCell instanceof HTMLElement ? previousCell : null);
       if (labelCell) {
         decorate(labelCell, 'start-field-label', START_CLASSES.fieldLabel, {
           'data-zeev-fieb-field': name ?? '',
         });
-      }
-      const grid = row.parentElement;
-      if (grid?.matches('tbody')) {
-        decorate(grid, 'start-field-grid', START_CLASSES.fieldGrid);
-        const table = grid.closest<HTMLElement>('#FrmExecute');
-        if (table) decorate(table, 'start-form-table', ['block', 'w-full']);
       }
     }
     shell
@@ -725,7 +825,20 @@ function enhanceStartFields(fieldShells: readonly HTMLElement[]): void {
         applyTailwindClasses(control, START_CLASSES.input);
       });
     if (name !== 'estadoCivil' && name !== 'tipoDocumento') return;
-    shell.querySelectorAll<HTMLElement>('.form-check').forEach((choice): void => {
+    const choices = Array.from(
+      shell.querySelectorAll<HTMLElement>('.form-check'),
+    );
+    const choiceGroup = commonAncestor(choices);
+    if (choiceGroup && shell.contains(choiceGroup)) {
+      if (choiceGroup === shell) {
+        applyTailwindClasses(choiceGroup, START_CLASSES.radioGroup);
+      } else {
+        decorate(choiceGroup, 'radio-choice-group', START_CLASSES.radioGroup, {
+          'data-zeev-fieb-field': name,
+        });
+      }
+    }
+    choices.forEach((choice): void => {
       decorate(choice, 'radio-choice-card', START_CLASSES.radioChoice, {
         'data-zeev-fieb-field': name,
         'data-zeev-fieb-access': 'edit',

@@ -4,6 +4,7 @@ import {
   enhanceNativeExperience,
   resetNativeEnhancements,
 } from '../native-enhancements';
+import { startRealTableMarkup } from './fixtures/start-real-table.fixture';
 
 function fieldRow(name: string, label: string, control: string): string {
   return `<tr><td class="col0"><label>${label}</label></td><td class="col1" id="td1${name}">${control}</td></tr>`;
@@ -85,6 +86,81 @@ afterEach((): void => {
 });
 
 describe('refinamento nativo exclusivo do START', () => {
+  it('normaliza o markup tabular real antes de aplicar o grid responsivo', () => {
+    document.body.innerHTML = startRealTableMarkup();
+    const originalNodes = Array.from(document.querySelectorAll('*'));
+
+    const summary = enhanceNativeExperience('START');
+
+    expect(summary.fieldShells).toHaveLength(7);
+    expect(Array.from(document.querySelectorAll('*'))).toEqual(originalNodes);
+    expect(document.querySelector('#ContainerForm')).toHaveClass(
+      'box-border',
+      '!w-full',
+      '!max-w-full',
+      '!overflow-x-clip',
+    );
+    expect(document.querySelector('#BoxFrmExecute')).toHaveClass(
+      '!grid',
+      'grid-cols-12',
+      '!max-w-full',
+      '!min-w-0',
+    );
+    document.querySelectorAll('.legacy-field-table, .legacy-heading-table').forEach(
+      (table): void => {
+        expect(table).toHaveClass('!contents');
+      },
+    );
+    document.querySelectorAll('#BoxFrmExecute tbody').forEach((body): void => {
+      expect(body).toHaveClass('!contents');
+    });
+
+    const headingRow = document.querySelector('.legacy-heading-row');
+    expect(headingRow).toHaveClass('col-span-12', '!w-full', '!max-w-full');
+    expect(headingRow?.firstElementChild).toHaveAttribute(
+      'data-zeev-fieb-role',
+      'start-section-heading',
+    );
+    expect(headingRow?.firstElementChild).toHaveClass(
+      '!block',
+      '!w-full',
+      '!max-w-full',
+      '!whitespace-normal',
+    );
+
+    for (const name of [
+      'nomeCompleto',
+      'estadoCivil',
+      'profissao',
+      'tipoDocumento',
+      'numeroDocumento',
+    ]) {
+      expect(
+        document.querySelector(`[data-zeev-fieb-role="start-field-row"][data-zeev-fieb-field="${name}"]`),
+      ).toHaveClass('col-span-12', '!max-w-full', '!min-w-0');
+    }
+    for (const name of ['cpfCliente', 'nacionalidade']) {
+      expect(
+        document.querySelector(`[data-zeev-fieb-role="start-field-row"][data-zeev-fieb-field="${name}"]`),
+      ).toHaveClass('col-span-6', 'max-md:col-span-12', '!max-w-full');
+    }
+
+    document.querySelectorAll('.radio-options').forEach((group): void => {
+      expect(group).toHaveClass('!flex', 'flex-wrap', '!w-full', '!max-w-full');
+    });
+    document.querySelectorAll('.legacy-radio').forEach((choice): void => {
+      expect(choice).toHaveClass(
+        '!inline-flex',
+        '!flex-none',
+        'basis-auto',
+        '!w-auto',
+        '!max-w-full',
+        '!whitespace-nowrap',
+      );
+    });
+    expect(document.querySelector('#BoxFrmExecute')).toHaveClass('overflow-visible');
+  });
+
   it('marca grid, radios, aside complementar, ação e chrome reconhecido', () => {
     renderStartDocument();
 
@@ -142,7 +218,7 @@ describe('refinamento nativo exclusivo do START', () => {
     ).toHaveLength(4);
     expect(
       document.querySelector('[data-zeev-fieb-role="start-field-grid"]'),
-    ).toHaveClass('grid', 'grid-cols-12');
+    ).toHaveClass('!grid', 'grid-cols-12');
     expect(summary.hostSidebar).toHaveClass('bg-slate-50', 'border-slate-200');
     expect(summary.actions[0]).toHaveClass('bg-blue-700', 'min-h-11');
     expect(

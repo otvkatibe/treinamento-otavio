@@ -251,8 +251,8 @@
    3. RADIOS DE SELEÇÃO ÚNICA (estadoCivil E tipoDocumento)
    ========================================================================== */
 
-#containerRequest #td1estadoCivil .form-check,
-#containerRequest #td1tipoDocumento .form-check {
+#containerRequest:not([data-zeev-fieb-stage="START"]) #td1estadoCivil .form-check,
+#containerRequest:not([data-zeev-fieb-stage="START"]) #td1tipoDocumento .form-check {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -292,10 +292,10 @@
   box-shadow: none;
 }
 
-#containerRequest #td1estadoCivil .form-check:has(
+#containerRequest:not([data-zeev-fieb-stage="START"]) #td1estadoCivil .form-check:has(
   input[type="radio"][data-fieldformat="RADIO"]:checked
 ),
-#containerRequest #td1tipoDocumento .form-check:has(
+#containerRequest:not([data-zeev-fieb-stage="START"]) #td1tipoDocumento .form-check:has(
   input[type="radio"][data-fieldformat="RADIO"]:checked
 ) {
   border: 0;
@@ -553,21 +553,21 @@
   box-sizing: border-box;
 }
 
-#containerRequest #FrmExecute {
+#containerRequest:not([data-zeev-fieb-stage="START"]) #FrmExecute {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
 }
 
-#containerRequest #FrmExecute :is(table, tbody) {
+#containerRequest:not([data-zeev-fieb-stage="START"]) #FrmExecute :is(table, tbody) {
   width: 100%;
 }
 
-#containerRequest #FrmExecute tr:has(> td.col0):has([data-name]) {
+#containerRequest:not([data-zeev-fieb-stage="START"]) #FrmExecute tr:has(> td.col0):has([data-name]) {
   border-bottom: 1px solid #edf1f6;
 }
 
-#containerRequest #FrmExecute tr:has([data-name]) > td.col0 {
+#containerRequest:not([data-zeev-fieb-stage="START"]) #FrmExecute tr:has([data-name]) > td.col0 {
   width: 30%;
   min-width: 12rem;
   padding: 0.875rem 1.25rem 0.875rem 0;
@@ -578,7 +578,7 @@
   vertical-align: top;
 }
 
-#containerRequest #FrmExecute tr:has([data-name]) > td.col1 {
+#containerRequest:not([data-zeev-fieb-stage="START"]) #FrmExecute tr:has([data-name]) > td.col1 {
   width: 70%;
   padding: 0.625rem 0;
   vertical-align: top;
@@ -630,7 +630,7 @@
 }
 
 /* Radios assumem aparência de opções compactas, mantendo o input nativo. */
-#containerRequest #FrmExecute :is(#td1estadoCivil, #td1tipoDocumento) .form-check {
+#containerRequest:not([data-zeev-fieb-stage="START"]) #FrmExecute :is(#td1estadoCivil, #td1tipoDocumento) .form-check {
   min-height: 42px;
   margin: 0.25rem 0.5rem 0.25rem 0;
   padding: 0.625rem 0.875rem;
@@ -640,7 +640,7 @@
   transition: border-color 150ms ease, background 150ms ease;
 }
 
-#containerRequest #FrmExecute :is(#td1estadoCivil, #td1tipoDocumento) .form-check:has(input:checked) {
+#containerRequest:not([data-zeev-fieb-stage="START"]) #FrmExecute :is(#td1estadoCivil, #td1tipoDocumento) .form-check:has(input:checked) {
   border: 1px solid var(--zeev-fieb-accent);
   background: var(--zeev-fieb-accent-soft);
 }
@@ -800,7 +800,7 @@
     padding: 0.25rem 0 0.875rem;
   }
 
-  #containerRequest #FrmExecute :is(#td1estadoCivil, #td1tipoDocumento) .form-check {
+  #containerRequest:not([data-zeev-fieb-stage="START"]) #FrmExecute :is(#td1estadoCivil, #td1tipoDocumento) .form-check {
     display: flex;
     width: 100%;
     white-space: normal;

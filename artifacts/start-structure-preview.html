@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>START — validação estrutural local</title>
+    <style>
+      body {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 32px;
+        background: #f3f6fa;
+        font-family: Inter, Arial, sans-serif;
+      }
+
+      #containerRequest {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 1120px;
+        margin: 0 auto;
+      }
+
+      .page-title {
+        margin-bottom: 20px;
+      }
+
+      .page-title h1 {
+        margin: 0;
+        color: #172033;
+        font-size: 28px;
+      }
+
+      #ContainerForm {
+        padding: 28px !important;
+        border: 1px solid #dfe5ee;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 12px 32px rgb(15 23 42 / 8%);
+      }
+
+      #controllers {
+        margin-top: 20px;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 16px;
+        }
+
+        #containerRequest {
+          max-width: 390px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      import '/src/styles/zeev-fieb.css';
+      import { enhanceNativeExperience } from '/src/zeev/native-enhancements.ts';
+      import { startRealTableMarkup } from '/src/zeev/__tests__/fixtures/start-real-table.fixture.ts';
+
+      document.body.insertAdjacentHTML('beforeend', startRealTableMarkup());
+      enhanceNativeExperience('START');
+      requestAnimationFrame(() => {
+        document.documentElement.dataset.captureReady = 'true';
+        document.documentElement.dataset.horizontalOverflow = String(
+          document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        );
+        for (const element of [
+          document.body,
+          document.querySelector('#containerRequest'),
+          document.querySelector('#ContainerForm'),
+          document.querySelector('#BoxFrmExecute'),
+        ]) {
+          if (!(element instanceof HTMLElement)) continue;
+          const rect = element.getBoundingClientRect();
+          element.dataset.captureClientWidth = String(element.clientWidth);
+          element.dataset.captureScrollWidth = String(element.scrollWidth);
+          element.dataset.captureLeft = String(Math.round(rect.left));
+          element.dataset.captureRight = String(Math.round(rect.right));
+        }
+      });
+    </script>
+  </body>
+</html>
