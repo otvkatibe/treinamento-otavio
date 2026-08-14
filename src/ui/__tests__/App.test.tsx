@@ -64,7 +64,7 @@ describe('React Island', () => {
         new RegExp(`^Etapa ${task.stepIndex + 1} de ${PROCESS_STEPS.length}`),
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText('Homologação • v0.3.1')).toBeInTheDocument();
+    expect(screen.getByText('Homologação • v0.4.0-rc.1')).toBeInTheDocument();
     expect(document.querySelector('[data-zeev-fieb-island="true"]')).toHaveAttribute(
       'data-zeev-fieb-task-known',
       'true',
@@ -124,7 +124,7 @@ describe('React Island', () => {
     );
     expect(document.querySelector('[data-step-code="T3"]')).toHaveAttribute(
       'data-step-state',
-      'conditional',
+      'future',
     );
     expect(document.querySelector('[data-step-code="T4"]')).toHaveAttribute(
       'data-step-state',
@@ -147,10 +147,23 @@ describe('React Island', () => {
 
     expect(document.querySelector('[data-step-code="T3"]')).toHaveAttribute(
       'data-step-state',
-      'completed',
+      'visited',
     );
     expect(screen.getByText('Rota percorrida')).toBeInTheDocument();
     expect(screen.getByText('Etapa 3 de 6 • Revalidação')).toBeInTheDocument();
+  });
+
+  it('representa T3 atual com estado explícito de correção', () => {
+    render(<App taskContext={taskContext('T3')} visitedStages={['T2', 'T3']} />);
+
+    expect(document.querySelector('[data-step-code="T3"]')).toHaveAttribute(
+      'data-step-state',
+      'correction',
+    );
+    expect(document.querySelector('[data-step-code="T3"]')).toHaveAttribute(
+      'aria-current',
+      'step',
+    );
   });
 
   it('explicita a decisão final ao validar o contrato', () => {
@@ -181,7 +194,7 @@ describe('React Island', () => {
       screen.getByRole('heading', { level: 2, name: 'Etapa não identificada' }),
     ).toBeInTheDocument();
     expect(screen.queryByLabelText('Progresso do processo')).not.toBeInTheDocument();
-    expect(screen.getByText('Homologação • v0.3.1')).toBeInTheDocument();
+    expect(screen.getByText('Homologação • v0.4.0-rc.1')).toBeInTheDocument();
     expect(document.querySelector('[data-zeev-fieb-island="true"]')).toHaveAttribute(
       'data-zeev-fieb-task-known',
       'false',

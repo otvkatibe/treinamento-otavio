@@ -102,6 +102,7 @@ function fieldDiagnostic(
       ),
     downloadButtonCount: observation.downloadButtons.length,
     viewerCount: observation.viewerElements.length,
+    readonlyRendererCount: observation.readonlyRenderers.length,
     editable: observation.editable,
     readable: observation.readable,
     tagName: element?.tagName ?? null,
@@ -195,6 +196,26 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
     runtime.reactContentNodes.every(
       (node: Node): boolean => node.isConnected && node.parentNode === mount,
     );
+  const visualRoleCount = (role: string): number =>
+    document.querySelectorAll(`[data-zeev-fieb-role="${role}"]`).length;
+  const visualExperience = {
+    experienceShellCount: visualRoleCount('process-page'),
+    stepperCount: visualRoleCount('process-stepper'),
+    mainColumnCount:
+      visualRoleCount('main-column') || visualRoleCount('task-card'),
+    asideCount: visualRoleCount('aside-column'),
+    taskCardCount: visualRoleCount('task-card'),
+    nativeActionRegionCount:
+      visualRoleCount('native-action-region') +
+      visualRoleCount('decision-panel'),
+    fieldSectionCount:
+      visualRoleCount('field-section') +
+      visualRoleCount('field-shell') +
+      visualRoleCount('file-shell'),
+    readonlyScalarRendererCount: visualRoleCount('readonly-scalar-renderer'),
+    fileShellCount: visualRoleCount('file-shell'),
+    decisionPanelCount: visualRoleCount('decision-panel'),
+  };
   const checks: DiagnosticCheck[] = [
     check(
       'runtime.initialized',
@@ -245,6 +266,54 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
       'React root associado ao mount e island única conectada',
       islandElements.length,
     ),
+    conditionalCheck(
+      observedTask?.code != null,
+      'visual.experienceShell',
+      'Shell visual da experiÃªncia presente',
+      visualExperience.experienceShellCount === 1,
+      1,
+      visualExperience.experienceShellCount,
+    ),
+    conditionalCheck(
+      observedTask?.code != null,
+      'visual.stepper',
+      'Stepper visual presente',
+      visualExperience.stepperCount === 1,
+      1,
+      visualExperience.stepperCount,
+    ),
+    conditionalCheck(
+      observedTask?.code != null,
+      'visual.mainColumn',
+      'Coluna principal presente',
+      visualExperience.mainColumnCount === 1,
+      1,
+      visualExperience.mainColumnCount,
+    ),
+    conditionalCheck(
+      observedTask?.code != null,
+      'visual.aside',
+      'Resumo lateral presente',
+      visualExperience.asideCount === 1,
+      1,
+      visualExperience.asideCount,
+    ),
+    conditionalCheck(
+      observedTask?.code != null,
+      'visual.taskCard',
+      'Card da tarefa presente',
+      visualExperience.taskCardCount === 1,
+      1,
+      visualExperience.taskCardCount,
+    ),
+    conditionalCheck(
+      resolvedNativeControls?.region != null,
+      'visual.nativeActionRegion',
+      'RegiÃ£o de aÃ§Ãµes nativas integrada',
+      visualExperience.nativeActionRegionCount === 1,
+      1,
+      visualExperience.nativeActionRegionCount,
+    ),
   ];
 
   for (const field of fields) {
@@ -263,6 +332,51 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
       ),
     );
   }
+
+  const hiddenReadonlyScalars = fields.filter(
+    (field): boolean =>
+      field.access === 'read' &&
+      field.inputType === 'hidden' &&
+      ZEEV_FIELDS[field.name].structure === 'control',
+  );
+  checks.push(
+    conditionalCheck(
+      hiddenReadonlyScalars.length > 0,
+      'visual.readonlyScalarRenderer',
+      'Scalars readonly possuem renderer visual associado',
+      hiddenReadonlyScalars.every(
+        ({ readonlyRendererCount }): boolean => readonlyRendererCount > 0,
+      ),
+      hiddenReadonlyScalars.length,
+      hiddenReadonlyScalars.filter(
+        ({ readonlyRendererCount }): boolean => readonlyRendererCount > 0,
+      ).length,
+    ),
+    conditionalCheck(
+      visualExperience.fieldSectionCount > 0,
+      'visual.fieldSections',
+      'SeÃ§Ãµes de campo nativas observadas',
+      true,
+      '>= 1',
+      visualExperience.fieldSectionCount,
+    ),
+    conditionalCheck(
+      visualExperience.fileShellCount > 0,
+      'visual.fileShell',
+      'Shell de arquivo observado',
+      true,
+      '>= 1',
+      visualExperience.fileShellCount,
+    ),
+    conditionalCheck(
+      (stepContract?.decisions.length ?? 0) > 0,
+      'visual.decisionPanel',
+      'Painel de decisÃ£o integrado',
+      visualExperience.decisionPanelCount === 1,
+      1,
+      visualExperience.decisionPanelCount,
+    ),
+  );
 
   for (const name of TEXT_FIELD_NAMES) {
     const field = fields.find((candidate) => candidate.name === name);
@@ -400,6 +514,7 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
     fields,
     radioGroups,
     nativeControl,
+    visualExperience,
     sendButton: {
       present: sendButton !== null,
       tagName: sendButton?.tagName ?? null,

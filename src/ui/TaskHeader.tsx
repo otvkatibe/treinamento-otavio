@@ -13,6 +13,7 @@ export interface TaskHeaderProps {
   correctionRouteObserved?: boolean;
   environment: VisualConfig['environment'];
   version: string;
+  hideEnvironment?: boolean;
 }
 
 export function TaskHeader({
@@ -20,6 +21,7 @@ export function TaskHeader({
   correctionRouteObserved = false,
   environment,
   version,
+  hideEnvironment = false,
 }: TaskHeaderProps): React.JSX.Element {
   return (
     <Stack spacing={2}>
@@ -33,9 +35,8 @@ export function TaskHeader({
       >
         <Box>
           <Typography
-            variant="h5"
-            variantMapping={{ h5: 'h2' }}
-            sx={{ fontWeight: 700 }}
+            variant="h4"
+            variantMapping={{ h4: 'h2' }}
           >
             {task.heading}
           </Typography>
@@ -54,7 +55,7 @@ export function TaskHeader({
             totalSteps={PROCESS_STEPS.length}
             correctionRouteObserved={correctionRouteObserved}
           />
-          <EnvironmentBadge environment={environment} version={version} />
+          {hideEnvironment ? null : <EnvironmentBadge environment={environment} version={version} />}
         </Stack>
       </Stack>
       <Divider />

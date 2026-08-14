@@ -1,6 +1,10 @@
 import { zeevAdapter } from './adapter';
 import { runDiagnostics } from './diagnostics';
 import { ZEEV_SELECTORS } from './selectors';
+import {
+  enhanceNativeExperience,
+  resetNativeEnhancements,
+} from './native-enhancements';
 import { reconcileVisualHistory } from './visual-history';
 import { renderIsland, unmountIsland } from '../ui/render-island';
 import type {
@@ -11,7 +15,7 @@ import type {
   ZeevFiebRuntime,
 } from './types';
 
-const VERSION = '0.3.1';
+const VERSION = '0.4.0-rc.1';
 const LOG_PREFIX = `[Zeev FIEB v${VERSION}]`;
 const MOUNT_ID = 'zeev-fieb-root';
 const SYNC_DEBOUNCE_MS = 100;
@@ -329,6 +333,7 @@ export function sync(reason: LifecycleReason = 'manual'): ZeevFiebRuntime {
   runtime.currentTask = zeevAdapter.getCurrentTask();
   runtime.viewSignature = createViewSignature();
   updateVisitedStages(runtime, runtime.viewSignature);
+  enhanceNativeExperience(runtime.currentTask?.code ?? null);
   runtime.syncCount += 1;
 
   const viewChanged = !isSameView(previousSignature, runtime.viewSignature);
@@ -361,6 +366,7 @@ export function teardown(): void {
     runtime.observer?.disconnect();
     cancelBootstrapRetries(runtime);
     unmountIsland(runtime);
+    resetNativeEnhancements();
 
     if (runtime.popstateHandler) {
       window.removeEventListener('popstate', runtime.popstateHandler);

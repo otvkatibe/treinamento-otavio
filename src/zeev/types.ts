@@ -190,6 +190,7 @@ export interface FieldDiagnostic {
   uploadButtonPresent: boolean;
   downloadButtonCount: number;
   viewerCount: number;
+  readonlyRendererCount: number;
   editable: boolean;
   readable: boolean;
   tagName: string | null;
@@ -246,6 +247,19 @@ export interface MountDiagnostic {
   before: string | null;
 }
 
+export interface VisualExperienceDiagnostic {
+  experienceShellCount: number;
+  stepperCount: number;
+  mainColumnCount: number;
+  asideCount: number;
+  taskCardCount: number;
+  nativeActionRegionCount: number;
+  fieldSectionCount: number;
+  readonlyScalarRendererCount: number;
+  fileShellCount: number;
+  decisionPanelCount: number;
+}
+
 export interface ZeevFiebDiagnostics {
   passed: boolean;
   status: DiagnosticStatus;
@@ -264,6 +278,7 @@ export interface ZeevFiebDiagnostics {
   fields: readonly FieldDiagnostic[];
   radioGroups: readonly RadioGroupDiagnostic[];
   nativeControl: NativeControlDiagnostic;
+  visualExperience: VisualExperienceDiagnostic;
   /** @deprecated Prefer nativeControl, which is stage-aware. */
   sendButton: SendButtonDiagnostic;
   actions: readonly NativeActionDiagnostic[];

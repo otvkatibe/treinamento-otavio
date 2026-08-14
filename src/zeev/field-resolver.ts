@@ -15,7 +15,8 @@ export type FieldCandidateRole =
   | 'semantic-control'
   | 'upload-button'
   | 'download-button'
-  | 'viewer';
+  | 'viewer'
+  | 'readonly-renderer';
 
 export interface ResolvedFieldCandidate {
   element: HTMLElement;
@@ -34,6 +35,8 @@ export interface ResolvedFieldObservation {
   uploadButton: HTMLButtonElement | null;
   downloadButtons: readonly HTMLButtonElement[];
   viewerElements: readonly HTMLElement[];
+  readonlyRenderers: readonly HTMLElement[];
+  logicalWrapper: HTMLElement | null;
   editable: boolean;
   readable: boolean;
 }
@@ -135,6 +138,102 @@ interface FileCompositeElements {
   viewerElements: HTMLElement[];
 }
 
+const FIELD_WRAPPER_SELECTORS = [
+  '[data-zeev-field-wrapper]',
+  '[data-field-wrapper]',
+  '.form-group',
+  '.field-container',
+  '.field-row',
+  'td',
+] as const;
+
+const NON_RENDERER_SELECTOR = [
+  'label',
+  'button',
+  'a',
+  'input',
+  'select',
+  'textarea',
+  'small',
+  'script',
+  'style',
+  '[aria-hidden="true"]',
+  '.help-block',
+  '.form-text',
+  '[role="alert"]',
+  '[role="status"]',
+].join(',');
+
+/**
+ * Resolves the smallest host-owned region that represents one logical field.
+ * Generated ids are useful evidence, but are never assumed to be stable.
+ */
+export function getLogicalFieldWrapper(
+  name: ZeevFieldName,
+  controls = getSemanticFieldCandidates(name),
+): HTMLElement | null {
+  const scope = getFunctionalFieldScope();
+  if (!scope) return null;
+
+  const structuralCandidates = [
+    scope.querySelector<HTMLElement>(`#td1${name}`),
+    scope.querySelector<HTMLElement>(`#div${name}`),
+  ].filter((element): element is HTMLElement => element !== null);
+  if (controls.length === 0) return null;
+  const containingStructuralCandidate = structuralCandidates.find(
+    (element): boolean =>
+      controls.some((control): boolean => element.contains(control)),
+  );
+  if (containingStructuralCandidate) return containingStructuralCandidate;
+
+  const control = controls[0] ?? null;
+  if (!control) return null;
+  for (const selector of FIELD_WRAPPER_SELECTORS) {
+    const wrapper = control.closest<HTMLElement>(selector);
+    if (wrapper && scope.contains(wrapper)) return wrapper;
+  }
+
+  const parent = control.parentElement;
+  return parent &&
+    parent !== scope &&
+    !parent.matches(ZEEV_SELECTORS.form) &&
+    scope.contains(parent)
+    ? parent
+    : null;
+}
+
+function hasOwnReadableText(element: HTMLElement): boolean {
+  return Array.from(element.childNodes).some(
+    (node: Node): boolean =>
+      node.nodeType === Node.TEXT_NODE && Boolean(node.textContent?.trim()),
+  );
+}
+
+function isReadonlyRendererCandidate(
+  element: HTMLElement,
+  controls: readonly ZeevFieldElement[],
+): boolean {
+  if (!isElementVisible(element) || element.matches(NON_RENDERER_SELECTOR)) {
+    return false;
+  }
+  if (controls.some((control): boolean => element.contains(control))) {
+    return false;
+  }
+
+  return hasOwnReadableText(element);
+}
+
+function readonlyScalarRenderers(
+  wrapper: HTMLElement | null,
+  controls: readonly ZeevFieldElement[],
+): HTMLElement[] {
+  if (!wrapper) return [];
+
+  return Array.from(wrapper.querySelectorAll<HTMLElement>('*')).filter(
+    (element): boolean => isReadonlyRendererCandidate(element, controls),
+  );
+}
+
 function fileCompositeElements(
   scope: HTMLElement,
   name: ZeevFieldName,
@@ -173,11 +272,18 @@ export function resolveFieldObservation(
   const scope = getFunctionalFieldScope();
   const semanticControls = getSemanticFieldCandidates(name);
   const primaryControl = selectOperationalField(name, semanticControls);
+  const logicalWrapper = scope
+    ? getLogicalFieldWrapper(name, semanticControls)
+    : null;
   const uploadButton =
     scope?.querySelector<HTMLButtonElement>(`#btnUpload${name}`) ?? null;
   const { downloadButtons, viewerElements } = scope
     ? fileCompositeElements(scope, name)
     : { downloadButtons: [], viewerElements: [] };
+  const readonlyRenderers =
+    ZEEV_FIELDS[name].structure === 'control'
+      ? readonlyScalarRenderers(logicalWrapper, semanticControls)
+      : [];
   const semanticCandidates = semanticControls.map(
     (element): ResolvedFieldCandidate => ({
       element,
@@ -212,6 +318,14 @@ export function resolveFieldObservation(
       interactive: isElementInteractive(element),
     });
   });
+  readonlyRenderers.forEach((element: HTMLElement): void => {
+    auxiliaryCandidates.push({
+      element,
+      role: 'readonly-renderer',
+      visible: true,
+      interactive: false,
+    });
+  });
 
   const candidates = [...semanticCandidates, ...auxiliaryCandidates];
   const isFile = ZEEV_FIELDS[name].structure === 'file-composite';
@@ -227,12 +341,15 @@ export function resolveFieldObservation(
   const readable =
     viewerElements.some(isElementInteractive) ||
     downloadButtons.some(isElementInteractive) ||
+    readonlyRenderers.length > 0 ||
     semanticCandidates.some(({ visible }): boolean => visible);
   const functional = isFile
     ? access === 'edit'
       ? editable
       : readable
-    : semanticCandidates.some(({ visible }): boolean => visible);
+    : access === 'edit'
+      ? editable
+      : readable;
   const presence: FieldFunctionalPresence = functional
     ? 'functional'
     : candidates.length > 0
@@ -249,6 +366,8 @@ export function resolveFieldObservation(
     uploadButton,
     downloadButtons,
     viewerElements,
+    readonlyRenderers,
+    logicalWrapper,
     editable,
     readable,
   };

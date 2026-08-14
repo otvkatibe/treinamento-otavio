@@ -1,4 +1,4 @@
-# Instalação da customização v0.3.1 no Zeev
+# Instalação da candidata v0.4.0-rc.1 no Zeev
 
 ## Pré-requisitos
 
@@ -11,8 +11,8 @@
 Cadastre as URLs estáveis abaixo em Scripts e Estilos → Fontes externas → Scripts e estilos nas atividades:
 
 ```html
-<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css">
-<script defer src="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.js"></script>
+<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.css?v=0.4.0-rc.1">
+<script defer src="https://otvkatibe.github.io/treinamento-otavio/dist/zeev-fieb.js?v=0.4.0-rc.1"></script>
 ```
 
 Não misture query strings de releases anteriores. Controle a publicação pelo conteúdo dos artefatos e valide a resposta remota após o deploy.
@@ -25,8 +25,15 @@ Abra START (`Solicitar registro`) e uma tarefa humana. Confirme uma React Island
 window.__ZEEV_FIEB__?.diagnostics()
 ```
 
-Consulte `docs/homologacao-v0.3.0.md` para a matriz START/T1–T5.
+Consulte `docs/homologacao-v0.4.0-rc.1.md` para a matriz START/T1–T5 e o retorno T02 → T03 → T02.
 
 ## Rollback
 
-Remova primeiro o script e depois o stylesheet para retornar ao Zeev nativo. Como alternativa visual histórica, remova o script e aponte o link para `releases/v0.2.1/zeev-fieb.css`. Salve, publique e recarregue sem cache.
+Para voltar à referência estável `0.3.1`, substitua os dois links pelos assets versionados:
+
+```html
+<link rel="stylesheet" href="https://otvkatibe.github.io/treinamento-otavio/releases/v0.3.1/dist/zeev-fieb.css?v=0.3.1">
+<script defer src="https://otvkatibe.github.io/treinamento-otavio/releases/v0.3.1/dist/zeev-fieb.js?v=0.3.1"></script>
+```
+
+Para retornar ao Zeev nativo, remova primeiro o script e depois o stylesheet. Salve, publique e recarregue sem cache.

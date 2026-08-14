@@ -10,7 +10,7 @@ import { useTheme } from '@mui/material/styles';
 import { PROCESS_STEPS } from '../zeev/steps';
 import type { ProcessStepMetadata, StageCode } from '../zeev/types';
 
-type StepState = 'current' | 'completed' | 'future' | 'conditional';
+type StepState = 'current' | 'completed' | 'visited' | 'future' | 'correction';
 
 export interface ProcessStepperProps {
   currentTask: ProcessStepMetadata;
@@ -23,10 +23,13 @@ function getStepState(
   visitedStages: ReadonlySet<StageCode>,
 ): StepState {
   if (step.code === currentTask.code) {
-    return 'current';
+    return step.code === 'T3' ? 'correction' : 'current';
+  }
+  if (visitedStages.has(step.code)) {
+    return 'visited';
   }
   if (step.conditional) {
-    return visitedStages.has(step.code) ? 'completed' : 'conditional';
+    return 'future';
   }
   if (step.stepIndex < currentTask.stepIndex) {
     return 'completed';
@@ -61,8 +64,9 @@ export function ProcessStepper({
         return (
           <Step
             key={step.code}
-            active={state === 'current'}
-            completed={state === 'completed'}
+            active={state === 'current' || state === 'correction'}
+            completed={state === 'completed' || state === 'visited'}
+            aria-current={state === 'current' || state === 'correction' ? 'step' : undefined}
             data-step-code={step.code}
             data-step-state={state}
           >

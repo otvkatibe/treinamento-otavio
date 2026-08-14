@@ -5,7 +5,7 @@
 
 /* ==========================================================================
    PALETA PROVISÓRIA — substituir por tokens oficiais FIEB
-   Tema Visual Corporativo para Zeev (Ambiente h-Zeev v0.3.1)
+   Tema Visual Corporativo para Zeev (Ambiente h-Zeev v0.4.0-rc.1)
    Processo: Treinamento - Otávio Katibe
    ========================================================================== */
 
@@ -439,5 +439,392 @@
 
   #containerRequest #BtnSend {
     width: 100%;
+  }
+}
+
+/* ==========================================================================
+   8. DESIGN SYSTEM 0.4 — PROCESS EXPERIENCE
+   Regras abaixo permanecem inteiramente escopadas ao processo e à Island.
+   ========================================================================== */
+
+:root {
+  --zeev-fieb-accent: #1559a6;
+  --zeev-fieb-accent-strong: #0b3a70;
+  --zeev-fieb-accent-soft: #eaf3ff;
+  --zeev-fieb-success: #16835b;
+  --zeev-fieb-success-soft: #eaf8f2;
+  --zeev-fieb-warning: #a86207;
+  --zeev-fieb-warning-soft: #fff7e6;
+  --zeev-fieb-danger: #c93636;
+  --zeev-fieb-danger-soft: #fff0f0;
+  --zeev-fieb-focus: #2f80ed;
+  --zeev-fieb-surface-subtle: #f8fafc;
+  --zeev-fieb-radius-xl: 1rem;
+  --zeev-fieb-shadow-raised: 0 14px 36px rgba(16, 24, 40, 0.1);
+}
+
+#containerRequest:has(#zeev-fieb-root [data-zeev-fieb-task-known="true"]) {
+  background: var(--zeev-fieb-background);
+}
+
+#containerRequest #zeev-fieb-root [data-zeev-fieb-role="process-page"] {
+  max-width: 1440px;
+  margin-inline: auto;
+}
+
+#containerRequest #zeev-fieb-root [data-zeev-fieb-role="process-header"] {
+  background: linear-gradient(145deg, #fff 0%, #fff 70%, #f4f8fd 100%);
+}
+
+/*
+ * O mount e o formulário são irmãos confirmados pelo lifecycle. `display:
+ * contents` permite compor os dois no mesmo grid sem mover o formulário para
+ * dentro do React, preservando ownership, eventos e lifecycle do Zeev.
+ */
+#containerRequest :has(> #zeev-fieb-root + #ContainerForm) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+  grid-template-areas:
+    "experience-header experience-header"
+    "experience-intro experience-aside"
+    "native-form experience-aside";
+  gap: 1rem;
+  align-items: start;
+  max-width: 1440px;
+  margin-inline: auto;
+}
+
+#containerRequest :has(> #zeev-fieb-root + #ContainerForm) > #zeev-fieb-root,
+#containerRequest #zeev-fieb-root > .MuiScopedCssBaseline-root,
+#containerRequest #zeev-fieb-root [data-zeev-fieb-island="true"],
+#containerRequest #zeev-fieb-root [data-zeev-fieb-role="process-page"],
+#containerRequest #zeev-fieb-root [data-zeev-fieb-role="process-grid"] {
+  display: contents;
+}
+
+#containerRequest #zeev-fieb-root [data-zeev-fieb-role="process-header"] {
+  grid-area: experience-header;
+}
+
+#containerRequest #zeev-fieb-root [data-zeev-fieb-role="main-column"] {
+  grid-area: experience-intro;
+}
+
+#containerRequest #zeev-fieb-root [data-zeev-fieb-role="aside-column"] {
+  grid-area: experience-aside;
+}
+
+#containerRequest :has(> #zeev-fieb-root + #ContainerForm) > #ContainerForm {
+  grid-area: native-form;
+  width: 100%;
+  margin: 0;
+}
+
+#containerRequest #zeev-fieb-root [data-step-state="current"] .MuiStepIcon-root {
+  filter: drop-shadow(0 0 0.25rem rgba(21, 89, 166, 0.25));
+}
+
+#containerRequest #zeev-fieb-root [data-step-state="future"] .MuiStepIcon-root {
+  color: #d0d5dd;
+}
+
+#containerRequest #zeev-fieb-root [data-step-state="completed"] .MuiStepIcon-root {
+  color: var(--zeev-fieb-success);
+}
+
+#containerRequest #zeev-fieb-root [data-step-state="visited"] .MuiStepIcon-root {
+  color: var(--zeev-fieb-success);
+}
+
+#containerRequest #zeev-fieb-root [data-step-state="correction"] .MuiStepIcon-root {
+  color: var(--zeev-fieb-warning);
+  filter: drop-shadow(0 0 0.25rem rgba(168, 98, 7, 0.2));
+}
+
+/* O formulário real vira o card funcional principal sem ser movido ou clonado. */
+#containerRequest:has(#zeev-fieb-root [data-zeev-fieb-task-known="true"]) #ContainerForm {
+  max-width: 1440px;
+  margin: 0 auto 1.5rem;
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+  border: 1px solid var(--zeev-fieb-border);
+  border-radius: var(--zeev-fieb-radius-xl);
+  background: var(--zeev-fieb-surface);
+  box-shadow: var(--zeev-fieb-shadow-card);
+  box-sizing: border-box;
+}
+
+#containerRequest #FrmExecute {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+#containerRequest #FrmExecute :is(table, tbody) {
+  width: 100%;
+}
+
+#containerRequest #FrmExecute tr:has(> td.col0):has([data-name]) {
+  border-bottom: 1px solid #edf1f6;
+}
+
+#containerRequest #FrmExecute tr:has([data-name]) > td.col0 {
+  width: 30%;
+  min-width: 12rem;
+  padding: 0.875rem 1.25rem 0.875rem 0;
+  color: var(--zeev-fieb-text-main);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.35;
+  vertical-align: top;
+}
+
+#containerRequest #FrmExecute tr:has([data-name]) > td.col1 {
+  width: 70%;
+  padding: 0.625rem 0;
+  vertical-align: top;
+}
+
+#containerRequest #FrmExecute :is(input:not([type="hidden"]), select, textarea) {
+  font-family: inherit;
+}
+
+#containerRequest #FrmExecute :is(input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"]), select, textarea) {
+  min-height: 42px;
+  border: 1px solid var(--zeev-fieb-border);
+  border-radius: var(--zeev-fieb-radius-md);
+  background: #fff;
+  color: var(--zeev-fieb-text-main);
+  transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+#containerRequest #FrmExecute :is(input:not([type="hidden"]), select, textarea):focus-visible,
+#containerRequest #buttons :is(button, [role="button"], input[type="button"], input[type="submit"], a[href]):focus-visible,
+#containerRequest #FrmExecute a[href]:focus-visible {
+  outline: 3px solid var(--zeev-fieb-focus);
+  outline: 3px solid color-mix(in srgb, var(--zeev-fieb-focus) 28%, transparent);
+  outline-offset: 2px;
+  border-color: var(--zeev-fieb-focus);
+}
+
+#containerRequest #FrmExecute :is([readonly], [disabled], [aria-readonly="true"]) {
+  border-color: #e4e9f0;
+  background: var(--zeev-fieb-surface-subtle);
+  color: #475467;
+  opacity: 1;
+}
+
+#containerRequest #FrmExecute :is(.required, [aria-required="true"]) + label::after,
+#containerRequest #FrmExecute label.required::after {
+  content: " *";
+  color: var(--zeev-fieb-danger);
+}
+
+#containerRequest #FrmExecute :is(.form-text, .help-block, [data-help]) {
+  color: var(--zeev-fieb-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+#containerRequest #FrmExecute :is(td, label, .form-text, .help-block, [data-help], [data-zeev-fieb-role="readonly-scalar-renderer"]) {
+  overflow-wrap: anywhere;
+}
+
+/* Radios assumem aparência de opções compactas, mantendo o input nativo. */
+#containerRequest #FrmExecute :is(#td1estadoCivil, #td1tipoDocumento) .form-check {
+  min-height: 42px;
+  margin: 0.25rem 0.5rem 0.25rem 0;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--zeev-fieb-border);
+  border-radius: 0.625rem;
+  background: #fff;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+#containerRequest #FrmExecute :is(#td1estadoCivil, #td1tipoDocumento) .form-check:has(input:checked) {
+  border: 1px solid var(--zeev-fieb-accent);
+  background: var(--zeev-fieb-accent-soft);
+}
+
+/* Arquivos são tratados como uma área própria de trabalho. */
+#containerRequest #FrmExecute tr:has([data-name="documentoCadastroPdf"]),
+#containerRequest #FrmExecute tr:has([data-name="documentoContratoPdf"]) {
+  background: var(--zeev-fieb-surface-subtle);
+}
+
+#containerRequest #FrmExecute :is([data-name="documentoCadastroPdf"], [data-name="documentoContratoPdf"]) :is(a, button),
+#containerRequest #FrmExecute a:is([data-name="documentoCadastroPdf"], [data-name="documentoContratoPdf"]) {
+  min-height: 36px;
+  color: var(--zeev-fieb-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* T03: contexto de correção visível, sem inferir ou alterar dados. */
+#containerRequest:has(#zeev-fieb-root [data-zeev-fieb-stage="T3"]) #ContainerForm {
+  border-top: 4px solid var(--zeev-fieb-warning);
+}
+
+#containerRequest:has(#zeev-fieb-root [data-zeev-fieb-stage="T3"]) #containerMessages {
+  border-color: #efd39d;
+  background: var(--zeev-fieb-warning-soft);
+}
+
+#containerRequest:has(#zeev-fieb-root [data-zeev-fieb-stage="T3"]) #FrmExecute tr:has([data-name="correcaoRealizada"]) {
+  background: var(--zeev-fieb-warning-soft);
+}
+
+/* T04/T05: valores contratuais ganham leitura tabular e destaque semântico. */
+#containerRequest:has(#zeev-fieb-root [data-zeev-fieb-stage="T4"], #zeev-fieb-root [data-zeev-fieb-stage="T5"]) #FrmExecute tr:has([data-name="numeroContrato"]),
+#containerRequest:has(#zeev-fieb-root [data-zeev-fieb-stage="T4"], #zeev-fieb-root [data-zeev-fieb-stage="T5"]) #FrmExecute tr:has([data-name="dataContrato"]),
+#containerRequest:has(#zeev-fieb-root [data-zeev-fieb-stage="T4"], #zeev-fieb-root [data-zeev-fieb-stage="T5"]) #FrmExecute tr:has([data-name="valorContrato"]) {
+  background: #fbfcfe;
+}
+
+#containerRequest #FrmExecute [data-name="valorContrato"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Região de ações: apenas apresentação; os elementos continuam sendo os originais. */
+#containerRequest:has(#zeev-fieb-root [data-zeev-fieb-task-known="true"]) #controllers {
+  position: sticky;
+  z-index: 5;
+  bottom: 0;
+  max-width: 1440px;
+  margin-inline: auto;
+  border: 1px solid var(--zeev-fieb-border);
+  border-radius: 0.875rem 0.875rem 0 0;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 -8px 24px rgba(16, 24, 40, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+#containerRequest #buttons > div:has(> :is(button, [role="button"], input[type="button"], input[type="submit"], a[href])) {
+  display: contents;
+}
+
+#containerRequest #buttons :is(button, [role="button"], input[type="button"], input[type="submit"]),
+#containerRequest :is(#BtnSend, #btnFinish) {
+  min-height: 42px;
+  padding: 0.625rem 1.25rem;
+  border: 1px solid var(--zeev-fieb-accent-strong);
+  border-radius: 0.625rem;
+  background: var(--zeev-fieb-accent);
+  color: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: var(--zeev-fieb-shadow-subtle);
+  cursor: pointer;
+  transition: transform 120ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+
+#containerRequest #buttons :is(button, [role="button"], input[type="button"], input[type="submit"]):hover:not(:disabled),
+#containerRequest :is(#BtnSend, #btnFinish):hover:not(:disabled) {
+  background: var(--zeev-fieb-accent-strong);
+  box-shadow: var(--zeev-fieb-shadow-card);
+  transform: translateY(-1px);
+}
+
+#containerRequest #buttons [data-zeev-fieb-action="approve"] {
+  border-color: #0f6847;
+  background: var(--zeev-fieb-success);
+}
+
+#containerRequest #buttons [data-zeev-fieb-action="correction"] {
+  border-color: #d6993d;
+  background: var(--zeev-fieb-warning-soft);
+  color: #7a4705;
+}
+
+#containerRequest #buttons [data-zeev-fieb-action="reject"] {
+  border-color: #e7a3a3;
+  background: var(--zeev-fieb-danger-soft);
+  color: #a42626;
+}
+
+#containerRequest #buttons :is(button, input, [role="button"]):is(:disabled, [aria-disabled="true"]) {
+  border-color: #e4e7ec;
+  background: #f2f4f7;
+  color: var(--zeev-fieb-text-disabled);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 900px) {
+  #containerRequest :has(> #zeev-fieb-root + #ContainerForm) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "experience-header"
+      "experience-intro"
+      "native-form"
+      "experience-aside";
+  }
+
+  #containerRequest #zeev-fieb-root [data-zeev-fieb-role="process-grid"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #containerRequest #zeev-fieb-root [data-zeev-fieb-role="aside-column"] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #containerRequest #zeev-fieb-root [data-zeev-fieb-role="aside-column"] > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  #containerRequest #zeev-fieb-root [data-zeev-fieb-role="aside-column"] {
+    display: flex;
+  }
+
+  #containerRequest:has(#zeev-fieb-root [data-zeev-fieb-task-known="true"]) #ContainerForm {
+    padding: 0.875rem;
+    border-radius: 0.75rem;
+  }
+
+  #containerRequest #FrmExecute tr:has([data-name]) > td.col0,
+  #containerRequest #FrmExecute tr:has([data-name]) > td.col1 {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  #containerRequest #FrmExecute tr:has([data-name]) > td.col0 {
+    padding: 0.875rem 0 0.25rem;
+  }
+
+  #containerRequest #FrmExecute tr:has([data-name]) > td.col1 {
+    padding: 0.25rem 0 0.875rem;
+  }
+
+  #containerRequest #FrmExecute :is(#td1estadoCivil, #td1tipoDocumento) .form-check {
+    display: flex;
+    width: 100%;
+    white-space: normal;
+  }
+
+  #containerRequest #controllers {
+    padding: 0.75rem;
+  }
+
+  #containerRequest #buttons {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  #containerRequest #buttons :is(button, [role="button"], input[type="button"], input[type="submit"]),
+  #containerRequest :is(#BtnSend, #btnFinish) {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #containerRequest #FrmExecute *,
+  #containerRequest #buttons * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

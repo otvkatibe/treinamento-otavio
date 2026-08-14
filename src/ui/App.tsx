@@ -8,8 +8,7 @@ import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import { muiTheme } from '../theme/mui-theme';
 import type { ProcessStepContext, StageCode, VisualConfig } from '../zeev/types';
 import { EnvironmentBadge } from './EnvironmentBadge';
-import { ProcessStepper } from './ProcessStepper';
-import { TaskHeader } from './TaskHeader';
+import { ProcessPage } from './ProcessPage';
 
 export interface AppProps {
   taskContext: ProcessStepContext | null;
@@ -22,7 +21,7 @@ export function App({
   taskContext,
   visitedStages = [],
   environment = 'homologacao',
-  version = '0.3.1',
+  version = '0.4.0-rc.1',
 }: AppProps): React.JSX.Element {
   const task = taskContext?.metadata ?? null;
 
@@ -33,33 +32,11 @@ export function App({
           <Box
             data-zeev-fieb-island="true"
             data-zeev-fieb-task-known={task ? 'true' : 'false'}
+            data-zeev-fieb-stage={task?.code ?? 'unknown'}
             sx={{ mb: 2 }}
           >
             {task ? (
-              <Paper
-                component="section"
-                aria-label="Contexto do processo"
-                variant="outlined"
-                sx={{
-                  bgcolor: 'background.paper',
-                  borderColor: 'divider',
-                  borderRadius: 2,
-                  p: { xs: 2, md: 3 },
-                }}
-              >
-                <Stack spacing={2.5}>
-                  <TaskHeader
-                    task={task}
-                    correctionRouteObserved={visitedStages.includes('T3')}
-                    environment={environment}
-                    version={version}
-                  />
-                  <ProcessStepper
-                    currentTask={task}
-                    visitedStages={visitedStages}
-                  />
-                </Stack>
-              </Paper>
+              <ProcessPage task={task} visitedStages={visitedStages} environment={environment} version={version} />
             ) : (
               <Paper
                 component="section"

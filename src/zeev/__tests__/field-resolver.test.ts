@@ -169,4 +169,61 @@ describe('resolver de campos do DOM real', () => {
       'viewer',
     ]);
   });
+
+  it('resolve scalar readonly pelo renderer visivel do mesmo wrapper logico', () => {
+    document.body.innerHTML = `
+      <div id="containerRequest"><div id="ContainerForm">
+        <table id="FrmExecute"><tr><td id="td1numeroContrato">
+          <label>NÃºmero do contrato</label>
+          <input type="hidden" data-name="numeroContrato" id="inpnumeroContrato">
+          <span id="renderer_938475">CTR-2026-0042</span>
+        </td></tr></table>
+      </div></div>`;
+
+    const observation = resolveFieldObservation('numeroContrato', 'read');
+
+    expect(observation.presence).toBe('functional');
+    expect(observation.readable).toBe(true);
+    expect(observation.editable).toBe(false);
+    expect(observation.logicalWrapper?.id).toBe('td1numeroContrato');
+    expect(observation.readonlyRenderers.map(({ id }) => id)).toEqual([
+      'renderer_938475',
+    ]);
+    expect(observation.candidates.map(({ role }) => role)).toEqual([
+      'semantic-control',
+      'readonly-renderer',
+    ]);
+  });
+
+  it('nao usa renderer visivel de outro wrapper para validar scalar readonly', () => {
+    document.body.innerHTML = `
+      <div id="containerRequest"><div id="ContainerForm">
+        <table id="FrmExecute"><tr>
+          <td id="td1numeroContrato">
+            <input type="hidden" data-name="numeroContrato">
+          </td>
+          <td><span id="renderer-external">CTR-EXTERNO</span></td>
+        </tr></table>
+      </div></div>`;
+
+    const observation = resolveFieldObservation('numeroContrato', 'read');
+
+    expect(observation.presence).toBe('technical-only');
+    expect(observation.readonlyRenderers).toEqual([]);
+  });
+
+  it('nao confunde label e ajuda textual com valor readonly', () => {
+    document.body.innerHTML = `
+      <div id="containerRequest"><div id="ContainerForm">
+        <table id="FrmExecute"><tr><td id="td1valorContrato">
+          <label>Valor do contrato</label>
+          <input type="hidden" data-name="valorContrato">
+          <div><small>Valor em reais</small></div>
+        </td></tr></table>
+      </div></div>`;
+
+    expect(resolveFieldObservation('valorContrato', 'read').presence).toBe(
+      'technical-only',
+    );
+  });
 });
