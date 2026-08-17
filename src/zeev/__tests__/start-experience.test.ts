@@ -268,7 +268,10 @@ describe('refinamento nativo exclusivo do START', () => {
     expect(document.querySelector('.native-dropzone')).toHaveClass(
       'native-dropzone',
     );
-    expect(document.querySelector('[data-zeev-fieb-classes]')).toBeNull();
+    expect(modal).not.toHaveAttribute('data-zeev-fieb-classes');
+    expect(document.querySelector('.native-dropzone')).not.toHaveAttribute(
+      'data-zeev-fieb-classes',
+    );
   });
 
   it('preserva handlers e converge sem mover ou duplicar nós', () => {

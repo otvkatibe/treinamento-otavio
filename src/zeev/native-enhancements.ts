@@ -1,5 +1,9 @@
 import { observeNativeAction } from './adapter';
-import { STAGE_CONTRACTS } from './domain-contracts';
+import {
+  PERSONAL_FIELD_NAMES,
+  REGISTRATION_FIELD_NAMES,
+  STAGE_CONTRACTS,
+} from './domain-contracts';
 import { resolveFieldObservation } from './field-resolver';
 import { resolveNativeStageControls } from './native-controls';
 import { ZEEV_SELECTORS } from './selectors';
@@ -239,6 +243,33 @@ const START_CLASSES = {
   ],
 } as const;
 
+const T1_CLASSES = {
+  formScope: ['box-border', 'mt-4', '!w-full', '!max-w-full', '!min-w-0', '!overflow-x-clip', 'rounded-2xl', 'border', 'border-slate-200', 'bg-white', 'p-4', 'shadow-sm', 'md:p-6'],
+  formTable: ['!block', '!w-full', '!max-w-full', '!min-w-0', '!table-auto', 'overflow-visible'],
+  structuralContents: ['!contents'],
+  fieldGrid: ['!grid', '!w-full', '!max-w-full', '!min-w-0', 'grid-cols-12', 'gap-x-5', 'gap-y-4', 'overflow-visible'],
+  headingRow: ['col-span-12', '!block', '!w-full', '!max-w-full', '!min-w-0', '!border-0', '!p-0'],
+  headingCell: ['!block', '!w-full', '!max-w-full', '!min-w-0', '!p-0', '!text-left', '!align-top', '!whitespace-normal', 'text-lg', 'font-bold', 'leading-tight', 'text-slate-900'],
+  previousHeadingCell: ['mt-3', 'border-t', 'border-slate-200', 'pt-5', 'text-base', 'text-slate-700'],
+  row12: ['col-span-12', '!block', '!w-auto', '!max-w-full', '!min-w-0', '!border-0', '!p-0', '!text-left', '!align-top'],
+  row6: ['col-span-6', 'max-md:col-span-12', '!block', '!w-auto', '!max-w-full', '!min-w-0', '!border-0', '!p-0', '!text-left', '!align-top'],
+  previousRow: ['col-span-4', 'max-lg:col-span-6', 'max-sm:col-span-12', '!block', '!w-auto', '!max-w-full', '!min-w-0', '!border-0', 'rounded-xl', 'bg-slate-50', '!p-3', '!text-left', '!align-top'],
+  label: ['mb-1.5', '!block', '!w-full', '!max-w-full', '!min-w-0', '!p-0', '!text-left', '!align-top', 'text-[0.8125rem]', 'font-bold', 'leading-snug', 'text-slate-700'],
+  shell: ['!block', '!w-full', '!max-w-full', '!min-w-0', 'box-border', '!p-0', '!text-left', '!align-top'],
+  input: START_CLASSES.input,
+  previousInput: ['h-10', 'w-full', 'max-w-full', 'min-w-0', 'rounded-lg', 'border', 'border-slate-200', 'bg-white', 'px-3', 'py-2', 'text-sm', 'text-slate-700', 'focus-visible:border-blue-700', 'focus-visible:outline-2', 'focus-visible:outline-offset-1', 'focus-visible:outline-blue-700'],
+  readonlyValue: ['block', 'min-w-0', 'max-w-full', 'break-words', 'text-sm', 'font-semibold', 'leading-relaxed', 'text-slate-700'],
+  uploadRow: ['col-span-12', '!block', '!w-auto', '!max-w-full', '!min-w-0', '!border-0', '!p-0'],
+  uploadShell: ['!block', '!w-full', '!max-w-full', '!min-w-0', 'box-border', 'rounded-xl', 'border-2', 'border-dashed', 'border-blue-200', 'bg-blue-50/50', '!p-4', 'md:!p-5'],
+  uploadInput: ['block', 'w-full', 'max-w-full', 'min-w-0', 'text-sm', 'text-slate-600', 'file:mr-3', 'file:min-h-10', 'file:rounded-lg', 'file:border-0', 'file:bg-blue-700', 'file:px-4', 'file:py-2', 'file:font-bold', 'file:text-white'],
+  uploadButton: ['inline-flex', 'min-h-10', 'max-w-full', 'items-center', 'justify-center', 'gap-2', 'whitespace-normal', 'rounded-lg', 'border', 'border-blue-900', 'bg-blue-700', 'px-4', 'py-2.5', 'text-center', 'text-sm', 'font-bold', 'text-white', 'hover:bg-blue-900', 'focus-visible:outline-2', 'focus-visible:outline-offset-2', 'focus-visible:outline-blue-700'],
+  fileViewer: ['inline-flex', 'max-w-full', 'min-w-0', 'items-center', 'gap-2', 'break-all', 'text-sm', 'font-semibold', 'text-blue-800', 'underline-offset-2', 'hover:underline'],
+  fileAction: ['inline-flex', 'min-h-9', 'max-w-full', 'items-center', 'justify-center', 'rounded-lg', 'border', 'border-slate-300', 'bg-white', 'px-3', 'py-2', 'text-sm', 'font-semibold', 'text-slate-700', 'hover:bg-slate-50'],
+  actionArea: ['mt-4', 'flex', 'w-full', 'max-w-full', 'min-w-0', 'justify-end', 'border-t', 'border-slate-200', 'pt-4'],
+  actionRegion: ['flex', 'w-full', 'max-w-full', 'min-w-0', 'justify-end'],
+  finishAction: ['inline-flex', 'min-h-11', 'w-auto', 'max-w-full', 'items-center', 'justify-center', 'rounded-lg', 'border', 'border-blue-900', 'bg-blue-700', 'px-6', 'py-2.5', 'text-sm', 'font-bold', 'text-white', 'shadow-sm', 'hover:bg-blue-900', 'focus-visible:outline-2', 'focus-visible:outline-offset-2', 'focus-visible:outline-blue-700', 'disabled:cursor-not-allowed', 'disabled:opacity-60', 'max-[390px]:w-full'],
+} as const;
+
 const UPLOAD_CLASSES = {
   modal: ['overflow-hidden', 'rounded-2xl', 'border', 'border-slate-200', 'bg-white', 'shadow-2xl'],
   header: ['flex', 'items-center', 'justify-between', 'border-b', 'border-slate-200', 'px-5', 'py-4'],
@@ -272,6 +303,37 @@ const UPLOAD_CLASSES = {
   close: ['rounded-lg', 'p-2', 'text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-800'],
 } as const;
 
+const HUMAN_TASK_CLASSES = {
+  card: ['box-border', 'w-full', 'max-w-full', 'min-w-0', 'overflow-x-clip', 'rounded-xl', 'border', 'border-slate-200', 'bg-white', 'p-4', 'shadow-sm'],
+  title: ['m-0', 'mb-4', 'whitespace-nowrap', 'text-sm', 'font-bold', 'uppercase', 'tracking-[0.04em]', 'text-slate-700'],
+  attachmentBody: ['!grid', 'w-full', 'max-w-full', 'min-w-0', 'grid-cols-1', 'gap-4'],
+  fileAction: ['box-border', '!flex', '!w-full', '!max-w-full', '!min-w-0', 'items-center', 'justify-center', 'gap-2', '!whitespace-nowrap', 'rounded-lg', 'border', 'border-blue-900', 'bg-blue-700', 'px-3', 'py-2.5', 'text-sm', 'font-bold', 'text-white', 'hover:bg-blue-900'],
+  fileInput: ['box-border', 'block', 'w-full', 'max-w-full', 'min-w-0', 'text-sm'],
+  sortGroup: ['!grid', 'w-full', 'max-w-full', 'min-w-0', 'grid-cols-1', 'gap-1.5'],
+  sortLabel: ['block', 'w-full', 'min-w-0', 'text-xs', 'font-bold', 'text-slate-600'],
+  sortSelect: ['box-border', '!block', '!w-full', '!max-w-full', '!min-w-0', 'truncate', 'rounded-lg', 'border', 'border-slate-300', 'bg-white', 'px-3', 'py-2.5', 'text-sm', 'text-slate-700'],
+  viewAll: ['box-border', '!flex', '!w-full', '!max-w-full', '!min-w-0', 'items-center', 'justify-center', 'gap-2', '!whitespace-nowrap', 'rounded-lg', 'border', 'border-slate-300', 'bg-white', 'px-3', 'py-2.5', 'text-sm', 'font-semibold', 'text-slate-700', 'hover:bg-slate-50'],
+  historyList: ['grid', 'w-full', 'max-w-full', 'min-w-0', 'grid-cols-1'],
+  historyItem: ['grid', 'w-full', 'max-w-full', 'min-w-0', 'grid-cols-[2.5rem_minmax(0,1fr)]', 'gap-x-3', 'gap-y-1', 'border-b', 'border-slate-200', 'py-3', 'first:pt-0', 'last:border-b-0', 'last:pb-0'],
+  historyAvatar: ['row-span-3', 'flex', 'h-10', 'w-10', 'shrink-0', 'items-center', 'justify-center', 'self-start', 'overflow-hidden', 'rounded-full', 'bg-blue-50', 'text-xs', 'font-bold', 'text-blue-900'],
+  historyContent: ['col-start-2', 'w-full', 'max-w-full', 'min-w-0'],
+  historyName: ['min-w-0', 'break-words', 'text-sm', 'font-bold', 'leading-snug', 'text-slate-800'],
+  historyActivity: ['min-w-0', 'basis-full', 'break-words', 'text-xs', 'leading-snug', 'text-slate-600'],
+  historyMeta: ['flex', 'w-full', 'max-w-full', 'min-w-0', 'flex-wrap', 'items-center', 'gap-x-2', 'gap-y-1', 'pt-1'],
+  historyDate: ['min-w-0', 'basis-full', 'whitespace-nowrap', 'text-xs', 'text-slate-500'],
+  historyStatus: ['shrink-0', 'whitespace-nowrap', 'rounded-full', 'border', 'px-2', 'py-0.5', 'text-[0.6875rem]', 'font-bold'],
+  historyStatusComplete: ['border-emerald-200', 'bg-emerald-50', 'text-emerald-700'],
+  historyStatusActive: ['border-blue-200', 'bg-blue-50', 'text-blue-900'],
+  additionalBody: ['grid', 'w-full', 'max-w-full', 'min-w-0', 'grid-cols-1', 'gap-3'],
+  additionalAction: ['!flex', '!w-full', '!max-w-full', '!min-w-0', 'items-center', 'justify-center', 'gap-2', 'rounded-lg', 'border', 'border-slate-300', 'bg-white', 'px-3', 'py-2.5', 'text-sm', 'font-semibold', 'text-slate-700', 'hover:bg-slate-50'],
+  beforeCompleteTitle: ['m-0', 'mb-4', 'min-w-0', 'whitespace-normal', 'break-words', 'text-sm', 'font-bold', 'uppercase', 'leading-snug', 'tracking-[0.04em]', 'text-slate-700'],
+  beforeCompleteList: ['grid', 'w-full', 'max-w-full', 'min-w-0', 'grid-cols-1', 'gap-3'],
+  beforeCompleteItem: ['grid', 'w-full', 'max-w-full', 'min-w-0', 'grid-cols-[1.25rem_minmax(0,1fr)]', 'items-start', 'gap-2.5'],
+  beforeCompleteIcon: ['mt-0.5', 'flex', 'h-5', 'w-5', 'shrink-0', 'items-center', 'justify-center', 'self-start', 'text-blue-700'],
+  beforeCompleteControl: ['mt-0.5', 'h-5', 'w-5', 'shrink-0', 'self-start', 'accent-blue-700'],
+  beforeCompleteContent: ['min-w-0', 'max-w-full', 'break-words', 'text-sm', 'leading-relaxed', 'text-slate-700'],
+} as const;
+
 export interface NativeEnhancementSummary {
   root: HTMLElement | null;
   fieldShells: readonly HTMLElement[];
@@ -289,6 +351,20 @@ export interface NativeEnhancementSummary {
   uploadProgress: HTMLElement | null;
   uploadCancelAction: HTMLElement | null;
   uploadStartAction: HTMLElement | null;
+  sharedAttachmentRegion: HTMLElement | null;
+  sharedFileAction: HTMLElement | null;
+  sharedSortSelect: HTMLSelectElement | null;
+  sharedViewAllAction: HTMLElement | null;
+  sharedHistoryRegion: HTMLElement | null;
+  sharedHistoryItems: readonly HTMLElement[];
+  sharedAdditionalRegion: HTMLElement | null;
+  sharedBeforeCompleteRegion: HTMLElement | null;
+  sharedBeforeCompleteItems: readonly HTMLElement[];
+  t1FormScope: HTMLElement | null;
+  t1RegistrationFields: readonly HTMLElement[];
+  t1UploadShell: HTMLElement | null;
+  t1PreviousDataFields: readonly HTMLElement[];
+  t1FinishAction: HTMLElement | null;
 }
 
 function mark(
@@ -390,6 +466,383 @@ function commonAncestor(elements: readonly HTMLElement[]): HTMLElement | null {
     candidate = candidate.parentElement;
   }
   return candidate;
+}
+
+function smallestElementWithText(
+  scope: ParentNode,
+  text: string,
+  selector = 'h1, h2, h3, h4, h5, h6, legend, label, strong, span, p, div',
+): HTMLElement | null {
+  return Array.from(scope.querySelectorAll<HTMLElement>(selector))
+    .filter((element): boolean => normalizedText(element) === text)
+    .sort((left, right): number => left.children.length - right.children.length)[0] ?? null;
+}
+
+function controlWithText(
+  scope: ParentNode,
+  text: string,
+): HTMLElement | null {
+  return Array.from(
+    scope.querySelectorAll<HTMLElement>(
+      'button, a[href], label, [role="button"], input[type="button"], input[type="submit"]',
+    ),
+  ).find((element): boolean => normalizedText(element) === text) ?? null;
+}
+
+function regionFromTitle(
+  title: HTMLElement | null,
+): HTMLElement | null {
+  if (!title) return null;
+  const region = title.closest<HTMLElement>(
+    `[data-shared-region], ${ZEEV_SELECTORS.historyRegions}, section, aside, article, .card, .panel`,
+  );
+  return region && !region.matches(ZEEV_SELECTORS.root) ? region : title.parentElement;
+}
+
+interface SharedHumanTaskSummary {
+  sharedAttachmentRegion: HTMLElement | null;
+  sharedFileAction: HTMLElement | null;
+  sharedSortSelect: HTMLSelectElement | null;
+  sharedViewAllAction: HTMLElement | null;
+  sharedHistoryRegion: HTMLElement | null;
+  sharedHistoryItems: readonly HTMLElement[];
+  sharedAdditionalRegion: HTMLElement | null;
+  sharedBeforeCompleteRegion: HTMLElement | null;
+  sharedBeforeCompleteItems: readonly HTMLElement[];
+}
+
+const EMPTY_SHARED_HUMAN_TASK: SharedHumanTaskSummary = {
+  sharedAttachmentRegion: null,
+  sharedFileAction: null,
+  sharedSortSelect: null,
+  sharedViewAllAction: null,
+  sharedHistoryRegion: null,
+  sharedHistoryItems: [],
+  sharedAdditionalRegion: null,
+  sharedBeforeCompleteRegion: null,
+  sharedBeforeCompleteItems: [],
+};
+
+interface T1ExperienceSummary {
+  t1FormScope: HTMLElement | null;
+  t1RegistrationFields: readonly HTMLElement[];
+  t1UploadShell: HTMLElement | null;
+  t1PreviousDataFields: readonly HTMLElement[];
+  t1FinishAction: HTMLElement | null;
+}
+
+const EMPTY_T1_EXPERIENCE: T1ExperienceSummary = {
+  t1FormScope: null,
+  t1RegistrationFields: [],
+  t1UploadShell: null,
+  t1PreviousDataFields: [],
+  t1FinishAction: null,
+};
+
+function resolveLabeledSelect(
+  region: HTMLElement,
+  label: HTMLElement | null,
+): HTMLSelectElement | null {
+  const nativeFileOrder = region.querySelector<HTMLSelectElement>('#fileOrder');
+  if (nativeFileOrder) return nativeFileOrder;
+  if (label instanceof HTMLLabelElement && label.htmlFor) {
+    const labeled = document.getElementById(label.htmlFor);
+    if (labeled instanceof HTMLSelectElement && region.contains(labeled)) {
+      return labeled;
+    }
+  }
+  return label?.parentElement?.querySelector<HTMLSelectElement>('select') ??
+    region.querySelector<HTMLSelectElement>('select');
+}
+
+function enhanceSharedAttachments(
+  root: HTMLElement,
+): Pick<
+  SharedHumanTaskSummary,
+  | 'sharedAttachmentRegion'
+  | 'sharedFileAction'
+  | 'sharedSortSelect'
+  | 'sharedViewAllAction'
+> {
+  const region = root.querySelector<HTMLElement>(ZEEV_SELECTORS.attachments);
+  if (!region) {
+    return {
+      sharedAttachmentRegion: null,
+      sharedFileAction: null,
+      sharedSortSelect: null,
+      sharedViewAllAction: null,
+    };
+  }
+
+  const title = smallestElementWithText(region, 'anexos opcionais');
+  const fileAction = controlWithText(region, 'selecionar arquivos');
+  const fileInput = region.querySelector<HTMLInputElement>('input[type="file"]');
+  const sortLabel = smallestElementWithText(region, 'ordenar por', 'label, span, strong, p, div');
+  const sortSelect = resolveLabeledSelect(region, sortLabel);
+  const viewAllAction = controlWithText(region, 'visualizar todos os arquivos');
+  const attachmentBody = commonAncestor(
+    [fileAction, sortLabel, sortSelect, viewAllAction].filter(
+      (element): element is HTMLElement => element !== null,
+    ),
+  );
+
+  decorate(region, 'human-attachments', HUMAN_TASK_CLASSES.card);
+  if (title) decorate(title, 'human-attachments-title', HUMAN_TASK_CLASSES.title);
+  if (attachmentBody && attachmentBody !== region) {
+    decorate(
+      attachmentBody,
+      'human-attachments-body',
+      HUMAN_TASK_CLASSES.attachmentBody,
+    );
+  } else {
+    applyTailwindClasses(region, HUMAN_TASK_CLASSES.attachmentBody);
+  }
+  if (fileAction) {
+    decorate(fileAction, 'human-attachments-file-action', HUMAN_TASK_CLASSES.fileAction);
+  }
+  if (fileInput) {
+    decorate(fileInput, 'human-attachments-file-input', HUMAN_TASK_CLASSES.fileInput);
+  }
+  if (sortLabel) {
+    decorate(sortLabel, 'human-attachments-sort-label', HUMAN_TASK_CLASSES.sortLabel);
+  }
+  if (sortSelect) {
+    const sortGroup = commonAncestor(
+      [sortLabel, sortSelect].filter(
+        (element): element is HTMLElement => element !== null,
+      ),
+    );
+    if (sortGroup && sortGroup !== region) {
+      decorate(sortGroup, 'human-attachments-sort', HUMAN_TASK_CLASSES.sortGroup);
+    }
+    decorate(sortSelect, 'human-attachments-sort-select', HUMAN_TASK_CLASSES.sortSelect);
+  }
+  if (viewAllAction) {
+    decorate(viewAllAction, 'human-attachments-view-all', HUMAN_TASK_CLASSES.viewAll);
+  }
+
+  return {
+    sharedAttachmentRegion: region,
+    sharedFileAction: fileAction,
+    sharedSortSelect: sortSelect,
+    sharedViewAllAction: viewAllAction,
+  };
+}
+
+function historyItemCandidates(region: HTMLElement): HTMLElement[] {
+  const explicit = Array.from(
+    region.querySelectorAll<HTMLElement>(ZEEV_SELECTORS.historyItems),
+  );
+  if (explicit.length > 0) return Array.from(new Set(explicit));
+  return Array.from(region.children).filter(
+    (element): element is HTMLElement =>
+      element instanceof HTMLElement &&
+      /\b\d{2}\/\d{2}\/\d{4}\b/.test(normalizedText(element)),
+  );
+}
+
+function enhanceSharedHistory(
+  root: HTMLElement,
+): Pick<
+  SharedHumanTaskSummary,
+  'sharedHistoryRegion' | 'sharedHistoryItems'
+> {
+  const title = smallestElementWithText(root, 'historico');
+  const region = regionFromTitle(title);
+  if (!title || !region || region === root) {
+    return { sharedHistoryRegion: null, sharedHistoryItems: [] };
+  }
+
+  const items = historyItemCandidates(region);
+  decorate(region, 'human-history', HUMAN_TASK_CLASSES.card);
+  decorate(title, 'human-history-title', HUMAN_TASK_CLASSES.title);
+  const list = commonAncestor(items);
+  if (list && list !== region && !items.includes(list)) {
+    decorate(list, 'human-history-list', HUMAN_TASK_CLASSES.historyList);
+  }
+
+  items.forEach((item): void => {
+    const avatar = item.querySelector<HTMLElement>(
+      '.avatar, [data-initials], [class*="avatar" i], [class*="initial" i]',
+    );
+    const name = item.querySelector<HTMLElement>(
+      '.person-name, [data-person-name], [class*="person" i], [class*="user-name" i]',
+    );
+    const activity = item.querySelector<HTMLElement>(
+      '.activity-name, [data-activity], [class*="activity" i], [class*="task-name" i]',
+    );
+    const date = item.querySelector<HTMLElement>(
+      'time, [data-history-date], [class*="date" i], [class*="time" i]',
+    );
+    const status = item.querySelector<HTMLElement>(
+      'span.badge.badge-light-secondary, .status, [data-status], [class*="status" i], .badge',
+    );
+    const content = name?.closest<HTMLElement>(
+      '.history-content, .timeline-content, [class*="content" i]',
+    );
+    const meta = commonAncestor(
+      [activity, date, status].filter(
+        (element): element is HTMLElement => element !== null,
+      ),
+    );
+
+    decorate(item, 'human-history-item', HUMAN_TASK_CLASSES.historyItem);
+    if (avatar) decorate(avatar, 'human-history-avatar', HUMAN_TASK_CLASSES.historyAvatar);
+    if (content && content !== item) {
+      decorate(content, 'human-history-content', HUMAN_TASK_CLASSES.historyContent);
+    }
+    if (name) decorate(name, 'human-history-person', HUMAN_TASK_CLASSES.historyName);
+    if (activity) decorate(activity, 'human-history-activity', HUMAN_TASK_CLASSES.historyActivity);
+    if (meta && meta !== item) {
+      decorate(meta, 'human-history-meta', HUMAN_TASK_CLASSES.historyMeta);
+    }
+    if (date) decorate(date, 'human-history-date', HUMAN_TASK_CLASSES.historyDate);
+    if (status) {
+      decorate(status, 'human-history-status', [
+        ...HUMAN_TASK_CLASSES.historyStatus,
+        ...(normalizedText(status) === 'concluido'
+          ? HUMAN_TASK_CLASSES.historyStatusComplete
+          : HUMAN_TASK_CLASSES.historyStatusActive),
+      ]);
+    }
+  });
+
+  return { sharedHistoryRegion: region, sharedHistoryItems: items };
+}
+
+function enhanceSharedAdditionalRegion(
+  root: HTMLElement,
+): HTMLElement | null {
+  const region = root.querySelector<HTMLElement>(ZEEV_SELECTORS.messages);
+  if (!region) return null;
+  decorate(region, 'human-shared-messages', HUMAN_TASK_CLASSES.card);
+  const title = smallestElementWithText(region, 'mensagens');
+  if (title) decorate(title, 'human-shared-messages-title', HUMAN_TASK_CLASSES.title);
+  const body = title?.parentElement === region
+    ? Array.from(region.children).find(
+        (element): element is HTMLElement =>
+          element instanceof HTMLElement && element !== title,
+      ) ?? null
+    : null;
+  if (body) decorate(body, 'human-shared-messages-body', HUMAN_TASK_CLASSES.additionalBody);
+  region
+    .querySelectorAll<HTMLElement>('button, a[href], [role="button"]')
+    .forEach((action): void => {
+      decorate(action, 'human-shared-messages-action', HUMAN_TASK_CLASSES.additionalAction);
+    });
+  return region;
+}
+
+function beforeCompleteItemCandidates(
+  region: HTMLElement,
+  title: HTMLElement,
+): HTMLElement[] {
+  const explicit = Array.from(
+    region.querySelectorAll<HTMLElement>(ZEEV_SELECTORS.beforeCompleteItems),
+  );
+  if (explicit.length > 0) {
+    const unique = Array.from(new Set(explicit));
+    return unique.filter(
+      (candidate): boolean =>
+        !unique.some(
+          (other): boolean => other !== candidate && other.contains(candidate),
+        ),
+    );
+  }
+
+  const body = Array.from(region.children).find(
+    (element): element is HTMLElement =>
+      element instanceof HTMLElement && element !== title,
+  );
+  if (!body) return [];
+  const children = Array.from(body.children).filter(
+    (element): element is HTMLElement => element instanceof HTMLElement,
+  );
+  return children.length > 0 ? children : [body];
+}
+
+function enhanceSharedBeforeComplete(
+  root: HTMLElement,
+): Pick<
+  SharedHumanTaskSummary,
+  'sharedBeforeCompleteRegion' | 'sharedBeforeCompleteItems'
+> {
+  const title = smallestElementWithText(
+    root,
+    'antes de concluir',
+    'h1, h2, h3, h4, h5, h6, legend, [role="heading"], .card-title, .panel-title, [class*="title" i]',
+  );
+  const region = regionFromTitle(title);
+  if (!title || !region || region === root) {
+    return { sharedBeforeCompleteRegion: null, sharedBeforeCompleteItems: [] };
+  }
+
+  const items = beforeCompleteItemCandidates(region, title);
+  decorate(region, 'human-before-complete', HUMAN_TASK_CLASSES.card);
+  decorate(
+    title,
+    'human-before-complete-title',
+    HUMAN_TASK_CLASSES.beforeCompleteTitle,
+  );
+  const list = commonAncestor(items);
+  if (list && list !== region && !items.includes(list)) {
+    decorate(
+      list,
+      'human-before-complete-list',
+      HUMAN_TASK_CLASSES.beforeCompleteList,
+    );
+  }
+
+  items.forEach((item): void => {
+    const icon = item.querySelector<HTMLElement>(
+      'input[type="checkbox"], [data-check-icon], svg, i, .material-icons, [class*="icon" i]',
+    );
+    const content = item.querySelector<HTMLElement>(
+      '[data-check-content], .check-content, .item-content, .content, p',
+    ) ?? Array.from(item.children).find(
+      (element): element is HTMLElement =>
+        element instanceof HTMLElement &&
+        element !== icon &&
+        (icon === null || !element.contains(icon)),
+    ) ?? null;
+
+    decorate(item, 'human-before-complete-item', HUMAN_TASK_CLASSES.beforeCompleteItem);
+    if (icon) {
+      decorate(
+        icon,
+        'human-before-complete-icon',
+        icon instanceof HTMLInputElement
+          ? HUMAN_TASK_CLASSES.beforeCompleteControl
+          : HUMAN_TASK_CLASSES.beforeCompleteIcon,
+      );
+    }
+    if (content) {
+      decorate(
+        content,
+        'human-before-complete-content',
+        HUMAN_TASK_CLASSES.beforeCompleteContent,
+      );
+    }
+  });
+
+  return {
+    sharedBeforeCompleteRegion: region,
+    sharedBeforeCompleteItems: items,
+  };
+}
+
+function enhanceSharedHumanTaskChrome(
+  root: HTMLElement,
+): SharedHumanTaskSummary {
+  const attachments = enhanceSharedAttachments(root);
+  const history = enhanceSharedHistory(root);
+  const beforeComplete = enhanceSharedBeforeComplete(root);
+  return {
+    ...attachments,
+    ...history,
+    ...beforeComplete,
+    sharedAdditionalRegion: enhanceSharedAdditionalRegion(root),
+  };
 }
 
 function enhanceStartHostChrome(): Pick<
@@ -847,6 +1300,253 @@ function enhanceStartFields(fieldShells: readonly HTMLElement[]): void {
   });
 }
 
+function t1SectionHeadings(scope: ParentNode): HTMLElement[] {
+  const accepted = new Set([
+    'dados do cadastro',
+    'dados pessoais',
+    'dados pessoais informados anteriormente',
+  ]);
+  return Array.from(
+    scope.querySelectorAll<HTMLElement>(
+      'h1, h2, h3, h4, h5, h6, legend, th, td, [role="heading"], .card-title, .panel-title',
+    ),
+  )
+    .filter((element): boolean => accepted.has(normalizedText(element)))
+    .sort((left, right): number => left.children.length - right.children.length);
+}
+
+function normalizeT1FormStructure(
+  formScope: HTMLElement,
+  fieldShells: readonly HTMLElement[],
+): void {
+  decorate(formScope, 't1-form-scope', T1_CLASSES.formScope);
+  const fieldRows = Array.from(
+    new Set(
+      fieldShells
+        .map((shell): HTMLElement | null => shell.closest<HTMLElement>('tr'))
+        .filter((row): row is HTMLElement => row !== null),
+    ),
+  );
+  const headings = t1SectionHeadings(formScope);
+  const headingRows = headings
+    .map((heading): HTMLElement | null => heading.closest<HTMLElement>('tr'))
+    .filter((row): row is HTMLElement => row !== null);
+  const layoutRows = Array.from(new Set([...headingRows, ...fieldRows]));
+  if (layoutRows.length === 0) return;
+
+  const gridRoot = commonAncestor(layoutRows);
+  if (!gridRoot || !formScope.contains(gridRoot)) return;
+  if (gridRoot === formScope) {
+    applyTailwindClasses(gridRoot, T1_CLASSES.fieldGrid);
+  } else {
+    decorate(gridRoot, 't1-registration-grid', T1_CLASSES.fieldGrid);
+  }
+
+  const tables = new Set<HTMLElement>();
+  const bodies = new Set<HTMLElement>();
+  layoutRows.forEach((row): void => {
+    const table = row.closest<HTMLElement>('table');
+    const body = row.closest<HTMLElement>('tbody');
+    if (table) tables.add(table);
+    if (body) bodies.add(body);
+  });
+  tables.forEach((table): void => {
+    applyTailwindClasses(
+      table,
+      table === gridRoot || table.contains(gridRoot)
+        ? T1_CLASSES.formTable
+        : T1_CLASSES.structuralContents,
+    );
+  });
+  bodies.forEach((body): void => {
+    if (body !== gridRoot) applyTailwindClasses(body, T1_CLASSES.structuralContents);
+  });
+  layoutRows.forEach((row): void => {
+    let ancestor = row.parentElement;
+    while (ancestor && ancestor !== gridRoot) {
+      if (!tables.has(ancestor) && !bodies.has(ancestor)) {
+        applyTailwindClasses(ancestor, T1_CLASSES.structuralContents);
+      }
+      ancestor = ancestor.parentElement;
+    }
+  });
+
+  headings.forEach((heading): void => {
+    const previous = normalizedText(heading) !== 'dados do cadastro';
+    const row = heading.closest<HTMLElement>('tr');
+    if (row) applyTailwindClasses(row, T1_CLASSES.headingRow);
+    decorate(
+      heading,
+      previous ? 't1-previous-data-heading' : 't1-registration-heading',
+      [
+        ...T1_CLASSES.headingCell,
+        ...(previous ? T1_CLASSES.previousHeadingCell : []),
+      ],
+    );
+  });
+}
+
+function t1FieldLabel(
+  row: HTMLElement | null,
+  shell: HTMLElement,
+): HTMLElement | null {
+  if (row) {
+    const previous = shell.previousElementSibling;
+    return row.querySelector<HTMLElement>('td.col0, th.col0, label') ??
+      (previous instanceof HTMLElement ? previous : null);
+  }
+  return shell.querySelector<HTMLElement>('label');
+}
+
+function enhanceT1Field(
+  shell: HTMLElement,
+  name: ZeevFieldName,
+  previous: boolean,
+): void {
+  const row = shell.closest<HTMLElement>('tr');
+  if (row) {
+    const rowClasses = previous
+      ? T1_CLASSES.previousRow
+      : name === 'cepEndereco' || name === 'numeroEndereco'
+        ? T1_CLASSES.row6
+        : T1_CLASSES.row12;
+    decorate(
+      row,
+      previous ? 't1-previous-field-row' : 't1-registration-field-row',
+      rowClasses,
+      {
+        'data-zeev-fieb-field': name,
+        'data-zeev-fieb-grid-span': previous
+          ? '4'
+          : name === 'cepEndereco' || name === 'numeroEndereco'
+            ? '6'
+            : '12',
+      },
+    );
+  }
+  applyTailwindClasses(shell, T1_CLASSES.shell);
+  const label = t1FieldLabel(row, shell);
+  if (label && label !== shell) {
+    decorate(
+      label,
+      previous ? 't1-previous-field-label' : 't1-registration-field-label',
+      T1_CLASSES.label,
+      { 'data-zeev-fieb-field': name },
+    );
+  }
+  shell
+    .querySelectorAll<HTMLElement>(
+      'input:not([type="radio"]):not([type="checkbox"]):not([type="hidden"]):not([type="file"]), select, textarea',
+    )
+    .forEach((control): void => {
+      applyTailwindClasses(
+        control,
+        previous ? T1_CLASSES.previousInput : T1_CLASSES.input,
+      );
+    });
+  shell
+    .querySelectorAll<HTMLElement>('[data-zeev-fieb-role="readonly-scalar-renderer"]')
+    .forEach((renderer): void => {
+      applyTailwindClasses(renderer, T1_CLASSES.readonlyValue);
+    });
+  if (!previous || (name !== 'estadoCivil' && name !== 'tipoDocumento')) return;
+  const choices = Array.from(shell.querySelectorAll<HTMLElement>('.form-check'));
+  const group = commonAncestor(choices);
+  if (group && shell.contains(group)) {
+    applyTailwindClasses(group, START_CLASSES.radioGroup);
+  }
+  choices.forEach((choice): void => {
+    applyTailwindClasses(choice, START_CLASSES.radioChoice);
+  });
+}
+
+function enhanceT1Upload(shell: HTMLElement): void {
+  const row = shell.closest<HTMLElement>('tr');
+  if (row) {
+    decorate(row, 't1-upload-row', T1_CLASSES.uploadRow, {
+      'data-zeev-fieb-field': 'documentoCadastroPdf',
+      'data-zeev-fieb-grid-span': '12',
+    });
+  }
+  applyTailwindClasses(shell, T1_CLASSES.uploadShell);
+  shell
+    .querySelectorAll<HTMLInputElement>('input[type="file"]')
+    .forEach((input): void => applyTailwindClasses(input, T1_CLASSES.uploadInput));
+  shell
+    .querySelectorAll<HTMLElement>('[data-zeev-fieb-role="file-upload"]')
+    .forEach((button): void => applyTailwindClasses(button, T1_CLASSES.uploadButton));
+  shell
+    .querySelectorAll<HTMLElement>(
+      '[data-zeev-fieb-role="file-viewer"], [data-zeev-fieb-role="file-download"]',
+    )
+    .forEach((element): void => applyTailwindClasses(element, T1_CLASSES.fileViewer));
+  shell
+    .querySelectorAll<HTMLElement>('button, a[href], [role="button"]')
+    .forEach((action): void => {
+      const text = normalizedText(action);
+      if (text.includes('remover') || text.includes('excluir')) {
+        applyTailwindClasses(action, T1_CLASSES.fileAction);
+      }
+    });
+}
+
+function enhanceT1Experience(
+  fieldShells: readonly HTMLElement[],
+  actionRegion: HTMLElement | null,
+  actions: readonly HTMLElement[],
+): T1ExperienceSummary {
+  const formScope = document.querySelector<HTMLElement>(ZEEV_SELECTORS.containerForm);
+  const registrationFields = fieldShells.filter((shell): boolean =>
+    REGISTRATION_FIELD_NAMES.includes(
+      shell.getAttribute('data-zeev-fieb-field') as typeof REGISTRATION_FIELD_NAMES[number],
+    ),
+  );
+  const previousDataFields = fieldShells.filter((shell): boolean =>
+    PERSONAL_FIELD_NAMES.includes(
+      shell.getAttribute('data-zeev-fieb-field') as typeof PERSONAL_FIELD_NAMES[number],
+    ),
+  );
+  if (formScope) {
+    normalizeT1FormStructure(
+      formScope,
+      [...registrationFields, ...previousDataFields],
+    );
+  }
+  registrationFields.forEach((shell): void => {
+    const name = shell.getAttribute('data-zeev-fieb-field') as ZeevFieldName;
+    if (name === 'documentoCadastroPdf') {
+      enhanceT1Upload(shell);
+    } else {
+      enhanceT1Field(shell, name, false);
+    }
+  });
+  previousDataFields.forEach((shell): void => {
+    enhanceT1Field(
+      shell,
+      shell.getAttribute('data-zeev-fieb-field') as ZeevFieldName,
+      true,
+    );
+  });
+
+  const finishAction = actions.find((action): boolean => action.id === 'btnFinish') ?? null;
+  const controllers = actionRegion?.closest<HTMLElement>('#controllers');
+  if (controllers) decorate(controllers, 't1-action-area', T1_CLASSES.actionArea);
+  if (actionRegion) applyTailwindClasses(actionRegion, T1_CLASSES.actionRegion);
+  if (finishAction) applyTailwindClasses(finishAction, T1_CLASSES.finishAction);
+
+  return {
+    t1FormScope: formScope,
+    t1RegistrationFields: registrationFields,
+    t1UploadShell:
+      registrationFields.find(
+        (shell): boolean =>
+          shell.getAttribute('data-zeev-fieb-field') === 'documentoCadastroPdf',
+      ) ?? null,
+    t1PreviousDataFields: previousDataFields,
+    t1FinishAction: finishAction,
+  };
+}
+
 function enhanceFields(
   stage: StageContract,
 ): Pick<
@@ -955,6 +1655,8 @@ export function enhanceNativeExperience(
       uploadProgress: null,
       uploadCancelAction: null,
       uploadStartAction: null,
+      ...EMPTY_SHARED_HUMAN_TASK,
+      ...EMPTY_T1_EXPERIENCE,
     };
   }
 
@@ -1007,6 +1709,9 @@ export function enhanceNativeExperience(
         uploadCancelAction: null,
         uploadStartAction: null,
       };
+  const sharedHumanTask = stageCode === 'START'
+    ? EMPTY_SHARED_HUMAN_TASK
+    : enhanceSharedHumanTaskChrome(root);
 
   return {
     root,
@@ -1014,5 +1719,7 @@ export function enhanceNativeExperience(
     actionRegion,
     actions,
     ...startHost,
+    ...sharedHumanTask,
+    ...EMPTY_T1_EXPERIENCE,
   };
 }

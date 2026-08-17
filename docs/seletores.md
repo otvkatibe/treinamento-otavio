@@ -10,6 +10,12 @@
 | Comandos nativos | `#commands` |
 | Contêiner do formulário | `#ContainerForm` |
 | Caixa/formulário | `#BoxFrmExecute`, `#FrmExecute` |
+| Mensagens compartilhadas | `#containerMessages` |
+| Anexos compartilhados | `#containerFiles` |
+| Histórico compartilhado | `#containerHistory`, `[data-history]`, região identificada pelo título `Histórico` |
+| Eventos do histórico | `[data-history-item]`, `.history-item`, `.timeline-item` |
+| Antes de concluir | Região identificada pelo heading exato `Antes de concluir` |
+| Itens de Antes de concluir | `[data-before-complete-item]`, `[data-check-item]`, `.checklist-item`, `li` dentro da região |
 | React Island | `#zeev-fieb-root`, imediatamente antes de `#ContainerForm` |
 
 O CSS de campos usa o namespace `#containerRequest #FrmExecute`. O detector mantém `.page-title h1` disponível; a UI externa não remove inputs nem ações nativas.

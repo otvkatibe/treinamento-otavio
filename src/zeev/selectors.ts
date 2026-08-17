@@ -15,4 +15,10 @@ export const ZEEV_SELECTORS = {
   personalDataGroupTitle: '#group7724',
   messages: '#containerMessages',
   attachments: '#containerFiles',
+  historyRegions:
+    '[data-history], #containerHistory, #history, [id*="histor" i], [class*="history" i], [class*="historico" i]',
+  historyItems:
+    '[data-history-item], .history-item, .timeline-item',
+  beforeCompleteItems:
+    '[data-before-complete-item], [data-check-item], .checklist-item, li',
 } as const;

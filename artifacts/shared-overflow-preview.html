@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Validação local — Anexos opcionais e Histórico</title>
+    <link rel="stylesheet" href="/dist/zeev-fieb.css" />
+    <style>
+      body { margin: 0; background: #e2e8f0; font-family: Arial, sans-serif; }
+      #preview { width: 300px; margin: 72px auto 24px; }
+      #preview .native-auxiliary-column { display: grid; gap: 16px; width: 300px !important; min-width: 280px !important; max-width: 320px !important; }
+      #preview #ContainerForm, #preview #controllers, #preview .page-title, #preview #containerMessages { display: none; }
+      #geometry-result { position: fixed; z-index: 10; top: 8px; left: 50%; transform: translateX(-50%); box-sizing: border-box; width: 300px; padding: 10px 12px; border-radius: 8px; color: white; background: #334155; font: 700 12px/1.4 Arial, sans-serif; }
+      #geometry-result[data-pass="true"] { background: #047857; }
+      #shared-file-input { display: none; }
+    </style>
+  </head>
+  <body>
+    <div id="geometry-result">Validando geometria…</div>
+    <div id="preview"></div>
+    <script type="module">
+      import { enhanceNativeExperience } from '/src/zeev/native-enhancements.ts';
+      import { sharedHumanTaskMarkup } from '/src/zeev/__tests__/fixtures/shared-human-task.fixture.ts';
+
+      const preview = document.querySelector('#preview');
+      preview.innerHTML = sharedHumanTaskMarkup();
+      enhanceNativeExperience('T1');
+
+      requestAnimationFrame(() => {
+        const attachments = document.querySelector('#containerFiles');
+        const history = document.querySelector('#containerHistory');
+        const select = document.querySelector('#fileOrder');
+        const badge = document.querySelector('span.badge.badge-light-secondary');
+        const inside = (child, card) => {
+          const childBox = child.getBoundingClientRect();
+          const cardBox = card.getBoundingClientRect();
+          return childBox.left >= cardBox.left && childBox.right <= cardBox.right;
+        };
+        const pass = [attachments, history].every((card) => card.scrollWidth <= card.clientWidth) &&
+          inside(select, attachments) && inside(badge, history) &&
+          document.documentElement.scrollWidth <= document.documentElement.clientWidth;
+        const result = document.querySelector('#geometry-result');
+        result.dataset.pass = String(pass);
+        const attachmentBox = attachments.getBoundingClientRect();
+        const offenders = [...attachments.querySelectorAll('*')]
+          .filter((element) => {
+            const box = element.getBoundingClientRect();
+            return box.width > 0 && box.height > 0 && element.tagName !== 'OPTION' &&
+              (box.left < attachmentBox.left || box.right > attachmentBox.right);
+          })
+          .map((element) => element.id || element.className || element.tagName)
+          .join(', ');
+        const details = `anexos ${attachments.scrollWidth}/${attachments.clientWidth} · histórico ${history.scrollWidth}/${history.clientWidth} · página ${document.documentElement.scrollWidth}/${document.documentElement.clientWidth} · excedentes ${offenders || 'nenhum'}`;
+        result.textContent = pass
+          ? `PASS · 300 px · sem overflow horizontal · ${details}`
+          : `FAIL · ${details}`;
+      });
+    </script>
+  </body>
+</html>
