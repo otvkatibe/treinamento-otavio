@@ -239,7 +239,7 @@ describe('lifecycle SPA', () => {
     );
     expect(runtime.viewSignature?.title).toBe('T01 - Fazer o cadastro');
     expect(infoSpy).toHaveBeenCalledWith(
-      '[Zeev FIEB v0.4.0-rc.2] view changed: START -> T1',
+      '[Zeev FIEB v0.4.0-rc.3] view changed: START -> T1',
     );
   });
 

@@ -4,10 +4,46 @@ import {
   enhanceNativeExperience,
   resetNativeEnhancements,
 } from '../native-enhancements';
-import { sharedHumanTaskMarkup } from './fixtures/shared-human-task.fixture';
+import {
+  REAL_SHARED_ANCESTOR_MAP,
+  sharedHumanTaskMarkup,
+  type NativeAncestorRecord,
+} from './fixtures/shared-human-task.fixture';
+
+type ObservableAncestorRecord = Omit<NativeAncestorRecord, 'layoutRole'>;
 
 function renderSharedTask(): void {
   document.body.innerHTML = sharedHumanTaskMarkup();
+}
+
+function ancestorChain(
+  selector: string,
+  cardSelector: string,
+): ObservableAncestorRecord[] {
+  const start = document.querySelector<HTMLElement>(selector);
+  const card = document.querySelector<HTMLElement>(cardSelector);
+  if (!start || !card) throw new Error(`Cadeia ausente: ${selector} → ${cardSelector}`);
+  const chain: ObservableAncestorRecord[] = [];
+  let current: HTMLElement | null = start;
+  while (current) {
+    chain.push({
+      tag: current.tagName,
+      id: current.id,
+      classes: current.className,
+      display: current.style.display,
+      width: current.style.width,
+      parentId: current.parentElement?.id ?? '',
+    });
+    if (current === card) break;
+    current = current.parentElement;
+  }
+  return chain;
+}
+
+function observableMap(
+  records: readonly NativeAncestorRecord[],
+): ObservableAncestorRecord[] {
+  return records.map(({ layoutRole: _layoutRole, ...record }) => record);
 }
 
 afterEach((): void => {
@@ -16,14 +52,41 @@ afterEach((): void => {
   document.body.innerHTML = '';
 });
 
-describe('refinamento compartilhado das tarefas humanas', () => {
-  it('reconhece anexos e preserva picker, ordenação e ações nativas', () => {
+describe('regressão estrutural das regiões compartilhadas no host real', () => {
+  it('registra as cadeias nativas e os primeiros ancestrais restritivos observados', () => {
+    renderSharedTask();
+
+    expect(ancestorChain('#fileOrder', '#containerFiles')).toEqual(
+      observableMap(REAL_SHARED_ANCESTOR_MAP.fileOrder),
+    );
+    expect(ancestorChain('#select-files', '#containerFiles')).toEqual(
+      observableMap(REAL_SHARED_ANCESTOR_MAP.filePicker),
+    );
+    expect(ancestorChain('#history-event-1', '#containerHistory')).toEqual(
+      observableMap(REAL_SHARED_ANCESTOR_MAP.historyItem),
+    );
+    expect(ancestorChain('#history-event-row-1', '#containerHistory')).toEqual(
+      observableMap(REAL_SHARED_ANCESTOR_MAP.historyEventLayout),
+    );
+    expect(
+      REAL_SHARED_ANCESTOR_MAP.fileOrder.find(
+        ({ layoutRole }) => layoutRole === 'first-horizontal-composition',
+      )?.id,
+    ).toBe('native-file-layout');
+    expect(
+      REAL_SHARED_ANCESTOR_MAP.historyEventLayout.find(
+        ({ layoutRole }) => layoutRole === 'first-horizontal-composition',
+      )?.id,
+    ).toBe('history-event-row-1');
+  });
+
+  it('verticaliza a row nativa de anexos e preserva controles, options e listeners', () => {
     renderSharedTask();
     const picker = document.querySelector<HTMLInputElement>('#shared-file-input');
-    const fileAction = document.querySelector<HTMLElement>('#select-files');
+    const fileAction = document.querySelector<HTMLButtonElement>('#select-files');
     const sort = document.querySelector<HTMLSelectElement>('#fileOrder');
     const viewAll = document.querySelector<HTMLAnchorElement>('#view-all-files');
-    const onFileAction = vi.fn((event: Event): void => event.preventDefault());
+    const onFileAction = vi.fn();
     const onSort = vi.fn();
     const onViewAll = vi.fn((event: Event): void => event.preventDefault());
     fileAction?.addEventListener('click', onFileAction);
@@ -32,27 +95,52 @@ describe('refinamento compartilhado das tarefas humanas', () => {
 
     const summary = enhanceNativeExperience('T1');
 
-    expect(summary.sharedAttachmentRegion).toBe(
-      document.querySelector('#containerFiles'),
-    );
     expect(summary.sharedFileAction).toBe(fileAction);
     expect(summary.sharedSortSelect).toBe(sort);
     expect(summary.sharedViewAllAction).toBe(viewAll);
-    expect(summary.sharedAttachmentRegion).toHaveClass(
-      'w-full',
-      'max-w-full',
-      'min-w-0',
-      'overflow-x-clip',
+    expect(document.querySelector('#native-files-body')).toHaveClass(
+      '!flex',
+      '!flex-col',
+      '!w-full',
+      '!min-w-0',
     );
-    expect(document.querySelector('.attachment-controls')).toHaveClass(
+    expect(document.querySelector('#native-file-layout')).toHaveClass(
+      '!m-0',
+      '!flex',
+      '!flex-col',
+      '!w-full',
+      '!min-w-0',
+    );
+    expect(document.querySelector('#native-file-picker-column')).toHaveClass(
+      '!w-full',
+      '!min-w-0',
+      '!flex-none',
+    );
+    expect(document.querySelector('#native-file-order-column')).toHaveClass(
+      '!w-full',
+      '!min-w-0',
+      '!flex-none',
+    );
+    expect(document.querySelector('#native-file-order-group')).toHaveClass(
       '!grid',
-      'grid-cols-1',
-      'min-w-0',
-      'gap-4',
+      '!w-full',
+      '!min-w-0',
     );
-    expect(fileAction).toHaveClass('box-border', '!w-full', '!min-w-0', '!whitespace-nowrap');
-    expect(sort).toHaveClass('!w-full', '!max-w-full', '!min-w-0');
-    expect(viewAll).toHaveClass('!w-full', '!whitespace-nowrap');
+    expect(sort).toHaveClass(
+      'box-border',
+      '!block',
+      '!w-full',
+      '!max-w-full',
+      '!min-w-0',
+    );
+    expect(document.querySelector('#native-view-all-row')).toHaveClass(
+      '!w-full',
+      '!min-w-0',
+    );
+    expect(document.querySelector('#native-view-all-column')).toHaveClass(
+      '!w-full',
+      '!min-w-0',
+    );
 
     fileAction?.click();
     if (sort) {
@@ -71,90 +159,164 @@ describe('refinamento compartilhado das tarefas humanas', () => {
     ]);
   });
 
-  it('transforma eventos do histórico em timeline legível e responsiva', () => {
+  it('aplica o grid e !m-0 no wrapper interno real de cada evento, não no item externo', () => {
     renderSharedTask();
 
     const summary = enhanceNativeExperience('T1');
 
-    expect(summary.sharedHistoryRegion).toBe(
-      document.querySelector('#containerHistory'),
-    );
     expect(summary.sharedHistoryItems).toHaveLength(2);
-    expect(document.querySelector('.history-list')).toHaveClass(
-      'grid',
-      'grid-cols-1',
-      'min-w-0',
+    expect(document.querySelector('#history-list')).toHaveClass(
+      '!block',
+      '!w-full',
+      '!min-w-0',
     );
-    summary.sharedHistoryItems.forEach((item): void => {
-      expect(item).toHaveClass(
-        'grid',
+    summary.sharedHistoryItems.forEach((item, index): void => {
+      const suffix = String(index + 1);
+      expect(item).toHaveClass('!block', '!w-full', '!min-w-0');
+      expect(item).not.toHaveClass('grid-cols-[2.5rem_minmax(0,1fr)]');
+      expect(document.querySelector(`#history-event-row-${suffix}`)).toHaveClass(
+        '!m-0',
+        '!grid',
+        '!w-full',
+        '!min-w-0',
         'grid-cols-[2.5rem_minmax(0,1fr)]',
-        'min-w-0',
+      );
+      expect(document.querySelector(`#history-avatar-column-${suffix}`)).toHaveClass(
+        '!w-full',
+        '!min-w-0',
+        'col-start-1',
+      );
+      expect(document.querySelector(`#history-content-column-${suffix}`)).toHaveClass(
+        '!w-full',
+        '!min-w-0',
+        'col-start-2',
       );
     });
-    expect(document.querySelector('.history-content')).toHaveClass(
-      'col-start-2',
-      'w-full',
-      'min-w-0',
-    );
-    expect(document.querySelector('.person-name')).toHaveClass(
-      'min-w-0',
-      'break-words',
-    );
-    expect(document.querySelector('.history-meta')).toHaveClass(
-      'flex',
-      'flex-wrap',
-      'w-full',
-      'min-w-0',
-      'gap-x-2',
-    );
-    expect(document.querySelector('.history-date')).toHaveClass('basis-full');
-    expect(document.querySelector('.badge-light-secondary')).toHaveClass(
-      'shrink-0',
-      'whitespace-nowrap',
-      'rounded-full',
-    );
+    document.querySelectorAll<HTMLElement>('.history-content, .person-name, .activity-name')
+      .forEach((element): void => {
+        expect(element).toHaveClass('!w-full', '!max-w-full', '!min-w-0');
+      });
+    document.querySelectorAll<HTMLElement>('.history-meta').forEach((metadata): void => {
+      expect(metadata).toHaveClass(
+        '!flex',
+        '!w-full',
+        '!min-w-0',
+        'flex-wrap',
+      );
+    });
+    document.querySelectorAll<HTMLElement>('span.badge.badge-light-secondary')
+      .forEach((badge): void => {
+        expect(badge).toHaveClass('shrink-0', 'whitespace-nowrap');
+      });
   });
 
-  it('mantém select e badge dentro dos cards na fixture lateral de 280–320 px', () => {
+  it('descobre eventos do histórico por prioridade (lista conhecida, estrutural, fallback data/hora)', () => {
+    // 1. Cenário: Lista conhecida
+    renderSharedTask();
+    let summary = enhanceNativeExperience('T1');
+    expect(summary.sharedHistoryItems).toHaveLength(2);
+
+    // 2. Cenário: Sem lista conhecida, mas com itens estruturais conhecidos
+    resetNativeEnhancements(document);
+    document.body.innerHTML = `
+      <main id="containerRequest">
+        <header class="page-title"><h1>T02 - Validar o cadastro</h1></header>
+        <section id="ContainerForm"><table id="FrmExecute"><tbody></tbody></table></section>
+        <aside class="native-auxiliary-column">
+          <section id="containerHistory" class="card">
+            <h3>HISTÓRICO</h3>
+            <div class="card-body">
+              <div class="list-group-item" id="structural-item-1">
+                <div class="row">
+                  <div class="col-auto"><div class="avatar">OK</div></div>
+                  <div class="col-2"><div class="history-content"><div class="person-name">User 1</div><time>17/08/2026</time></div></div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </main>
+    `;
+    summary = enhanceNativeExperience('T2');
+    expect(summary.sharedHistoryItems).toHaveLength(1);
+    expect(summary.sharedHistoryItems[0]?.id).toBe('structural-item-1');
+
+    // 3. Cenário: Fallback por evidência de data/hora quando não há classes conhecidas
+    resetNativeEnhancements(document);
+    document.body.innerHTML = `
+      <main id="containerRequest">
+        <header class="page-title"><h1>T02 - Validar o cadastro</h1></header>
+        <section id="ContainerForm"><table id="FrmExecute"><tbody></tbody></table></section>
+        <aside class="native-auxiliary-column">
+          <section id="containerHistory" class="card">
+            <h3>HISTÓRICO</h3>
+            <div class="card-body">
+              <div id="fallback-item-1">
+                <div class="avatar">OK</div>
+                <div>Otávio Katibe</div>
+                <div>17/08/2026 10:00</div>
+              </div>
+              <div id="fallback-item-2">
+                <div class="avatar">OK</div>
+                <div>Otávio Katibe</div>
+                <div>14/08/2026 14:00</div>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </main>
+    `;
+    summary = enhanceNativeExperience('T2');
+    expect(summary.sharedHistoryItems).toHaveLength(2);
+    expect(summary.sharedHistoryItems.map((item): string => item.id)).toEqual([
+      'fallback-item-1',
+      'fallback-item-2',
+    ]);
+  });
+
+  it('contrata a largura interna disponível na sidebar real de 300 px', () => {
     renderSharedTask();
 
     enhanceNativeExperience('T1');
 
-    const sidebar = document.querySelector<HTMLElement>('.native-auxiliary-column');
-    const attachments = document.querySelector<HTMLElement>('#containerFiles');
-    const sortWrapper = document.querySelector<HTMLElement>('.sort-control');
-    const fileOrder = document.querySelector<HTMLSelectElement>('#fileOrder');
-    const history = document.querySelector<HTMLElement>('#containerHistory');
-    const historyContent = document.querySelector<HTMLElement>('.history-content');
-    const metadata = document.querySelector<HTMLElement>('.history-meta');
-    const badge = document.querySelector<HTMLElement>(
-      'span.badge.badge-light-secondary',
+    const fullWidthSelectors = [
+      '#native-files-body',
+      '#native-file-layout',
+      '#native-file-picker-column',
+      '#native-file-order-column',
+      '#native-file-order-group',
+      '#fileOrder',
+      '#native-view-all-row',
+      '#native-view-all-column',
+      '#view-all-files',
+      '#history-list',
+      '#history-event-1',
+      '#history-event-row-1',
+      '#history-content-column-1',
+      '#history-event-2',
+      '#history-event-row-2',
+      '#history-content-column-2',
+    ];
+    fullWidthSelectors.forEach((selector): void => {
+      expect(document.querySelector(selector), selector).toHaveClass(
+        '!w-full',
+        '!min-w-0',
+      );
+    });
+    expect(document.querySelector('.native-auxiliary-column')).toHaveStyle({
+      width: '300px',
+      minWidth: '280px',
+      maxWidth: '320px',
+    });
+    expect(document.querySelector('#containerFiles')).toContainElement(
+      document.querySelector('#fileOrder'),
     );
-
-    expect(sidebar?.style.width).toBe('300px');
-    expect(sidebar?.style.minWidth).toBe('280px');
-    expect(sidebar?.style.maxWidth).toBe('320px');
-    expect(attachments).toContainElement(fileOrder);
-    expect(history).toContainElement(badge);
-    expect(sortWrapper).toHaveClass('!grid', 'w-full', 'min-w-0');
-    expect(fileOrder).toHaveClass(
-      '!block',
-      '!w-full',
-      '!max-w-full',
-      '!min-w-0',
-      'box-border',
+    expect(document.querySelector('#containerHistory')).toContainElement(
+      document.querySelector('span.badge.badge-light-secondary'),
     );
-    expect(historyContent).toHaveClass('min-w-0', 'max-w-full');
-    expect(metadata).toHaveClass('min-w-0', 'max-w-full', 'flex-wrap');
-    expect(badge).toHaveClass('shrink-0', 'whitespace-nowrap');
-    expect(sortWrapper).toHaveAttribute('data-zeev-fieb-classes');
-    expect(fileOrder).toHaveAttribute('data-zeev-fieb-classes');
-    expect(metadata).toHaveAttribute('data-zeev-fieb-classes');
-    expect(badge).toHaveAttribute('data-zeev-fieb-classes');
   });
 
-  it('classifica Mensagens como região compartilhada adicional', () => {
+  it('mantém o refinamento adicional existente sem interferir nas regiões-alvo', () => {
     renderSharedTask();
     const message = document.querySelector('#containerMessages');
     const action = document.querySelector<HTMLButtonElement>('#new-message');
@@ -164,46 +326,45 @@ describe('refinamento compartilhado das tarefas humanas', () => {
     const summary = enhanceNativeExperience('T1');
 
     expect(summary.sharedAdditionalRegion).toBe(message);
-    expect(message).toHaveAttribute(
-      'data-zeev-fieb-role',
-      'human-shared-messages',
-    );
-    expect(action).toHaveClass('!w-full', '!min-w-0');
     action?.click();
     expect(onMessage).toHaveBeenCalledOnce();
     expect(document.querySelector('#new-message')).toBe(action);
   });
 
-  it('converge sem duplicar nós e limpa o chrome humano ao retornar ao START', () => {
+  it('converge sem substituir nós e remove somente classes próprias ao voltar ao START', () => {
     renderSharedTask();
     const before = Array.from(document.querySelectorAll('*'));
-
-    enhanceNativeExperience('T1');
-    const firstClasses = Array.from(document.querySelectorAll<HTMLElement>('*')).map(
-      ({ className }): string => className,
-    );
-    enhanceNativeExperience('T1');
-
-    expect(Array.from(document.querySelectorAll('*'))).toEqual(before);
-    expect(
-      Array.from(document.querySelectorAll<HTMLElement>('*')).map(
-        ({ className }): string => className,
+    const targetNodes = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        '#containerFiles, #containerFiles *, #containerHistory, #containerHistory *',
       ),
-    ).toEqual(firstClasses);
-
-    enhanceNativeExperience('START');
-
-    expect(
-      document.querySelector('[data-zeev-fieb-role="human-history"]'),
-    ).toBeNull();
-    expect(
-      document.querySelector('[data-zeev-fieb-role="human-attachments"]'),
-    ).toBeNull();
-    expect(document.querySelector('.history-item')).not.toHaveClass(
-      'grid-cols-[2.5rem_minmax(0,1fr)]',
     );
-    expect(document.querySelector('#fileOrder')).not.toHaveClass(
-      '!w-full',
+    const nativeClasses = new Map(
+      targetNodes.map((element): [Element, string | null] => [
+        element,
+        element.getAttribute('class'),
+      ]),
     );
+
+    enhanceNativeExperience('T1');
+    const firstClasses = before.map(({ className }): string => className);
+    enhanceNativeExperience('T1');
+    expect(Array.from(document.querySelectorAll('*'))).toEqual(before);
+    expect(before.map(({ className }): string => className)).toEqual(firstClasses);
+
+    resetNativeEnhancements(document);
+    expect(Array.from(document.querySelectorAll('*'))).toEqual(before);
+    nativeClasses.forEach((className, element): void => {
+      expect(element.getAttribute('class')).toBe(className);
+      expect(element).not.toHaveAttribute('data-zeev-fieb-classes');
+    });
+    expect(document.querySelector('#fileOrder')).not.toHaveClass('!w-full');
+    expect(document.querySelector('#history-event-row-1')).not.toHaveClass('!grid');
+
+    const start = enhanceNativeExperience('START');
+    expect(start.sharedAttachmentRegion).toBeNull();
+    expect(start.sharedHistoryRegion).toBeNull();
+    expect(document.querySelector('[data-zeev-fieb-role="human-history"]')).toBeNull();
+    expect(document.querySelector('[data-zeev-fieb-role="human-attachments"]')).toBeNull();
   });
 });

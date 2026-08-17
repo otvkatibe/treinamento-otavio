@@ -30,14 +30,44 @@
         const attachments = document.querySelector('#containerFiles');
         const history = document.querySelector('#containerHistory');
         const select = document.querySelector('#fileOrder');
+        const fileLayout = document.querySelector('#native-file-layout');
+        const pickerColumn = document.querySelector('#native-file-picker-column');
+        const pickerAction = document.querySelector('#select-files');
+        const orderColumn = document.querySelector('#native-file-order-column');
+        const orderGroup = document.querySelector('#native-file-order-group');
+        const viewAllColumn = document.querySelector('#native-view-all-column');
+        const viewAllAction = document.querySelector('#view-all-files');
+        const eventRow = document.querySelector('#history-event-row-1');
+        const contentColumn = document.querySelector('#history-content-column-1');
+        const historyContent = contentColumn.querySelector('.history-content');
+        const metadata = contentColumn.querySelector('.history-meta');
         const badge = document.querySelector('span.badge.badge-light-secondary');
         const inside = (child, card) => {
           const childBox = child.getBoundingClientRect();
           const cardBox = card.getBoundingClientRect();
           return childBox.left >= cardBox.left && childBox.right <= cardBox.right;
         };
+        const sameWidth = (left, right) =>
+          Math.abs(left.getBoundingClientRect().width - right.getBoundingClientRect().width) <= 1;
+        const usesRemainingHistoryWidth = () => {
+          const rowBox = eventRow.getBoundingClientRect();
+          const contentBox = contentColumn.getBoundingClientRect();
+          return Math.abs(contentBox.right - rowBox.right) <= 1 &&
+            contentBox.width >= rowBox.width * 0.7 &&
+            sameWidth(historyContent, contentColumn) &&
+            sameWidth(metadata, contentColumn);
+        };
+        const internalWidths =
+          sameWidth(pickerColumn, fileLayout) &&
+          sameWidth(orderColumn, fileLayout) &&
+          sameWidth(pickerAction, pickerColumn) &&
+          sameWidth(orderGroup, orderColumn) &&
+          sameWidth(select, orderGroup) &&
+          sameWidth(viewAllAction, viewAllColumn) &&
+          usesRemainingHistoryWidth();
         const pass = [attachments, history].every((card) => card.scrollWidth <= card.clientWidth) &&
           inside(select, attachments) && inside(badge, history) &&
+          internalWidths &&
           document.documentElement.scrollWidth <= document.documentElement.clientWidth;
         const result = document.querySelector('#geometry-result');
         result.dataset.pass = String(pass);
@@ -50,7 +80,7 @@
           })
           .map((element) => element.id || element.className || element.tagName)
           .join(', ');
-        const details = `anexos ${attachments.scrollWidth}/${attachments.clientWidth} · histórico ${history.scrollWidth}/${history.clientWidth} · página ${document.documentElement.scrollWidth}/${document.documentElement.clientWidth} · excedentes ${offenders || 'nenhum'}`;
+        const details = `anexos ${attachments.scrollWidth}/${attachments.clientWidth} · histórico ${history.scrollWidth}/${history.clientWidth} · internos ${internalWidths ? '100%' : 'restritos'} · página ${document.documentElement.scrollWidth}/${document.documentElement.clientWidth} · excedentes ${offenders || 'nenhum'}`;
         result.textContent = pass
           ? `PASS · 300 px · sem overflow horizontal · ${details}`
           : `FAIL · ${details}`;

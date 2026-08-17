@@ -12,6 +12,7 @@ import type { StageCode, StageContract, ZeevFieldName } from './types';
 const ENHANCED_ATTRIBUTE = 'data-zeev-fieb-enhanced';
 const ENHANCED_VALUE = 'native';
 const OWNED_CLASSES_ATTRIBUTE = 'data-zeev-fieb-classes';
+const ORIGINAL_CLASS_ATTRIBUTE = 'data-zeev-fieb-original-class-attribute';
 
 const START_CLASSES = {
   formScope: ['box-border', '!w-full', '!min-w-0', '!max-w-full', '!overflow-x-clip'],
@@ -306,20 +307,25 @@ const UPLOAD_CLASSES = {
 const HUMAN_TASK_CLASSES = {
   card: ['box-border', 'w-full', 'max-w-full', 'min-w-0', 'overflow-x-clip', 'rounded-xl', 'border', 'border-slate-200', 'bg-white', 'p-4', 'shadow-sm'],
   title: ['m-0', 'mb-4', 'whitespace-nowrap', 'text-sm', 'font-bold', 'uppercase', 'tracking-[0.04em]', 'text-slate-700'],
-  attachmentBody: ['!grid', 'w-full', 'max-w-full', 'min-w-0', 'grid-cols-1', 'gap-4'],
+  attachmentBody: ['!flex', '!w-full', '!max-w-full', '!min-w-0', '!flex-col', 'gap-4'],
+  attachmentLayout: ['!m-0', '!flex', '!w-full', '!max-w-full', '!min-w-0', '!flex-col', 'gap-4'],
+  attachmentFunctionalBlock: ['!block', '!w-full', '!max-w-full', '!min-w-0', '!flex-none'],
   fileAction: ['box-border', '!flex', '!w-full', '!max-w-full', '!min-w-0', 'items-center', 'justify-center', 'gap-2', '!whitespace-nowrap', 'rounded-lg', 'border', 'border-blue-900', 'bg-blue-700', 'px-3', 'py-2.5', 'text-sm', 'font-bold', 'text-white', 'hover:bg-blue-900'],
   fileInput: ['box-border', 'block', 'w-full', 'max-w-full', 'min-w-0', 'text-sm'],
-  sortGroup: ['!grid', 'w-full', 'max-w-full', 'min-w-0', 'grid-cols-1', 'gap-1.5'],
+  sortGroup: ['!grid', '!w-full', '!max-w-full', '!min-w-0', 'grid-cols-1', 'gap-1.5'],
   sortLabel: ['block', 'w-full', 'min-w-0', 'text-xs', 'font-bold', 'text-slate-600'],
   sortSelect: ['box-border', '!block', '!w-full', '!max-w-full', '!min-w-0', 'truncate', 'rounded-lg', 'border', 'border-slate-300', 'bg-white', 'px-3', 'py-2.5', 'text-sm', 'text-slate-700'],
   viewAll: ['box-border', '!flex', '!w-full', '!max-w-full', '!min-w-0', 'items-center', 'justify-center', 'gap-2', '!whitespace-nowrap', 'rounded-lg', 'border', 'border-slate-300', 'bg-white', 'px-3', 'py-2.5', 'text-sm', 'font-semibold', 'text-slate-700', 'hover:bg-slate-50'],
-  historyList: ['grid', 'w-full', 'max-w-full', 'min-w-0', 'grid-cols-1'],
-  historyItem: ['grid', 'w-full', 'max-w-full', 'min-w-0', 'grid-cols-[2.5rem_minmax(0,1fr)]', 'gap-x-3', 'gap-y-1', 'border-b', 'border-slate-200', 'py-3', 'first:pt-0', 'last:border-b-0', 'last:pb-0'],
-  historyAvatar: ['row-span-3', 'flex', 'h-10', 'w-10', 'shrink-0', 'items-center', 'justify-center', 'self-start', 'overflow-hidden', 'rounded-full', 'bg-blue-50', 'text-xs', 'font-bold', 'text-blue-900'],
-  historyContent: ['col-start-2', 'w-full', 'max-w-full', 'min-w-0'],
-  historyName: ['min-w-0', 'break-words', 'text-sm', 'font-bold', 'leading-snug', 'text-slate-800'],
-  historyActivity: ['min-w-0', 'basis-full', 'break-words', 'text-xs', 'leading-snug', 'text-slate-600'],
-  historyMeta: ['flex', 'w-full', 'max-w-full', 'min-w-0', 'flex-wrap', 'items-center', 'gap-x-2', 'gap-y-1', 'pt-1'],
+  historyList: ['!block', '!w-full', '!max-w-full', '!min-w-0'],
+  historyItem: ['!block', '!w-full', '!max-w-full', '!min-w-0', 'border-b', 'border-slate-200', 'py-3', 'first:pt-0', 'last:border-b-0', 'last:pb-0'],
+  historyEventLayout: ['!m-0', '!grid', '!w-full', '!max-w-full', '!min-w-0', 'grid-cols-[2.5rem_minmax(0,1fr)]', 'gap-x-3', 'gap-y-1'],
+  historyAvatarColumn: ['!block', '!w-full', '!max-w-full', '!min-w-0', '!flex-none', 'col-start-1'],
+  historyContentColumn: ['!block', '!w-full', '!max-w-full', '!min-w-0', '!flex-none', 'col-start-2'],
+  historyAvatar: ['flex', 'h-10', 'w-10', 'shrink-0', 'items-center', 'justify-center', 'self-start', 'overflow-hidden', 'rounded-full', 'bg-blue-50', 'text-xs', 'font-bold', 'text-blue-900'],
+  historyContent: ['!block', '!w-full', '!max-w-full', '!min-w-0'],
+  historyName: ['!block', '!w-full', '!max-w-full', '!min-w-0', 'break-words', 'text-sm', 'font-bold', 'leading-snug', 'text-slate-800'],
+  historyActivity: ['!block', '!w-full', '!max-w-full', '!min-w-0', 'basis-full', 'break-words', 'text-xs', 'leading-snug', 'text-slate-600'],
+  historyMeta: ['!flex', '!w-full', '!max-w-full', '!min-w-0', 'flex-wrap', 'items-center', 'gap-x-2', 'gap-y-1', 'pt-1'],
   historyDate: ['min-w-0', 'basis-full', 'whitespace-nowrap', 'text-xs', 'text-slate-500'],
   historyStatus: ['shrink-0', 'whitespace-nowrap', 'rounded-full', 'border', 'px-2', 'py-0.5', 'text-[0.6875rem]', 'font-bold'],
   historyStatusComplete: ['border-emerald-200', 'bg-emerald-50', 'text-emerald-700'],
@@ -383,6 +389,12 @@ function applyTailwindClasses(
   element: HTMLElement,
   classes: readonly string[],
 ): void {
+  if (!element.hasAttribute(ORIGINAL_CLASS_ATTRIBUTE)) {
+    element.setAttribute(
+      ORIGINAL_CLASS_ATTRIBUTE,
+      element.hasAttribute('class') ? 'present' : 'absent',
+    );
+  }
   const owned = new Set(
     (element.getAttribute(OWNED_CLASSES_ATTRIBUTE) ?? '')
       .split(/\s+/)
@@ -421,7 +433,14 @@ export function resetNativeEnhancements(scope: ParentNode = document): void {
       ownedClasses.forEach((className): void => {
         element.classList.remove(className);
       });
+      if (
+        element.getAttribute(ORIGINAL_CLASS_ATTRIBUTE) === 'absent' &&
+        element.classList.length === 0
+      ) {
+        element.removeAttribute('class');
+      }
       element.removeAttribute(OWNED_CLASSES_ATTRIBUTE);
+      element.removeAttribute(ORIGINAL_CLASS_ATTRIBUTE);
       element.removeAttribute(ENHANCED_ATTRIBUTE);
       element.removeAttribute('data-zeev-fieb-role');
       element.removeAttribute('data-zeev-fieb-field');
@@ -466,6 +485,18 @@ function commonAncestor(elements: readonly HTMLElement[]): HTMLElement | null {
     candidate = candidate.parentElement;
   }
   return candidate;
+}
+
+function directBranchUnder(
+  ancestor: HTMLElement,
+  descendant: HTMLElement,
+): HTMLElement | null {
+  if (!ancestor.contains(descendant)) return null;
+  let branch = descendant;
+  while (branch.parentElement && branch.parentElement !== ancestor) {
+    branch = branch.parentElement;
+  }
+  return branch === ancestor ? null : branch;
 }
 
 function smallestElementWithText(
@@ -575,16 +606,35 @@ function enhanceSharedAttachments(
   }
 
   const title = smallestElementWithText(region, 'anexos opcionais');
-  const fileAction = controlWithText(region, 'selecionar arquivos');
+  const fileAction =
+    controlWithText(region, 'selecionar arquivos') ??
+    region.querySelector<HTMLButtonElement>(
+      '#select-files, button:not(#view-all-files), .btn:not(#view-all-files), [class*="file" i]:not(#fileOrder), [data-role="file-upload"]',
+    );
   const fileInput = region.querySelector<HTMLInputElement>('input[type="file"]');
   const sortLabel = smallestElementWithText(region, 'ordenar por', 'label, span, strong, p, div');
   const sortSelect = resolveLabeledSelect(region, sortLabel);
-  const viewAllAction = controlWithText(region, 'visualizar todos os arquivos');
-  const attachmentBody = commonAncestor(
-    [fileAction, sortLabel, sortSelect, viewAllAction].filter(
-      (element): element is HTMLElement => element !== null,
-    ),
-  );
+  const viewAllAction =
+    controlWithText(region, 'visualizar todos os arquivos') ??
+    region.querySelector<HTMLAnchorElement>('#view-all-files, a[href*="file"], a[href*="all"]');
+
+  const fileControl = fileAction ?? fileInput;
+  const attachmentBody =
+    commonAncestor(
+      [fileControl, sortLabel, sortSelect, viewAllAction].filter(
+        (element): element is HTMLElement => element !== null,
+      ),
+    ) ??
+    region.querySelector<HTMLElement>('.card-body, .panel-body, #native-files-body') ??
+    region;
+
+  const attachmentLayout =
+    (sortSelect && sortSelect.closest<HTMLElement>('.row, .d-flex, [class*="row"]')) ??
+    commonAncestor(
+      [fileControl, sortSelect].filter(
+        (element): element is HTMLElement => element !== null,
+      ),
+    );
 
   decorate(region, 'human-attachments', HUMAN_TASK_CLASSES.card);
   if (title) decorate(title, 'human-attachments-title', HUMAN_TASK_CLASSES.title);
@@ -597,6 +647,57 @@ function enhanceSharedAttachments(
   } else {
     applyTailwindClasses(region, HUMAN_TASK_CLASSES.attachmentBody);
   }
+  if (
+    attachmentLayout &&
+    attachmentLayout !== region &&
+    attachmentLayout !== attachmentBody
+  ) {
+    decorate(
+      attachmentLayout,
+      'human-attachments-layout',
+      HUMAN_TASK_CLASSES.attachmentLayout,
+    );
+  }
+  const effectiveLayout = attachmentLayout ?? attachmentBody ?? region;
+  const fileBranch = fileControl
+    ? directBranchUnder(effectiveLayout, fileControl)
+    : null;
+  const sortBranch = sortSelect
+    ? directBranchUnder(effectiveLayout, sortSelect)
+    : null;
+  if (fileBranch && fileBranch !== fileControl) {
+    decorate(
+      fileBranch,
+      'human-attachments-file-block',
+      HUMAN_TASK_CLASSES.attachmentFunctionalBlock,
+    );
+  }
+  if (sortBranch && sortBranch !== sortSelect) {
+    decorate(
+      sortBranch,
+      'human-attachments-sort-block',
+      HUMAN_TASK_CLASSES.attachmentFunctionalBlock,
+    );
+  }
+  if (viewAllAction) {
+    const viewAllContainer = attachmentBody ?? region;
+    const viewAllBranch = directBranchUnder(viewAllContainer, viewAllAction);
+    if (viewAllBranch && viewAllBranch !== viewAllAction) {
+      decorate(
+        viewAllBranch,
+        'human-attachments-view-all-block',
+        HUMAN_TASK_CLASSES.attachmentFunctionalBlock,
+      );
+      const nestedViewAllBranch = directBranchUnder(viewAllBranch, viewAllAction);
+      if (nestedViewAllBranch && nestedViewAllBranch !== viewAllAction) {
+        decorate(
+          nestedViewAllBranch,
+          'human-attachments-view-all-inner',
+          HUMAN_TASK_CLASSES.attachmentFunctionalBlock,
+        );
+      }
+    }
+  }
   if (fileAction) {
     decorate(fileAction, 'human-attachments-file-action', HUMAN_TASK_CLASSES.fileAction);
   }
@@ -607,12 +708,14 @@ function enhanceSharedAttachments(
     decorate(sortLabel, 'human-attachments-sort-label', HUMAN_TASK_CLASSES.sortLabel);
   }
   if (sortSelect) {
-    const sortGroup = commonAncestor(
-      [sortLabel, sortSelect].filter(
-        (element): element is HTMLElement => element !== null,
-      ),
-    );
-    if (sortGroup && sortGroup !== region) {
+    const sortGroup =
+      sortSelect.closest<HTMLElement>('.form-group, [class*="group"]') ??
+      commonAncestor(
+        [sortLabel, sortSelect].filter(
+          (element): element is HTMLElement => element !== null,
+        ),
+      );
+    if (sortGroup && sortGroup !== region && sortGroup !== effectiveLayout) {
       decorate(sortGroup, 'human-attachments-sort', HUMAN_TASK_CLASSES.sortGroup);
     }
     decorate(sortSelect, 'human-attachments-sort-select', HUMAN_TASK_CLASSES.sortSelect);
@@ -630,10 +733,81 @@ function enhanceSharedAttachments(
 }
 
 function historyItemCandidates(region: HTMLElement): HTMLElement[] {
+  // 1. Container conhecido & 2. Lista conhecida
+  const knownList = region.querySelector<HTMLElement>(
+    '#history-list, [data-history-list], .history-list, .list-group, ol, ul',
+  );
+
+  if (knownList) {
+    const listExplicit = Array.from(
+      knownList.querySelectorAll<HTMLElement>(ZEEV_SELECTORS.historyItems),
+    );
+    if (listExplicit.length > 0) return Array.from(new Set(listExplicit));
+
+    const listStructural = Array.from(
+      knownList.querySelectorAll<HTMLElement>(
+        '.list-group-item, [class*="timeline-item"], [class*="history-item"], [class*="event-item"], article, li',
+      ),
+    );
+    if (listStructural.length > 0) return Array.from(new Set(listStructural));
+
+    const listChildren = Array.from(knownList.children).filter(
+      (element): element is HTMLElement => element instanceof HTMLElement,
+    );
+    if (listChildren.length > 0) return listChildren;
+  }
+
+  // 3. Item estrutural conhecido no container
   const explicit = Array.from(
     region.querySelectorAll<HTMLElement>(ZEEV_SELECTORS.historyItems),
   );
   if (explicit.length > 0) return Array.from(new Set(explicit));
+
+  const structural = Array.from(
+    region.querySelectorAll<HTMLElement>(
+      '.list-group-item, [class*="timeline-item"], [class*="history-item"], [class*="event-item"], article[id*="history"], li',
+    ),
+  );
+  if (structural.length > 0) return Array.from(new Set(structural));
+
+  // 4. Evidência complementar de data/hora como fallback final
+  const allDescendants = Array.from(region.querySelectorAll<HTMLElement>('*'));
+  const dateLeaves = allDescendants.filter(
+    (element): boolean =>
+      /\b\d{2}\/\d{2}\/\d{4}\b/.test(normalizedText(element)) &&
+      !Array.from(element.children).some(
+        (child): boolean =>
+          child instanceof HTMLElement &&
+          /\b\d{2}\/\d{2}\/\d{4}\b/.test(normalizedText(child)),
+      ),
+  );
+  if (dateLeaves.length > 0) {
+    const candidateContainers = dateLeaves.map(
+      (element): HTMLElement => {
+        const container = element.closest<HTMLElement>(
+          'article, li, .list-group-item, [class*="item"], .row, .card-body > div, [data-history-item]',
+        );
+        if (
+          container &&
+          container !== region &&
+          !container.matches('.card-body, .panel-body, #native-history-body')
+        ) {
+          return container;
+        }
+        return element.parentElement &&
+          element.parentElement !== region &&
+          !element.parentElement.matches('.card-body, .panel-body, #native-history-body')
+          ? element.parentElement
+          : element;
+      },
+    );
+    const unique = Array.from(new Set(candidateContainers));
+    return unique.filter(
+      (candidate): boolean =>
+        !unique.some((other): boolean => other !== candidate && other.contains(candidate)),
+    );
+  }
+
   return Array.from(region.children).filter(
     (element): element is HTMLElement =>
       element instanceof HTMLElement &&
@@ -663,44 +837,106 @@ function enhanceSharedHistory(
 
   items.forEach((item): void => {
     const avatar = item.querySelector<HTMLElement>(
-      '.avatar, [data-initials], [class*="avatar" i], [class*="initial" i]',
+      '.avatar, [data-initials], [class*="avatar" i], [class*="initial" i], img, svg',
     );
     const name = item.querySelector<HTMLElement>(
-      '.person-name, [data-person-name], [class*="person" i], [class*="user-name" i]',
+      '.person-name, [data-person-name], [class*="person" i], [class*="user-name" i], [class*="user" i], strong, b, h4, h5, h6',
     );
     const activity = item.querySelector<HTMLElement>(
-      '.activity-name, [data-activity], [class*="activity" i], [class*="task-name" i]',
+      '.activity-name, [data-activity], [class*="activity" i], [class*="task-name" i], [class*="task" i]',
     );
     const date = item.querySelector<HTMLElement>(
       'time, [data-history-date], [class*="date" i], [class*="time" i]',
     );
     const status = item.querySelector<HTMLElement>(
-      'span.badge.badge-light-secondary, .status, [data-status], [class*="status" i], .badge',
+      'span.badge.badge-light-secondary, .status, [data-status], [class*="status" i], .badge, [class*="badge" i], [class*="label" i]',
     );
-    const content = name?.closest<HTMLElement>(
-      '.history-content, .timeline-content, [class*="content" i]',
-    );
-    const meta = commonAncestor(
-      [activity, date, status].filter(
-        (element): element is HTMLElement => element !== null,
-      ),
-    );
+    const content =
+      name?.closest<HTMLElement>('.history-content, .timeline-content, [class*="content" i]') ??
+      (activity ? activity.closest<HTMLElement>('[class*="content" i]') : null);
 
-    decorate(item, 'human-history-item', HUMAN_TASK_CLASSES.historyItem);
+    const eventLayout =
+      item.querySelector<HTMLElement>('.row, .d-flex, [class*="row"]') ??
+      commonAncestor(
+        [avatar, content ?? name].filter(
+          (element): element is HTMLElement => element !== null,
+        ),
+      ) ??
+      item;
+
+    const meta =
+      activity || date || status
+        ? commonAncestor(
+            [activity, date, status].filter(
+              (element): element is HTMLElement => element !== null,
+            ),
+          ) ?? (content ?? item)
+        : null;
+
+    decorate(
+      item,
+      'human-history-item',
+      eventLayout === item
+        ? [
+            ...HUMAN_TASK_CLASSES.historyItem.filter(
+              (className): boolean => className !== '!block',
+            ),
+            ...HUMAN_TASK_CLASSES.historyEventLayout,
+          ]
+        : HUMAN_TASK_CLASSES.historyItem,
+    );
+    if (eventLayout && eventLayout !== item) {
+      decorate(
+        eventLayout,
+        'human-history-event-layout',
+        HUMAN_TASK_CLASSES.historyEventLayout,
+      );
+    }
+    if (eventLayout && avatar) {
+      const avatarBranch =
+        directBranchUnder(eventLayout, avatar) ??
+        (avatar.parentElement !== eventLayout ? avatar.parentElement : null);
+      if (avatarBranch && avatarBranch !== avatar) {
+        decorate(
+          avatarBranch,
+          'human-history-avatar-column',
+          HUMAN_TASK_CLASSES.historyAvatarColumn,
+        );
+      }
+    }
+    if (eventLayout && (content ?? name)) {
+      const contentTarget = (content ?? name) as HTMLElement;
+      const contentBranch =
+        directBranchUnder(eventLayout, contentTarget) ??
+        (contentTarget.parentElement !== eventLayout ? contentTarget.parentElement : null);
+      if (contentBranch && contentBranch !== contentTarget) {
+        decorate(
+          contentBranch,
+          'human-history-content-column',
+          HUMAN_TASK_CLASSES.historyContentColumn,
+        );
+      }
+    }
     if (avatar) decorate(avatar, 'human-history-avatar', HUMAN_TASK_CLASSES.historyAvatar);
     if (content && content !== item) {
       decorate(content, 'human-history-content', HUMAN_TASK_CLASSES.historyContent);
     }
     if (name) decorate(name, 'human-history-person', HUMAN_TASK_CLASSES.historyName);
     if (activity) decorate(activity, 'human-history-activity', HUMAN_TASK_CLASSES.historyActivity);
-    if (meta && meta !== item) {
+    if (meta && meta !== item && meta !== content) {
       decorate(meta, 'human-history-meta', HUMAN_TASK_CLASSES.historyMeta);
+    } else if (content) {
+      const metaContainer = item.querySelector<HTMLElement>('.history-meta, [class*="meta"]');
+      if (metaContainer) {
+        decorate(metaContainer, 'human-history-meta', HUMAN_TASK_CLASSES.historyMeta);
+      }
     }
     if (date) decorate(date, 'human-history-date', HUMAN_TASK_CLASSES.historyDate);
     if (status) {
+      const statusText = normalizedText(status);
       decorate(status, 'human-history-status', [
         ...HUMAN_TASK_CLASSES.historyStatus,
-        ...(normalizedText(status) === 'concluido'
+        ...(statusText === 'concluido' || statusText === 'aprovado'
           ? HUMAN_TASK_CLASSES.historyStatusComplete
           : HUMAN_TASK_CLASSES.historyStatusActive),
       ]);
