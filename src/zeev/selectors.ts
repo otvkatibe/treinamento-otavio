@@ -16,9 +16,9 @@ export const ZEEV_SELECTORS = {
   messages: '#containerMessages',
   attachments: '#containerFiles',
   historyRegions:
-    '[data-history], #containerHistory, #history, [id*="histor" i], [class*="history" i], [class*="historico" i]',
+    '[data-history], #containerHistory, #containerHistoryRender, #history, [id*="histor" i], [class*="history" i], [class*="historico" i]',
   historyItems:
-    '[data-history-item], .history-item, .timeline-item',
+    '#containerHistoryRender > .row[data-id], #containerHistoryRender > .row, [data-history-item], .history-item, .timeline-item',
   beforeCompleteItems:
     '[data-before-complete-item], [data-check-item], .checklist-item, li',
 } as const;

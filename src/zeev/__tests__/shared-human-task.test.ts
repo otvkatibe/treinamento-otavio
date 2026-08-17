@@ -65,9 +65,6 @@ describe('regressão estrutural das regiões compartilhadas no host real', () =>
     expect(ancestorChain('#history-event-1', '#containerHistory')).toEqual(
       observableMap(REAL_SHARED_ANCESTOR_MAP.historyItem),
     );
-    expect(ancestorChain('#history-event-row-1', '#containerHistory')).toEqual(
-      observableMap(REAL_SHARED_ANCESTOR_MAP.historyEventLayout),
-    );
     expect(
       REAL_SHARED_ANCESTOR_MAP.fileOrder.find(
         ({ layoutRole }) => layoutRole === 'first-horizontal-composition',
@@ -77,7 +74,7 @@ describe('regressão estrutural das regiões compartilhadas no host real', () =>
       REAL_SHARED_ANCESTOR_MAP.historyEventLayout.find(
         ({ layoutRole }) => layoutRole === 'first-horizontal-composition',
       )?.id,
-    ).toBe('history-event-row-1');
+    ).toBe('history-event-1');
   });
 
   it('verticaliza a row nativa de anexos e preserva controles, options e listeners', () => {
@@ -159,55 +156,97 @@ describe('regressão estrutural das regiões compartilhadas no host real', () =>
     ]);
   });
 
-  it('aplica o grid e !m-0 no wrapper interno real de cada evento, não no item externo', () => {
+  it('aplica grid no .row[data-id] do histórico, avatar de 40 px, 4 blocos na segunda coluna e badge inline-flex w-fit sem w-full', () => {
     renderSharedTask();
 
     const summary = enhanceNativeExperience('T1');
 
     expect(summary.sharedHistoryItems).toHaveLength(2);
-    expect(document.querySelector('#history-list')).toHaveClass(
+    expect(document.querySelector('#containerHistoryRender')).toHaveClass(
       '!block',
       '!w-full',
       '!min-w-0',
     );
     summary.sharedHistoryItems.forEach((item, index): void => {
       const suffix = String(index + 1);
-      expect(item).toHaveClass('!block', '!w-full', '!min-w-0');
-      expect(item).not.toHaveClass('grid-cols-[2.5rem_minmax(0,1fr)]');
-      expect(document.querySelector(`#history-event-row-${suffix}`)).toHaveClass(
-        '!m-0',
+      expect(item).toBe(document.querySelector(`#history-event-${suffix}`));
+      expect(item).toHaveClass(
         '!grid',
+        '!m-0',
         '!w-full',
+        '!max-w-full',
         '!min-w-0',
         'grid-cols-[2.5rem_minmax(0,1fr)]',
+        'items-start',
+        'gap-x-3',
+        'gap-y-1',
       );
-      expect(document.querySelector(`#history-avatar-column-${suffix}`)).toHaveClass(
-        '!w-full',
-        '!min-w-0',
+
+      // Coluna 1: Avatar com largura fixa de 2.5rem (40 px)
+      const avatarCol = item.querySelector('.avatar');
+      expect(avatarCol).toHaveClass(
         'col-start-1',
+        '!block',
+        '!w-10',
+        '!min-w-10',
+        '!max-w-10',
+        '!flex-none',
+        'self-start',
       );
-      expect(document.querySelector(`#history-content-column-${suffix}`)).toHaveClass(
-        '!w-full',
-        '!min-w-0',
+      const userPhoto = item.querySelector('.user-photo');
+      expect(userPhoto).toHaveClass('flex', 'h-10', 'w-10', 'shrink-0');
+
+      // Coluna 2: 4 blocos informativos utilizando toda a largura útil com min-w-0
+      const person = item.querySelector('.col-md-3');
+      expect(person).toHaveClass(
         'col-start-2',
+        '!block',
+        '!w-full',
+        '!max-w-full',
+        '!min-w-0',
+        'break-words',
       );
-    });
-    document.querySelectorAll<HTMLElement>('.history-content, .person-name, .activity-name')
-      .forEach((element): void => {
-        expect(element).toHaveClass('!w-full', '!max-w-full', '!min-w-0');
-      });
-    document.querySelectorAll<HTMLElement>('.history-meta').forEach((metadata): void => {
-      expect(metadata).toHaveClass(
+
+      const activity = item.querySelector('.col.small');
+      expect(activity).toHaveClass(
+        'col-start-2',
+        '!block',
+        '!w-full',
+        '!max-w-full',
+        '!min-w-0',
+        'break-words',
+      );
+
+      const date = item.querySelector('.col-md-2.small');
+      expect(date).toHaveClass(
+        'col-start-2',
         '!flex',
         '!w-full',
+        '!max-w-full',
         '!min-w-0',
-        'flex-wrap',
       );
+
+      const statusCol = item.querySelector('.col-2:not(.avatar)');
+      expect(statusCol).toHaveClass(
+        'col-start-2',
+        '!flex',
+        '!w-full',
+        '!max-w-full',
+        '!min-w-0',
+      );
+
+      // Badge: inline-flex w-fit sem w-full
+      const badge = item.querySelector('span.badge.badge-light-secondary');
+      expect(badge).toHaveClass(
+        'inline-flex',
+        'w-fit',
+        'max-w-full',
+        'shrink-0',
+        'whitespace-nowrap',
+      );
+      expect(badge).not.toHaveClass('w-full');
+      expect(badge).not.toHaveClass('!w-full');
     });
-    document.querySelectorAll<HTMLElement>('span.badge.badge-light-secondary')
-      .forEach((badge): void => {
-        expect(badge).toHaveClass('shrink-0', 'whitespace-nowrap');
-      });
   });
 
   it('descobre eventos do histórico por prioridade (lista conhecida, estrutural, fallback data/hora)', () => {
@@ -228,8 +267,11 @@ describe('regressão estrutural das regiões compartilhadas no host real', () =>
             <div class="card-body">
               <div class="list-group-item" id="structural-item-1">
                 <div class="row">
-                  <div class="col-auto"><div class="avatar">OK</div></div>
-                  <div class="col-2"><div class="history-content"><div class="person-name">User 1</div><time>17/08/2026</time></div></div>
+                  <div class="col-auto avatar"><div class="user-photo">OK</div></div>
+                  <div class="col-md-3 person-name">User 1</div>
+                  <div class="col small activity-name">Atividade 1</div>
+                  <div class="col-md-2 small"><time>17/08/2026</time></div>
+                  <div class="col-2"><span class="badge">Aprovado</span></div>
                 </div>
               </div>
             </div>
@@ -289,13 +331,17 @@ describe('regressão estrutural das regiões compartilhadas no host real', () =>
       '#native-view-all-row',
       '#native-view-all-column',
       '#view-all-files',
-      '#history-list',
+      '#containerHistoryRender',
       '#history-event-1',
-      '#history-event-row-1',
-      '#history-content-column-1',
+      '#history-event-1 .col-md-3',
+      '#history-event-1 .col.small',
+      '#history-event-1 .col-md-2.small',
+      '#history-event-1 .col-2:not(.avatar)',
       '#history-event-2',
-      '#history-event-row-2',
-      '#history-content-column-2',
+      '#history-event-2 .col-md-3',
+      '#history-event-2 .col.small',
+      '#history-event-2 .col-md-2.small',
+      '#history-event-2 .col-2:not(.avatar)',
     ];
     fullWidthSelectors.forEach((selector): void => {
       expect(document.querySelector(selector), selector).toHaveClass(
@@ -359,7 +405,7 @@ describe('regressão estrutural das regiões compartilhadas no host real', () =>
       expect(element).not.toHaveAttribute('data-zeev-fieb-classes');
     });
     expect(document.querySelector('#fileOrder')).not.toHaveClass('!w-full');
-    expect(document.querySelector('#history-event-row-1')).not.toHaveClass('!grid');
+    expect(document.querySelector('#history-event-1')).not.toHaveClass('!grid');
 
     const start = enhanceNativeExperience('START');
     expect(start.sharedAttachmentRegion).toBeNull();

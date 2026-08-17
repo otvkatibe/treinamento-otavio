@@ -25,15 +25,14 @@ export const REAL_SHARED_ANCESTOR_MAP = {
     { tag: 'SECTION', id: 'containerFiles', classes: 'card native-files-card', display: 'block', width: '300px', layoutRole: 'shared-card', parentId: '' },
   ],
   historyItem: [
-    { tag: 'ARTICLE', id: 'history-event-1', classes: 'history-item list-group-item', display: 'block', width: '100%', layoutRole: 'event-item', parentId: 'history-list' },
-    { tag: 'DIV', id: 'history-list', classes: 'history-list list-group', display: 'block', width: '100%', layoutRole: 'event-list', parentId: 'native-history-body' },
+    { tag: 'DIV', id: 'history-event-1', classes: 'row', display: 'flex', width: '100%', layoutRole: 'event-item', parentId: 'containerHistoryRender' },
+    { tag: 'DIV', id: 'containerHistoryRender', classes: '', display: 'block', width: '100%', layoutRole: 'event-list', parentId: 'native-history-body' },
     { tag: 'DIV', id: 'native-history-body', classes: 'card-body', display: 'block', width: '100%', layoutRole: 'card-body', parentId: 'containerHistory' },
     { tag: 'SECTION', id: 'containerHistory', classes: 'card native-history-card', display: 'block', width: '300px', layoutRole: 'shared-card', parentId: '' },
   ],
   historyEventLayout: [
-    { tag: 'DIV', id: 'history-event-row-1', classes: 'row g-2 d-flex', display: 'flex', width: '100%', layoutRole: 'first-horizontal-composition', parentId: 'history-event-1' },
-    { tag: 'ARTICLE', id: 'history-event-1', classes: 'history-item list-group-item', display: 'block', width: '100%', layoutRole: 'event-item', parentId: 'history-list' },
-    { tag: 'DIV', id: 'history-list', classes: 'history-list list-group', display: 'block', width: '100%', layoutRole: 'event-list', parentId: 'native-history-body' },
+    { tag: 'DIV', id: 'history-event-1', classes: 'row', display: 'flex', width: '100%', layoutRole: 'first-horizontal-composition', parentId: 'containerHistoryRender' },
+    { tag: 'DIV', id: 'containerHistoryRender', classes: '', display: 'block', width: '100%', layoutRole: 'event-list', parentId: 'native-history-body' },
     { tag: 'DIV', id: 'native-history-body', classes: 'card-body', display: 'block', width: '100%', layoutRole: 'card-body', parentId: 'containerHistory' },
     { tag: 'SECTION', id: 'containerHistory', classes: 'card native-history-card', display: 'block', width: '300px', layoutRole: 'shared-card', parentId: '' },
   ],
@@ -74,41 +73,25 @@ export function sharedHumanTaskMarkup(): string {
         <section id="containerHistory" class="card native-history-card" style="display:block;width:300px">
           <h3 class="card-header">HISTÓRICO</h3>
           <div id="native-history-body" class="card-body" style="display:block;width:100%">
-            <div id="history-list" class="history-list list-group" style="display:block;width:100%">
-              <article id="history-event-1" class="history-item list-group-item" data-history-item style="display:block;width:100%">
-                <div id="history-event-row-1" class="row g-2 d-flex" style="display:flex;width:100%">
-                  <div id="history-avatar-column-1" class="col-auto" style="display:block;flex:0 0 auto">
-                    <div class="avatar">OK</div>
-                  </div>
-                  <div id="history-content-column-1" class="col-2" style="display:block;width:16.666667%;flex:0 0 16.666667%">
-                    <div class="history-content">
-                      <div class="person-name">OTAVIO AUGUSTO COELHO KATIBE</div>
-                      <div class="history-meta">
-                        <div class="activity-name">Fazer o cadastro T01</div>
-                        <time class="history-date" datetime="2026-08-14T14:28:00">14/08/2026 · 14:28</time>
-                        <span class="badge badge-light-secondary">Concluído</span>
-                      </div>
-                    </div>
-                  </div>
+            <div id="containerHistoryRender" style="display:block;width:100%">
+              <div id="history-event-1" class="row" data-id="1" style="display:flex;width:100%">
+                <div class="col-2 col-md-1 avatar" style="display:block">
+                  <div class="user"><span class="user-photo">OK</span></div>
                 </div>
-              </article>
-              <article id="history-event-2" class="history-item list-group-item" data-history-item style="display:block;width:100%">
-                <div id="history-event-row-2" class="row g-2 d-flex" style="display:flex;width:100%">
-                  <div id="history-avatar-column-2" class="col-auto" style="display:block;flex:0 0 auto">
-                    <div class="avatar">OK</div>
-                  </div>
-                  <div id="history-content-column-2" class="col-2" style="display:block;width:16.666667%;flex:0 0 16.666667%">
-                    <div class="history-content">
-                      <div class="person-name">OTAVIO AUGUSTO COELHO KATIBE</div>
-                      <div class="history-meta">
-                        <div class="activity-name">Solicitar registro</div>
-                        <time class="history-date" datetime="2026-08-14T10:39:00">14/08/2026 · 10:39</time>
-                        <span class="badge badge-light-secondary">Concluído</span>
-                      </div>
-                    </div>
-                  </div>
+                <div class="d-none d-md-block col-md-3" style="display:block">OTAVIO AUGUSTO COELHO KATIBE</div>
+                <div class="col small" style="display:block">T02 - Validar o cadastro</div>
+                <div class="d-none d-md-flex col-md-2 small" style="display:flex"><time datetime="2026-08-17T09:38:00">17/08/2026, 09:38</time></div>
+                <div class="col-2" style="display:block"><span class="badge badge-light-secondary">Aprovado</span></div>
+              </div>
+              <div id="history-event-2" class="row" data-id="2" style="display:flex;width:100%">
+                <div class="col-2 col-md-1 avatar" style="display:block">
+                  <div class="user"><span class="user-photo">OK</span></div>
                 </div>
-              </article>
+                <div class="d-none d-md-block col-md-3" style="display:block">OTAVIO AUGUSTO COELHO KATIBE</div>
+                <div class="col small" style="display:block">T01 - Fazer o cadastro</div>
+                <div class="d-none d-md-flex col-md-2 small" style="display:flex"><time datetime="2026-08-14T14:28:00">14/08/2026, 14:28</time></div>
+                <div class="col-2" style="display:block"><span class="badge badge-light-secondary">Concluído</span></div>
+              </div>
             </div>
           </div>
         </section>

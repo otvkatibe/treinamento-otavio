@@ -317,17 +317,101 @@ const HUMAN_TASK_CLASSES = {
   sortSelect: ['box-border', '!block', '!w-full', '!max-w-full', '!min-w-0', 'truncate', 'rounded-lg', 'border', 'border-slate-300', 'bg-white', 'px-3', 'py-2.5', 'text-sm', 'text-slate-700'],
   viewAll: ['box-border', '!flex', '!w-full', '!max-w-full', '!min-w-0', 'items-center', 'justify-center', 'gap-2', '!whitespace-nowrap', 'rounded-lg', 'border', 'border-slate-300', 'bg-white', 'px-3', 'py-2.5', 'text-sm', 'font-semibold', 'text-slate-700', 'hover:bg-slate-50'],
   historyList: ['!block', '!w-full', '!max-w-full', '!min-w-0'],
-  historyItem: ['!block', '!w-full', '!max-w-full', '!min-w-0', 'border-b', 'border-slate-200', 'py-3', 'first:pt-0', 'last:border-b-0', 'last:pb-0'],
-  historyEventLayout: ['!m-0', '!grid', '!w-full', '!max-w-full', '!min-w-0', 'grid-cols-[2.5rem_minmax(0,1fr)]', 'gap-x-3', 'gap-y-1'],
-  historyAvatarColumn: ['!block', '!w-full', '!max-w-full', '!min-w-0', '!flex-none', 'col-start-1'],
-  historyContentColumn: ['!block', '!w-full', '!max-w-full', '!min-w-0', '!flex-none', 'col-start-2'],
-  historyAvatar: ['flex', 'h-10', 'w-10', 'shrink-0', 'items-center', 'justify-center', 'self-start', 'overflow-hidden', 'rounded-full', 'bg-blue-50', 'text-xs', 'font-bold', 'text-blue-900'],
-  historyContent: ['!block', '!w-full', '!max-w-full', '!min-w-0'],
-  historyName: ['!block', '!w-full', '!max-w-full', '!min-w-0', 'break-words', 'text-sm', 'font-bold', 'leading-snug', 'text-slate-800'],
-  historyActivity: ['!block', '!w-full', '!max-w-full', '!min-w-0', 'basis-full', 'break-words', 'text-xs', 'leading-snug', 'text-slate-600'],
-  historyMeta: ['!flex', '!w-full', '!max-w-full', '!min-w-0', 'flex-wrap', 'items-center', 'gap-x-2', 'gap-y-1', 'pt-1'],
-  historyDate: ['min-w-0', 'basis-full', 'whitespace-nowrap', 'text-xs', 'text-slate-500'],
-  historyStatus: ['shrink-0', 'whitespace-nowrap', 'rounded-full', 'border', 'px-2', 'py-0.5', 'text-[0.6875rem]', 'font-bold'],
+  historyItem: [
+    '!grid',
+    '!m-0',
+    '!w-full',
+    '!max-w-full',
+    '!min-w-0',
+    'grid-cols-[2.5rem_minmax(0,1fr)]',
+    'items-start',
+    'gap-x-3',
+    'gap-y-1',
+    'border-b',
+    'border-slate-200',
+    'py-3',
+    'first:pt-0',
+    'last:border-b-0',
+    'last:pb-0',
+  ],
+  historyAvatarColumn: [
+    'col-start-1',
+    '!block',
+    '!w-10',
+    '!min-w-10',
+    '!max-w-10',
+    '!flex-none',
+    'self-start',
+  ],
+  historyAvatar: [
+    'flex',
+    'h-10',
+    'w-10',
+    'shrink-0',
+    'items-center',
+    'justify-center',
+    'self-start',
+    'overflow-hidden',
+    'rounded-full',
+    'bg-blue-50',
+    'text-xs',
+    'font-bold',
+    'text-blue-900',
+  ],
+  historyPersonColumn: [
+    'col-start-2',
+    '!block',
+    '!w-full',
+    '!max-w-full',
+    '!min-w-0',
+    'break-words',
+    'text-sm',
+    'font-bold',
+    'leading-snug',
+    'text-slate-800',
+  ],
+  historyActivityColumn: [
+    'col-start-2',
+    '!block',
+    '!w-full',
+    '!max-w-full',
+    '!min-w-0',
+    'break-words',
+    'text-xs',
+    'leading-snug',
+    'text-slate-600',
+  ],
+  historyDateColumn: [
+    'col-start-2',
+    '!flex',
+    '!w-full',
+    '!max-w-full',
+    '!min-w-0',
+    'text-xs',
+    'text-slate-500',
+  ],
+  historyStatusColumn: [
+    'col-start-2',
+    '!flex',
+    '!w-full',
+    '!max-w-full',
+    '!min-w-0',
+    'items-center',
+    'pt-0.5',
+  ],
+  historyStatus: [
+    'inline-flex',
+    'w-fit',
+    'max-w-full',
+    'shrink-0',
+    'whitespace-nowrap',
+    'rounded-full',
+    'border',
+    'px-2',
+    'py-0.5',
+    'text-[0.6875rem]',
+    'font-bold',
+  ],
   historyStatusComplete: ['border-emerald-200', 'bg-emerald-50', 'text-emerald-700'],
   historyStatusActive: ['border-blue-200', 'bg-blue-50', 'text-blue-900'],
   additionalBody: ['grid', 'w-full', 'max-w-full', 'min-w-0', 'grid-cols-1', 'gap-3'],
@@ -733,7 +817,18 @@ function enhanceSharedAttachments(
 }
 
 function historyItemCandidates(region: HTMLElement): HTMLElement[] {
-  // 1. Container conhecido & 2. Lista conhecida
+  // 1. Container conhecido (#containerHistoryRender)
+  const knownRender = region.querySelector<HTMLElement>('#containerHistoryRender');
+  if (knownRender) {
+    const renderRows = Array.from(
+      knownRender.querySelectorAll<HTMLElement>(
+        ':scope > .row[data-id], :scope > .row, :scope > [data-id]',
+      ),
+    );
+    if (renderRows.length > 0) return renderRows;
+  }
+
+  // 2. Lista conhecida (#history-list, .list-group, etc.)
   const knownList = region.querySelector<HTMLElement>(
     '#history-list, [data-history-list], .history-list, .list-group, ol, ul',
   );
@@ -746,7 +841,7 @@ function historyItemCandidates(region: HTMLElement): HTMLElement[] {
 
     const listStructural = Array.from(
       knownList.querySelectorAll<HTMLElement>(
-        '.list-group-item, [class*="timeline-item"], [class*="history-item"], [class*="event-item"], article, li',
+        '.list-group-item, [class*="timeline-item"], [class*="history-item"], [class*="event-item"], article, li, .row[data-id]',
       ),
     );
     if (listStructural.length > 0) return Array.from(new Set(listStructural));
@@ -765,7 +860,7 @@ function historyItemCandidates(region: HTMLElement): HTMLElement[] {
 
   const structural = Array.from(
     region.querySelectorAll<HTMLElement>(
-      '.list-group-item, [class*="timeline-item"], [class*="history-item"], [class*="event-item"], article[id*="history"], li',
+      '.row[data-id], .list-group-item, [class*="timeline-item"], [class*="history-item"], [class*="event-item"], article[id*="history"], li',
     ),
   );
   if (structural.length > 0) return Array.from(new Set(structural));
@@ -790,13 +885,13 @@ function historyItemCandidates(region: HTMLElement): HTMLElement[] {
         if (
           container &&
           container !== region &&
-          !container.matches('.card-body, .panel-body, #native-history-body')
+          !container.matches('.card-body, .panel-body, #native-history-body, #containerHistoryRender')
         ) {
           return container;
         }
         return element.parentElement &&
           element.parentElement !== region &&
-          !element.parentElement.matches('.card-body, .panel-body, #native-history-body')
+          !element.parentElement.matches('.card-body, .panel-body, #native-history-body, #containerHistoryRender')
           ? element.parentElement
           : element;
       },
@@ -830,111 +925,153 @@ function enhanceSharedHistory(
   const items = historyItemCandidates(region);
   decorate(region, 'human-history', HUMAN_TASK_CLASSES.card);
   decorate(title, 'human-history-title', HUMAN_TASK_CLASSES.title);
-  const list = commonAncestor(items);
+  const list =
+    region.querySelector<HTMLElement>(
+      '#containerHistoryRender, [data-history-list], #history-list, .history-list',
+    ) ?? commonAncestor(items);
   if (list && list !== region && !items.includes(list)) {
     decorate(list, 'human-history-list', HUMAN_TASK_CLASSES.historyList);
   }
 
   items.forEach((item): void => {
-    const avatar = item.querySelector<HTMLElement>(
-      '.avatar, [data-initials], [class*="avatar" i], [class*="initial" i], img, svg',
-    );
-    const name = item.querySelector<HTMLElement>(
-      '.person-name, [data-person-name], [class*="person" i], [class*="user-name" i], [class*="user" i], strong, b, h4, h5, h6',
-    );
-    const activity = item.querySelector<HTMLElement>(
-      '.activity-name, [data-activity], [class*="activity" i], [class*="task-name" i], [class*="task" i]',
-    );
-    const date = item.querySelector<HTMLElement>(
-      'time, [data-history-date], [class*="date" i], [class*="time" i]',
-    );
-    const status = item.querySelector<HTMLElement>(
-      'span.badge.badge-light-secondary, .status, [data-status], [class*="status" i], .badge, [class*="badge" i], [class*="label" i]',
-    );
-    const content =
-      name?.closest<HTMLElement>('.history-content, .timeline-content, [class*="content" i]') ??
-      (activity ? activity.closest<HTMLElement>('[class*="content" i]') : null);
+    decorate(item, 'human-history-item', HUMAN_TASK_CLASSES.historyItem);
 
-    const eventLayout =
-      item.querySelector<HTMLElement>('.row, .d-flex, [class*="row"]') ??
-      commonAncestor(
-        [avatar, content ?? name].filter(
-          (element): element is HTMLElement => element !== null,
-        ),
+    const directChildren = Array.from(item.children).filter(
+      (child): child is HTMLElement => child instanceof HTMLElement,
+    );
+
+    // 1. Coluna de Avatar (.col-2.col-md-1.avatar ou .avatar)
+    const avatarColumn =
+      directChildren.find(
+        (child): boolean =>
+          child.classList.contains('avatar') ||
+          child.querySelector('.avatar, [class*="avatar"], .user, .user-photo') !== null,
       ) ??
-      item;
+      item.querySelector<HTMLElement>(
+        '.avatar, [data-initials], [class*="avatar" i], [class*="initial" i]',
+      );
 
-    const meta =
-      activity || date || status
-        ? commonAncestor(
-            [activity, date, status].filter(
-              (element): element is HTMLElement => element !== null,
-            ),
-          ) ?? (content ?? item)
-        : null;
-
-    decorate(
-      item,
-      'human-history-item',
-      eventLayout === item
-        ? [
-            ...HUMAN_TASK_CLASSES.historyItem.filter(
-              (className): boolean => className !== '!block',
-            ),
-            ...HUMAN_TASK_CLASSES.historyEventLayout,
-          ]
-        : HUMAN_TASK_CLASSES.historyItem,
-    );
-    if (eventLayout && eventLayout !== item) {
+    if (avatarColumn) {
       decorate(
-        eventLayout,
-        'human-history-event-layout',
-        HUMAN_TASK_CLASSES.historyEventLayout,
+        avatarColumn,
+        'human-history-avatar-column',
+        HUMAN_TASK_CLASSES.historyAvatarColumn,
+      );
+      const userPhoto =
+        avatarColumn.querySelector<HTMLElement>('.user-photo, [class*="photo"]') ??
+        avatarColumn.querySelector<HTMLElement>('.user') ??
+        (avatarColumn.classList.contains('avatar') ? avatarColumn : null);
+      if (userPhoto) {
+        decorate(
+          userPhoto,
+          'human-history-avatar',
+          HUMAN_TASK_CLASSES.historyAvatar,
+        );
+      }
+    }
+
+    // 2. Pessoa (.d-none.d-md-block.col-md-3 ou .person-name)
+    const personColumn =
+      directChildren.find(
+        (child): boolean =>
+          child.classList.contains('col-md-3') ||
+          child.classList.contains('person-name') ||
+          child.hasAttribute('data-person-name'),
+      ) ??
+      item.querySelector<HTMLElement>(
+        '.person-name, [data-person-name], [class*="person" i]',
+      );
+
+    if (personColumn && personColumn !== avatarColumn) {
+      decorate(
+        personColumn,
+        'human-history-person',
+        HUMAN_TASK_CLASSES.historyPersonColumn,
       );
     }
-    if (eventLayout && avatar) {
-      const avatarBranch =
-        directBranchUnder(eventLayout, avatar) ??
-        (avatar.parentElement !== eventLayout ? avatar.parentElement : null);
-      if (avatarBranch && avatarBranch !== avatar) {
-        decorate(
-          avatarBranch,
-          'human-history-avatar-column',
-          HUMAN_TASK_CLASSES.historyAvatarColumn,
-        );
-      }
+
+    // 3. Atividade (.col.small ou .activity-name)
+    const activityColumn =
+      directChildren.find(
+        (child): boolean =>
+          child.classList.contains('small') &&
+          !child.classList.contains('d-none') &&
+          !child.classList.contains('d-md-flex') &&
+          child !== personColumn &&
+          child !== avatarColumn,
+      ) ??
+      item.querySelector<HTMLElement>(
+        '.activity-name, [data-activity], .col.small',
+      );
+
+    if (activityColumn && activityColumn !== avatarColumn && activityColumn !== personColumn) {
+      decorate(
+        activityColumn,
+        'human-history-activity',
+        HUMAN_TASK_CLASSES.historyActivityColumn,
+      );
     }
-    if (eventLayout && (content ?? name)) {
-      const contentTarget = (content ?? name) as HTMLElement;
-      const contentBranch =
-        directBranchUnder(eventLayout, contentTarget) ??
-        (contentTarget.parentElement !== eventLayout ? contentTarget.parentElement : null);
-      if (contentBranch && contentBranch !== contentTarget) {
-        decorate(
-          contentBranch,
-          'human-history-content-column',
-          HUMAN_TASK_CLASSES.historyContentColumn,
-        );
-      }
+
+    // 4. Data/Hora (.d-none.d-md-flex.col-md-2.small ou time)
+    const dateColumn =
+      directChildren.find(
+        (child): boolean =>
+          (child.classList.contains('d-md-flex') ||
+            child.querySelector('time') !== null ||
+            child.classList.contains('history-date')) &&
+          child !== avatarColumn &&
+          child !== personColumn &&
+          child !== activityColumn,
+      ) ??
+      item.querySelector<HTMLElement>(
+        'time, [data-history-date], .history-date',
+      );
+
+    if (
+      dateColumn &&
+      dateColumn !== avatarColumn &&
+      dateColumn !== personColumn &&
+      dateColumn !== activityColumn
+    ) {
+      decorate(
+        dateColumn,
+        'human-history-date',
+        HUMAN_TASK_CLASSES.historyDateColumn,
+      );
     }
-    if (avatar) decorate(avatar, 'human-history-avatar', HUMAN_TASK_CLASSES.historyAvatar);
-    if (content && content !== item) {
-      decorate(content, 'human-history-content', HUMAN_TASK_CLASSES.historyContent);
+
+    // 5. Status (.col-2 contendo .badge)
+    const statusColumn =
+      directChildren.find(
+        (child): boolean =>
+          (child.querySelector('.badge, [class*="badge"]') !== null ||
+            child.classList.contains('status')) &&
+          child !== avatarColumn &&
+          child !== personColumn &&
+          child !== activityColumn &&
+          child !== dateColumn,
+      ) ??
+      item.querySelector<HTMLElement>('.status, [data-status]');
+
+    const badge =
+      statusColumn?.querySelector<HTMLElement>(
+        'span.badge.badge-light-secondary, .badge, [class*="badge"], [data-status]',
+      ) ??
+      item.querySelector<HTMLElement>(
+        'span.badge.badge-light-secondary, .badge, [class*="badge"]',
+      );
+
+    if (statusColumn && statusColumn !== badge && statusColumn !== item) {
+      decorate(
+        statusColumn,
+        'human-history-status-column',
+        HUMAN_TASK_CLASSES.historyStatusColumn,
+      );
     }
-    if (name) decorate(name, 'human-history-person', HUMAN_TASK_CLASSES.historyName);
-    if (activity) decorate(activity, 'human-history-activity', HUMAN_TASK_CLASSES.historyActivity);
-    if (meta && meta !== item && meta !== content) {
-      decorate(meta, 'human-history-meta', HUMAN_TASK_CLASSES.historyMeta);
-    } else if (content) {
-      const metaContainer = item.querySelector<HTMLElement>('.history-meta, [class*="meta"]');
-      if (metaContainer) {
-        decorate(metaContainer, 'human-history-meta', HUMAN_TASK_CLASSES.historyMeta);
-      }
-    }
-    if (date) decorate(date, 'human-history-date', HUMAN_TASK_CLASSES.historyDate);
-    if (status) {
-      const statusText = normalizedText(status);
-      decorate(status, 'human-history-status', [
+
+    if (badge) {
+      const statusText = normalizedText(badge);
+      decorate(badge, 'human-history-status', [
         ...HUMAN_TASK_CLASSES.historyStatus,
         ...(statusText === 'concluido' || statusText === 'aprovado'
           ? HUMAN_TASK_CLASSES.historyStatusComplete
