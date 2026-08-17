@@ -9,6 +9,7 @@ import { ZEEV_SELECTORS } from './selectors';
 import { getStepByTitle, normalizeStepTitle } from './steps';
 import type {
   FormSection,
+  FormSectionField,
   ProcessStepContext,
   ZeevFieldElement,
   ZeevFieldName,
@@ -186,6 +187,42 @@ function getNativeAction(label: string): HTMLElement | null {
   );
 }
 
+function discoverSectionFields(
+  table: HTMLTableElement,
+  groupId: string,
+): readonly FormSectionField[] {
+  if (groupId !== '7727') {
+    return [];
+  }
+
+  const functionalRows = Array.from(
+    table.querySelectorAll<HTMLTableRowElement>(`tr[codgroup="${groupId}"]`),
+  );
+
+  const numeroContratoRow = functionalRows.find(
+    (row: HTMLTableRowElement): boolean =>
+      Boolean(row.querySelector('input[data-name="numeroContrato"]')),
+  );
+
+  if (!numeroContratoRow) {
+    return [];
+  }
+
+  const inputElement = numeroContratoRow.querySelector<HTMLElement>(
+    'input[data-name="numeroContrato"]',
+  );
+  const name = inputElement?.getAttribute('data-name')?.trim();
+  if (!name) {
+    return [];
+  }
+
+  const labelCell = numeroContratoRow.querySelector<HTMLElement>('td.col0');
+  const rawLabel = labelCell?.textContent?.trim() ?? '';
+  const label = rawLabel.replace(/\s+/g, ' ').trim();
+
+  return [{ name, label }];
+}
+
 function getSections(): readonly FormSection[] {
   const scope = getFunctionalFieldScope();
   if (!scope) {
@@ -229,10 +266,12 @@ function getSections(): readonly FormSection[] {
       const rawLabel =
         labelElement?.textContent?.trim() || table.id?.trim() || id;
       const label = rawLabel.replace(/\s+/g, ' ').trim();
+      const fields = discoverSectionFields(table, id);
 
       return {
         id,
         label,
+        fields,
       };
     })
     .filter((section: FormSection | null): section is FormSection => section !== null);

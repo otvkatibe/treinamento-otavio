@@ -1,9 +1,13 @@
 import type { FormSection } from '../../types';
 
 export const EXPECTED_T05_NATIVE_SECTIONS: readonly FormSection[] = [
-  { id: '7727', label: 'Dados da prestação de serviço' },
-  { id: '7728', label: 'Documentos' },
-  { id: '7729', label: 'Validação' },
+  {
+    id: '7727',
+    label: 'Dados da prestação de serviço',
+    fields: [{ name: 'numeroContrato', label: 'Numero do contrato' }],
+  },
+  { id: '7728', label: 'Documentos', fields: [] },
+  { id: '7729', label: 'Validação', fields: [] },
 ] as const;
 
 export function t05RealSectionsMarkup(): string {
@@ -24,7 +28,7 @@ export function t05RealSectionsMarkup(): string {
                         </td>
                       </tr>
                       <tr codgroup="7727">
-                        <td id="td0numeroContrato" class="col0">Número do contrato</td>
+                        <td id="td0numeroContrato" class="col0">Numero do contrato</td>
                         <td id="td1numeroContrato" class="col1">
                           <input type="hidden" data-name="numeroContrato" value="CTR-2026-001">
                           <div class="form-control-static"><span>CTR-2026-001</span></div>

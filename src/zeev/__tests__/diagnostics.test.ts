@@ -8,6 +8,10 @@ import {
   EXPECTED_STAGE_FIXTURES,
   type ExpectedStageFixture,
 } from './fixtures/stage-contracts.fixture';
+import {
+  EXPECTED_T05_NATIVE_SECTIONS,
+  t05RealSectionsMarkup,
+} from './fixtures/t05-sections.fixture';
 
 function textInput(name: string): string {
   return `<input
@@ -363,5 +367,34 @@ describe('diagnóstico de homologação', () => {
       viewerCount: 0,
     });
     expect(report.bootstrapStatus).toBe('mounted');
+  });
+
+  it('expõe a coleção runtime.sections observada com id, label e fields no diagnostics()', async () => {
+    document.body.innerHTML = t05RealSectionsMarkup();
+    const { boot } = await import('../lifecycle');
+    const runtime = boot();
+    act((): void => {
+      vi.advanceTimersByTime(100);
+    });
+
+    const report = runtime.diagnostics();
+
+    expect(report.sections).toEqual(EXPECTED_T05_NATIVE_SECTIONS);
+    expect(report.sections).toHaveLength(3);
+    expect(report.sections[0]).toEqual({
+      id: '7727',
+      label: 'Dados da prestação de serviço',
+      fields: [{ name: 'numeroContrato', label: 'Numero do contrato' }],
+    });
+    expect(report.sections[1]).toEqual({
+      id: '7728',
+      label: 'Documentos',
+      fields: [],
+    });
+    expect(report.sections[2]).toEqual({
+      id: '7729',
+      label: 'Validação',
+      fields: [],
+    });
   });
 });

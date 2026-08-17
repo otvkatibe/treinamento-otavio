@@ -12,6 +12,7 @@ import type {
   DiagnosticCheck,
   DiagnosticStatus,
   FieldDiagnostic,
+  FormSection,
   NativeActionDiagnostic,
   NativeControlDiagnostic,
   RadioGroupDiagnostic,
@@ -155,6 +156,7 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
   const containerForm = root?.querySelector<HTMLElement>(
     ZEEV_SELECTORS.containerForm,
   ) ?? null;
+  const sections = runtime?.sections ?? zeevAdapter.getSections();
   const fields = (Object.keys(ZEEV_FIELDS) as ZeevFieldName[]).map(
     (name: ZeevFieldName): FieldDiagnostic =>
       fieldDiagnostic(name, stepContract?.fields[name].access ?? 'hidden'),
@@ -556,6 +558,7 @@ export function runDiagnostics(): ZeevFiebDiagnostics {
       connected: mount?.isConnected ?? false,
       before: mount?.nextElementSibling?.id ?? null,
     },
+    sections,
     fields,
     radioGroups,
     nativeControl,

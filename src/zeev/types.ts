@@ -158,9 +158,15 @@ export type BootstrapStatus =
   | 'mounted'
   | 'mount-failed';
 
+export interface FormSectionField {
+  name: string;
+  label: string;
+}
+
 export interface FormSection {
   id: string;
   label: string;
+  fields?: readonly FormSectionField[];
 }
 
 export interface ViewSignature {
@@ -286,6 +292,7 @@ export interface ZeevFiebDiagnostics {
   rootCount: number;
   mountBefore: string | null;
   mount: MountDiagnostic;
+  sections: readonly FormSection[];
   fields: readonly FieldDiagnostic[];
   radioGroups: readonly RadioGroupDiagnostic[];
   nativeControl: NativeControlDiagnostic;
