@@ -8,6 +8,10 @@ import type {
   ProcessExecutionIdentity,
   ZeevFiebRuntime,
 } from '../types';
+import {
+  EXPECTED_T05_NATIVE_SECTIONS,
+  t05RealSectionsMarkup,
+} from './fixtures/t05-sections.fixture';
 
 const DEFAULT_IDENTITY: ProcessExecutionIdentity = {
   uid: 'UID-A',
@@ -747,5 +751,22 @@ describe('lifecycle SPA', () => {
 
     expect(runtime.bootstrapStatus).toBe('mounted');
     expect(document.querySelectorAll('#zeev-fieb-root')).toHaveLength(1);
+  });
+
+  it('descobre e sincroniza dinamicamente as seções nativas da T05 expondo ao React Island', async () => {
+    document.body.innerHTML = t05RealSectionsMarkup();
+    const { boot } = await import('../lifecycle');
+    const runtime = boot();
+    advanceTimersByTime(100);
+
+    expect(runtime.sections).toEqual(EXPECTED_T05_NATIVE_SECTIONS);
+    expect(runtime.sections).toHaveLength(3);
+
+    const island = document.querySelector('#zeev-fieb-root');
+    expect(island).not.toBeNull();
+    expect(island?.textContent).toContain('3 seções');
+    expect(island?.textContent).toContain('Dados da prestação de serviço');
+    expect(island?.textContent).toContain('Documentos');
+    expect(island?.textContent).toContain('Validação');
   });
 });

@@ -92,6 +92,7 @@ export function renderIsland(
       <App
         taskContext={runtime.currentTask}
         visitedStages={runtime.visitedStages}
+        sections={runtime.sections}
         environment="homologacao"
         version={runtime.version}
       />,

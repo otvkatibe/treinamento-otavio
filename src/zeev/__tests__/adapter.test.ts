@@ -7,6 +7,10 @@ import {
   zeevAdapter,
 } from '../adapter';
 import { PROCESS_STEPS } from '../steps';
+import {
+  EXPECTED_T05_NATIVE_SECTIONS,
+  t05RealSectionsMarkup,
+} from './fixtures/t05-sections.fixture';
 
 function renderZeevDom(title: string): void {
   document.body.innerHTML = `
@@ -372,9 +376,92 @@ describe('zeevAdapter', () => {
     });
   });
 
+  it('descobre dinamicamente as seções da T05 com exatidão de contador, labels e ordem no DOM', () => {
+    document.body.innerHTML = t05RealSectionsMarkup();
+
+    const sections = zeevAdapter.getSections();
+
+    expect(sections).toHaveLength(3);
+    expect(sections).toEqual(EXPECTED_T05_NATIVE_SECTIONS);
+    expect(sections.map(({ label }) => label)).toEqual([
+      'Dados da prestação de serviço',
+      'Documentos',
+      'Validação',
+    ]);
+    expect(sections.map(({ id }) => id)).toEqual(['7727', '7728', '7729']);
+  });
+
+  it('prioriza b[data-key] correspondente ao data-groupid e normaliza whitespace', () => {
+    document.body.innerHTML = `
+      <div id="containerRequest">
+        <div id="ContainerForm">
+          <table class="form" id="SecaoComposta" data-groupid="9901">
+            <tbody>
+              <tr class="group">
+                <td class="group">
+                  <span class="prefix">Prefixo</span>
+                  <b id="otherKey" data-key="0000">Outro heading</b>
+                  <b id="targetKey" data-key="9901">
+                    Dados   da   prestação
+                    de serviço
+                  </b>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="form" data-groupid="9902">
+            <tbody>
+              <tr class="group">
+                <td><b>  Documentos  </b></td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="form" data-groupid="9903">
+            <tbody>
+              <tr class="group">
+                <td>  Validação  </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    const sections = zeevAdapter.getSections();
+
+    expect(sections).toEqual([
+      { id: '9901', label: 'Dados da prestação de serviço' },
+      { id: '9902', label: 'Documentos' },
+      { id: '9903', label: 'Validação' },
+    ]);
+  });
+
+  it('ignora tabelas sem data-groupid ou fora de #ContainerForm', () => {
+    document.body.innerHTML = `
+      <table class="form" data-groupid="9999">
+        <tr class="group"><td><b>Tabela Externa</b></td></tr>
+      </table>
+      <div id="containerRequest">
+        <div id="ContainerForm">
+          <table class="form">
+            <tr class="group"><td><b>Sem group id</b></td></tr>
+          </table>
+          <table class="form" data-groupid="1111">
+            <tr class="group"><td><b>Seção Válida</b></td></tr>
+          </table>
+        </div>
+      </div>
+    `;
+
+    const sections = zeevAdapter.getSections();
+
+    expect(sections).toEqual([{ id: '1111', label: 'Seção Válida' }]);
+  });
+
   it('retorna valores seguros quando o DOM Zeev está ausente', () => {
     expect(zeevAdapter.getRoot()).toBeNull();
     expect(zeevAdapter.getForm()).toBeNull();
+    expect(zeevAdapter.getSections()).toEqual([]);
     expect(zeevAdapter.getCurrentTaskTitle()).toBeNull();
     expect(zeevAdapter.getCurrentTask()).toBeNull();
     expect(zeevAdapter.getField('cpfCliente')).toBeNull();

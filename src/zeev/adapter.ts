@@ -8,6 +8,7 @@ import {
 import { ZEEV_SELECTORS } from './selectors';
 import { getStepByTitle, normalizeStepTitle } from './steps';
 import type {
+  FormSection,
   ProcessStepContext,
   ZeevFieldElement,
   ZeevFieldName,
@@ -17,6 +18,7 @@ export interface ZeevAdapterContract {
   getRoot(): HTMLElement | null;
   getForm(): HTMLElement | null;
   getForms(): readonly HTMLElement[];
+  getSections(): readonly FormSection[];
   getCurrentTaskTitle(): string | null;
   getCurrentTask(): ProcessStepContext | null;
   getField(name: ZeevFieldName): ZeevFieldElement | null;
@@ -184,10 +186,63 @@ function getNativeAction(label: string): HTMLElement | null {
   );
 }
 
+function getSections(): readonly FormSection[] {
+  const scope = getFunctionalFieldScope();
+  if (!scope) {
+    return [];
+  }
+
+  const sectionTables = Array.from(
+    scope.querySelectorAll<HTMLTableElement>(ZEEV_SELECTORS.formSections),
+  );
+
+  return sectionTables
+    .map((table: HTMLTableElement): FormSection | null => {
+      const id = table.getAttribute('data-groupid')?.trim();
+      if (!id) {
+        return null;
+      }
+
+      const matchingKeyElement =
+        Array.from(table.querySelectorAll<HTMLElement>('b[data-key]')).find(
+          (element: HTMLElement): boolean =>
+            element.getAttribute('data-key')?.trim() === id,
+        ) ?? null;
+
+      const groupRow = table.querySelector<HTMLElement>('tr.group');
+      const fallbackKeyElement =
+        groupRow?.querySelector<HTMLElement>('b[data-key]') ??
+        table.querySelector<HTMLElement>('b[data-key]') ??
+        null;
+      const groupBoldElement =
+        groupRow?.querySelector<HTMLElement>('b') ??
+        table.querySelector<HTMLElement>('b') ??
+        null;
+
+      const labelElement =
+        matchingKeyElement ??
+        fallbackKeyElement ??
+        groupBoldElement ??
+        groupRow ??
+        null;
+
+      const rawLabel =
+        labelElement?.textContent?.trim() || table.id?.trim() || id;
+      const label = rawLabel.replace(/\s+/g, ' ').trim();
+
+      return {
+        id,
+        label,
+      };
+    })
+    .filter((section: FormSection | null): section is FormSection => section !== null);
+}
+
 export const zeevAdapter: ZeevAdapterContract = Object.freeze({
   getRoot,
   getForm,
   getForms,
+  getSections,
   getCurrentTaskTitle,
   getCurrentTask,
   getField,

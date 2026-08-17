@@ -8,6 +8,7 @@ import {
 import { reconcileVisualHistory } from './visual-history';
 import { renderIsland, unmountIsland } from '../ui/render-island';
 import type {
+  FormSection,
   LifecycleReason,
   ProcessExecutionIdentity,
   ProcessStepContext,
@@ -31,6 +32,7 @@ function createRuntime(): ZeevFiebRuntime {
     reactContentNodes: [],
     mountElement: null,
     currentTask: null,
+    sections: [],
     executionIdentity: null,
     visitedStages: [],
     viewSignature: null,
@@ -52,6 +54,9 @@ function getOrCreateRuntime(): ZeevFiebRuntime {
   const runtime = window.__ZEEV_FIEB__ ?? createRuntime();
   if (!isProcessExecutionIdentity(runtime.executionIdentity)) {
     runtime.executionIdentity = null;
+  }
+  if (!Array.isArray(runtime.sections)) {
+    runtime.sections = [];
   }
   if (!Array.isArray(runtime.visitedStages)) {
     runtime.visitedStages = [];
@@ -125,7 +130,7 @@ function initialize(runtime: ZeevFiebRuntime): void {
 
   if (!document.documentElement) {
     if (!runtime.domReadyHandler) {
-      runtime.domReadyHandler = () => {
+      runtime.domReadyHandler = (): void => {
         runtime.domReadyHandler = null;
         initialize(runtime);
       };
@@ -136,15 +141,15 @@ function initialize(runtime: ZeevFiebRuntime): void {
     return;
   }
 
-  runtime.observer = new MutationObserver(() => scheduleSync('mutation'));
+  runtime.observer = new MutationObserver((): void => scheduleSync('mutation'));
   runtime.observer.observe(document.documentElement, {
     childList: true,
     subtree: true,
   });
 
-  runtime.popstateHandler = () => scheduleSync('popstate');
-  runtime.hashchangeHandler = () => scheduleSync('hashchange');
-  runtime.pageshowHandler = () => {
+  runtime.popstateHandler = (): void => scheduleSync('popstate');
+  runtime.hashchangeHandler = (): void => scheduleSync('hashchange');
+  runtime.pageshowHandler = (): void => {
     scheduleBootstrapRetries(runtime);
     sync('pageshow');
   };
@@ -153,7 +158,7 @@ function initialize(runtime: ZeevFiebRuntime): void {
   window.addEventListener('pageshow', runtime.pageshowHandler);
 
   if (document.readyState === 'loading' && !runtime.domReadyHandler) {
-    runtime.domReadyHandler = () => {
+    runtime.domReadyHandler = (): void => {
       runtime.domReadyHandler = null;
       sync('domcontentloaded');
     };
@@ -180,13 +185,13 @@ function ensureMountPoint(): HTMLElement | null {
   );
 
   if (!containerForm?.parentElement) {
-    existingMounts.slice(1).forEach((element) => element.remove());
+    existingMounts.slice(1).forEach((element: HTMLElement): void => element.remove());
     return existingMounts[0] ?? null;
   }
 
   const parent = containerForm.parentElement;
   const mountElement =
-    existingMounts.find((element) => element.parentElement === parent) ??
+    existingMounts.find((element: HTMLElement): boolean => element.parentElement === parent) ??
     existingMounts[0] ??
     document.createElement('div');
 
@@ -199,8 +204,8 @@ function ensureMountPoint(): HTMLElement | null {
   }
 
   existingMounts
-    .filter((element) => element !== mountElement)
-    .forEach((element) => element.remove());
+    .filter((element: HTMLElement): boolean => element !== mountElement)
+    .forEach((element: HTMLElement): void => element.remove());
 
   return mountElement;
 }
@@ -225,7 +230,7 @@ function readExecutionIdentity(): ProcessExecutionIdentity | null {
   };
 }
 
-function createViewSignature(): ViewSignature {
+function createViewSignature(sections: readonly FormSection[]): ViewSignature {
   const search = window.location.search;
   return {
     title: zeevAdapter.getCurrentTaskTitle(),
@@ -233,6 +238,7 @@ function createViewSignature(): ViewSignature {
     search,
     observedExecutionIdentity: readExecutionIdentity(),
     root: zeevAdapter.getRoot(),
+    sectionSignature: sections.map((s: FormSection): string => `${s.id}:${s.label}`).join('|'),
   };
 }
 
@@ -249,7 +255,8 @@ function isSameView(
       current.observedExecutionIdentity?.uid &&
     previous.observedExecutionIdentity?.flowExecute ===
       current.observedExecutionIdentity?.flowExecute &&
-    previous.root === current.root
+    previous.root === current.root &&
+    previous.sectionSignature === current.sectionSignature
   );
 }
 
@@ -297,7 +304,7 @@ export function scheduleSync(reason: LifecycleReason): void {
   }
 
   runtime.pendingReason = reason;
-  runtime.syncTimer = window.setTimeout(() => {
+  runtime.syncTimer = window.setTimeout((): void => {
     runtime.syncTimer = null;
     const pendingReason = runtime.pendingReason ?? reason;
     runtime.pendingReason = null;
@@ -331,7 +338,8 @@ export function sync(reason: LifecycleReason = 'manual'): ZeevFiebRuntime {
     runtime.bootstrapStatus = 'waiting-container';
   }
   runtime.currentTask = zeevAdapter.getCurrentTask();
-  runtime.viewSignature = createViewSignature();
+  runtime.sections = zeevAdapter.getSections();
+  runtime.viewSignature = createViewSignature(runtime.sections);
   updateVisitedStages(runtime, runtime.viewSignature);
   enhanceNativeExperience(runtime.currentTask?.code ?? null);
   runtime.syncCount += 1;
@@ -388,6 +396,7 @@ export function teardown(): void {
     runtime.reactContentNodes = [];
     runtime.mountElement = null;
     runtime.currentTask = null;
+    runtime.sections = [];
     runtime.executionIdentity = null;
     runtime.visitedStages = [];
     runtime.viewSignature = null;
@@ -403,6 +412,6 @@ export function teardown(): void {
 
   document
     .querySelectorAll<HTMLElement>(`#${MOUNT_ID}`)
-    .forEach((element) => element.remove());
+    .forEach((element: HTMLElement): void => element.remove());
   delete window.__ZEEV_FIEB__;
 }

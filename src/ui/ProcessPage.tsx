@@ -4,7 +4,7 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import type { ProcessStepMetadata, StageCode, VisualConfig } from '../zeev/types';
+import type { FormSection, ProcessStepMetadata, StageCode, VisualConfig } from '../zeev/types';
 import { EnvironmentBadge } from './EnvironmentBadge';
 import { ProcessStepper } from './ProcessStepper';
 import { ProcessSummary } from './ProcessSummary';
@@ -17,11 +17,18 @@ import { TASK_PRESENTATION } from './process-content';
 export interface ProcessPageProps {
   task: ProcessStepMetadata;
   visitedStages: readonly StageCode[];
+  sections?: readonly FormSection[];
   environment: VisualConfig['environment'];
   version: string;
 }
 
-export function ProcessPage({ task, visitedStages, environment, version }: ProcessPageProps): React.JSX.Element {
+export function ProcessPage({
+  task,
+  visitedStages,
+  sections = [],
+  environment,
+  version,
+}: ProcessPageProps): React.JSX.Element {
   const presentation = TASK_PRESENTATION[task.code];
   const correctionRouteObserved = visitedStages.includes('T3');
 
@@ -79,18 +86,18 @@ export function ProcessPage({ task, visitedStages, environment, version }: Proce
                   Use os campos e controles nativos apresentados logo abaixo.
                 </Typography>
               </Box>
-              <Chip label={`${presentation.sections.length} seções`} size="small" variant="outlined" />
+              <Chip label={`${sections.length} seções`} size="small" variant="outlined" />
             </Stack>
             <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap', mt: 2 }} aria-label="Seções desta etapa">
-              {presentation.sections.map((section) => (
+              {sections.map((section: FormSection) => (
                 <Box
                   component="section"
-                  key={section}
-                  aria-label={section}
+                  key={section.id}
+                  aria-label={section.label}
                   data-zeev-fieb-role="field-section"
-                  data-zeev-fieb-section={section}
+                  data-zeev-fieb-section={section.label}
                 >
-                  <Chip label={section} size="small" sx={{ bgcolor: 'background.default' }} />
+                  <Chip label={section.label} size="small" sx={{ bgcolor: 'background.default' }} />
                 </Box>
               ))}
             </Stack>

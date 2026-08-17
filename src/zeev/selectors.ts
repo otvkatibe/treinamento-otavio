@@ -11,6 +11,7 @@ export const ZEEV_SELECTORS = {
   formBox: '#BoxFrmExecute',
   form: '#FrmExecute',
   formGroups: '#ContainerForm #FrmExecute',
+  formSections: 'table.form[data-groupid]',
   personalDataGroup: '[data-groupid="7724"]',
   personalDataGroupTitle: '#group7724',
   messages: '#containerMessages',

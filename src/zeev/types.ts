@@ -158,12 +158,18 @@ export type BootstrapStatus =
   | 'mounted'
   | 'mount-failed';
 
+export interface FormSection {
+  id: string;
+  label: string;
+}
+
 export interface ViewSignature {
   title: string | null;
   pathname: string;
   search: string;
   observedExecutionIdentity: ProcessExecutionIdentity | null;
   root: HTMLElement | null;
+  sectionSignature: string;
 }
 
 export type DiagnosticStatus = 'PASS' | 'FAIL' | 'SKIP/N/A';
@@ -300,6 +306,7 @@ export interface ZeevFiebRuntime {
   reactContentNodes: readonly Node[];
   mountElement: HTMLElement | null;
   currentTask: ProcessStepContext | null;
+  sections: readonly FormSection[];
   executionIdentity: ProcessExecutionIdentity | null;
   visitedStages: readonly StageCode[];
   viewSignature: ViewSignature | null;

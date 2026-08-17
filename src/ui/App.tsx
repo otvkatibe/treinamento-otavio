@@ -6,13 +6,14 @@ import Typography from '@mui/material/Typography';
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 
 import { muiTheme } from '../theme/mui-theme';
-import type { ProcessStepContext, StageCode, VisualConfig } from '../zeev/types';
+import type { FormSection, ProcessStepContext, StageCode, VisualConfig } from '../zeev/types';
 import { EnvironmentBadge } from './EnvironmentBadge';
 import { ProcessPage } from './ProcessPage';
 
 export interface AppProps {
   taskContext: ProcessStepContext | null;
   visitedStages?: readonly StageCode[];
+  sections?: readonly FormSection[];
   environment?: VisualConfig['environment'];
   version?: string;
 }
@@ -20,6 +21,7 @@ export interface AppProps {
 export function App({
   taskContext,
   visitedStages = [],
+  sections = [],
   environment = 'homologacao',
   version = '0.4.0-rc.3',
 }: AppProps): React.JSX.Element {
@@ -36,7 +38,13 @@ export function App({
             sx={{ mb: 2 }}
           >
             {task ? (
-              <ProcessPage task={task} visitedStages={visitedStages} environment={environment} version={version} />
+              <ProcessPage
+                task={task}
+                visitedStages={visitedStages}
+                sections={sections}
+                environment={environment}
+                version={version}
+              />
             ) : (
               <Paper
                 component="section"

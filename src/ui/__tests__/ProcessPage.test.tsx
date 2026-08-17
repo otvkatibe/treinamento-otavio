@@ -100,9 +100,19 @@ describe('shell compartilhado do processo', () => {
 
 describe('apresentação estrutural por tarefa', () => {
   it.each(PROCESS_STEPS)(
-    'renderiza stage, seções, orientação e checklist de $code',
+    'renderiza stage, orientação e checklist de $code e deriva seções observadas',
     (task): void => {
-      render(<App taskContext={taskContext(task.code)} visitedStages={[task.code]} />);
+      const mockSections = [
+        { id: '1', label: 'Dados pessoais' },
+        { id: '2', label: 'Documentos' },
+      ];
+      render(
+        <App
+          taskContext={taskContext(task.code)}
+          visitedStages={[task.code]}
+          sections={mockSections}
+        />,
+      );
       const presentation = TASK_PRESENTATION[task.code];
       const island = document.querySelector('[data-zeev-fieb-island="true"]');
       const sectionList = screen.getByLabelText('Seções desta etapa');
@@ -115,22 +125,60 @@ describe('apresentação estrutural por tarefa', () => {
       );
       expect(screen.getByText(presentation.eyebrow)).toBeVisible();
       expect(role('task-guidance')).toHaveTextContent(presentation.guidance);
-      for (const section of presentation.sections) {
-        expect(within(sectionList).getByText(section)).toBeVisible();
+      for (const section of mockSections) {
+        expect(within(sectionList).getByText(section.label)).toBeVisible();
       }
       expect(
         sectionList.querySelectorAll('[data-zeev-fieb-role="field-section"]'),
-      ).toHaveLength(presentation.sections.length);
+      ).toHaveLength(mockSections.length);
       for (const item of presentation.checklist) {
         expect(within(checklist).getByText(item)).toBeVisible();
       }
-      expect(screen.getByText(`${presentation.sections.length} seções`)).toBeVisible();
+      expect(screen.getByText(`${mockSections.length} seções`)).toBeVisible();
       expect(document.querySelectorAll('[data-zeev-fieb-role="process-page"]')).toHaveLength(1);
     },
   );
 
+  it('deriva o contador e os chips da T05 exclusivamente da coleção observada', () => {
+    const t05Sections = [
+      { id: '7727', label: 'Dados da prestação de serviço' },
+      { id: '7728', label: 'Documentos' },
+      { id: '7729', label: 'Validação' },
+    ];
+    render(
+      <App
+        taskContext={taskContext('T5')}
+        visitedStages={['T5']}
+        sections={t05Sections}
+      />,
+    );
+
+    const taskCard = role('task-card');
+    expect(within(taskCard).getByText('3 seções')).toBeVisible();
+
+    const sectionElements = taskCard.querySelectorAll(
+      '[data-zeev-fieb-role="field-section"]',
+    );
+    expect(sectionElements).toHaveLength(3);
+    expect(
+      Array.from(sectionElements).map(
+        (el: Element): string | null => el.getAttribute('data-zeev-fieb-section'),
+      ),
+    ).toEqual(['Dados da prestação de serviço', 'Documentos', 'Validação']);
+  });
+
   it('diferencia visual e textualmente a rota de correção', () => {
-    render(<App taskContext={taskContext('T3')} visitedStages={['T2', 'T3']} />);
+    const mockSections = [
+      { id: '1', label: 'Pendências apontadas' },
+      { id: '2', label: 'Dados para correção' },
+    ];
+    render(
+      <App
+        taskContext={taskContext('T3')}
+        visitedStages={['T2', 'T3']}
+        sections={mockSections}
+      />,
+    );
 
     expect(screen.getByText('Correção solicitada')).toBeVisible();
     expect(screen.getByText('Pendências apontadas')).toBeVisible();
