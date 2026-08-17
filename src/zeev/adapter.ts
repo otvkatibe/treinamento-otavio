@@ -191,10 +191,6 @@ function discoverSectionFields(
   table: HTMLTableElement,
   groupId: string,
 ): readonly FormSectionField[] {
-  if (groupId !== '7727' && groupId !== '7728') {
-    return [];
-  }
-
   const functionalRows = Array.from(
     table.querySelectorAll<HTMLTableRowElement>(`tr[codgroup="${groupId}"]`),
   );

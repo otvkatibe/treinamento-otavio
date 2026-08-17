@@ -404,7 +404,12 @@ describe('diagnóstico de homologação', () => {
     expect(report.sections[2]).toEqual({
       id: '7729',
       label: 'Validação',
-      fields: [],
+      fields: [
+        {
+          name: 'correcaoRealizada',
+          label: 'Correções realizadas:',
+        },
+      ],
     });
   });
 });

@@ -458,7 +458,7 @@ describe('zeevAdapter', () => {
     expect(sections).toEqual([{ id: '1111', label: 'Seção Válida', fields: [] }]);
   });
 
-  it('descobre as quatro linhas funcionais da seção 7727 e a linha funcional da seção 7728 da T05', () => {
+  it('descobre todas as linhas funcionais das seções 7727, 7728 e 7729 da T05', () => {
     document.body.innerHTML = t05RealSectionsMarkup();
 
     const sections = zeevAdapter.getSections();
@@ -496,7 +496,43 @@ describe('zeevAdapter', () => {
       },
     ]);
 
-    expect(section7729?.fields).toEqual([]);
+    expect(section7729).toBeDefined();
+    expect(section7729?.fields).toHaveLength(1);
+    expect(section7729?.fields).toEqual([
+      {
+        name: 'correcaoRealizada',
+        label: 'Correções realizadas:',
+      },
+    ]);
+  });
+
+  it('inclui campo materializado na seção mesmo quando o valor e o renderer estão vazios', () => {
+    document.body.innerHTML = `
+      <div id="containerRequest">
+        <div id="ContainerForm">
+          <table class="form" data-groupid="7729">
+            <tbody>
+              <tr class="group">
+                <td><b data-key="7729">Validação</b></td>
+              </tr>
+              <tr codgroup="7729">
+                <td class="col0">   Correções   realizadas:   </td>
+                <td class="col1">
+                  <input type="hidden" data-name="correcaoRealizada" value="">
+                  <div class="form-control-static"><span></span></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    const sections = zeevAdapter.getSections();
+    expect(sections).toHaveLength(1);
+    expect(sections[0].fields).toEqual([
+      { name: 'correcaoRealizada', label: 'Correções realizadas:' },
+    ]);
   });
 
   it('não inclui inputs fora das tabelas materializadas na coleção de campos da seção', () => {

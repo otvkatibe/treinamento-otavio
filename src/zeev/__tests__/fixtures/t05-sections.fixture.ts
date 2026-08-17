@@ -21,7 +21,16 @@ export const EXPECTED_T05_NATIVE_SECTIONS: readonly FormSection[] = [
       },
     ],
   },
-  { id: '7729', label: 'Validação', fields: [] },
+  {
+    id: '7729',
+    label: 'Validação',
+    fields: [
+      {
+        name: 'correcaoRealizada',
+        label: 'Correções realizadas:',
+      },
+    ],
+  },
 ] as const;
 
 export function t05RealSectionsMarkup(): string {
@@ -99,9 +108,10 @@ export function t05RealSectionsMarkup(): string {
                         </td>
                       </tr>
                       <tr codgroup="7729">
-                        <td id="td0observacoes" class="col0">Observações</td>
-                        <td id="td1observacoes" class="col1">
-                          <div class="form-control-static"><span>Contrato validado e aprovado.</span></div>
+                        <td id="td0correcaoRealizada" class="col0">Correções realizadas:</td>
+                        <td id="td1correcaoRealizada" class="col1">
+                          <input type="hidden" data-name="correcaoRealizada" value="">
+                          <div class="form-control-static"><span></span></div>
                         </td>
                       </tr>
                     </tbody>
