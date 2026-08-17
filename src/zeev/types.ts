@@ -161,6 +161,7 @@ export type BootstrapStatus =
 export interface FormSectionField {
   name: string;
   label: string;
+  editable?: boolean;
 }
 
 export interface FormSection {

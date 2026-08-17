@@ -9,6 +9,10 @@ import {
   type ExpectedStageFixture,
 } from './fixtures/stage-contracts.fixture';
 import {
+  EXPECTED_T04_NATIVE_SECTIONS,
+  t04RealSectionsMarkup,
+} from './fixtures/t04-sections.fixture';
+import {
   EXPECTED_T05_NATIVE_SECTIONS,
   t05RealSectionsMarkup,
 } from './fixtures/t05-sections.fixture';
@@ -385,7 +389,7 @@ describe('diagnóstico de homologação', () => {
       id: '7727',
       label: 'Dados da prestação de serviço',
       fields: [
-        { name: 'numeroContrato', label: 'Numero do contrato' },
+        { name: 'numeroContrato', label: 'Numero do contrato', editable: false },
         { name: 'dataContrato', label: 'Data do contrato' },
         { name: 'valorContrato', label: 'Valor do contrato' },
         { name: 'documentoContratoPdf', label: 'Contrato em PDF' },
@@ -411,5 +415,36 @@ describe('diagnóstico de homologação', () => {
         },
       ],
     });
+  });
+
+  it('expõe a editabilidade estrutural de numeroContrato no diagnostics().sections para T04 e T05', async () => {
+    document.body.innerHTML = t04RealSectionsMarkup();
+    const { boot, teardown } = await import('../lifecycle');
+    const runtimeT04 = boot();
+    act((): void => {
+      vi.advanceTimersByTime(100);
+    });
+
+    const reportT04 = runtimeT04.diagnostics();
+    const section7727T04 = reportT04.sections.find(({ id }): boolean => id === '7727');
+    const numeroContratoT04 = section7727T04?.fields?.find(
+      ({ name }): boolean => name === 'numeroContrato',
+    );
+    expect(numeroContratoT04?.editable).toBe(true);
+
+    teardown();
+
+    document.body.innerHTML = t05RealSectionsMarkup();
+    const runtimeT05 = boot();
+    act((): void => {
+      vi.advanceTimersByTime(100);
+    });
+
+    const reportT05 = runtimeT05.diagnostics();
+    const section7727T05 = reportT05.sections.find(({ id }): boolean => id === '7727');
+    const numeroContratoT05 = section7727T05?.fields?.find(
+      ({ name }): boolean => name === 'numeroContrato',
+    );
+    expect(numeroContratoT05?.editable).toBe(false);
   });
 });
