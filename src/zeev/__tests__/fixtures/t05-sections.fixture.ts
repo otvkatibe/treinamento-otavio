@@ -18,6 +18,7 @@ export const EXPECTED_T05_NATIVE_SECTIONS: readonly FormSection[] = [
       {
         name: 'documentoCadastroPdf',
         label: 'Documento escolhido no cadastro em pdf',
+        editable: false,
       },
     ],
   },

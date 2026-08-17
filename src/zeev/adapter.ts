@@ -226,7 +226,10 @@ function discoverSectionFields(
         };
       }
 
-      if (name === 'documentoContratoPdf') {
+      if (
+        name === 'documentoContratoPdf' ||
+        name === 'documentoCadastroPdf'
+      ) {
         const cellCol1 = row.querySelector<HTMLElement>('td.col1');
         const hasUploadAction =
           cellCol1?.querySelector(

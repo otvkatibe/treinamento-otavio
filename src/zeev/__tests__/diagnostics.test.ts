@@ -402,6 +402,7 @@ describe('diagnóstico de homologação', () => {
         {
           name: 'documentoCadastroPdf',
           label: 'Documento escolhido no cadastro em pdf',
+          editable: false,
         },
       ],
     });
@@ -417,7 +418,7 @@ describe('diagnóstico de homologação', () => {
     });
   });
 
-  it('expõe a editabilidade estrutural dos campos da seção 7727 no diagnostics().sections para T04 e T05', async () => {
+  it('expõe a editabilidade estrutural dos campos observados no diagnostics().sections para T04 e T05', async () => {
     document.body.innerHTML = t04RealSectionsMarkup();
     const { boot, teardown } = await import('../lifecycle');
     const runtimeT04 = boot();
@@ -446,6 +447,12 @@ describe('diagnóstico de homologação', () => {
       ({ name }): boolean => name === 'documentoContratoPdf',
     );
     expect(documentoContratoPdfT04?.editable).toBe(true);
+
+    const section7728T04 = reportT04.sections.find(({ id }): boolean => id === '7728');
+    const documentoCadastroPdfT04 = section7728T04?.fields?.find(
+      ({ name }): boolean => name === 'documentoCadastroPdf',
+    );
+    expect(documentoCadastroPdfT04?.editable).toBe(true);
 
     teardown();
 
@@ -476,5 +483,11 @@ describe('diagnóstico de homologação', () => {
       ({ name }): boolean => name === 'documentoContratoPdf',
     );
     expect(documentoContratoPdfT05?.editable).toBe(false);
+
+    const section7728T05 = reportT05.sections.find(({ id }): boolean => id === '7728');
+    const documentoCadastroPdfT05 = section7728T05?.fields?.find(
+      ({ name }): boolean => name === 'documentoCadastroPdf',
+    );
+    expect(documentoCadastroPdfT05?.editable).toBe(false);
   });
 });

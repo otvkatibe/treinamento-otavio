@@ -517,8 +517,14 @@ describe('zeevAdapter', () => {
       {
         name: 'documentoCadastroPdf',
         label: 'Documento escolhido no cadastro em pdf',
+        editable: false,
       },
     ]);
+
+    const documentoCadastroPdfT05 = section7728?.fields?.find(
+      ({ name }): boolean => name === 'documentoCadastroPdf',
+    );
+    expect(documentoCadastroPdfT05?.editable).toBe(false);
 
     expect(section7729).toBeDefined();
     expect(section7729?.fields).toHaveLength(1);
@@ -661,6 +667,11 @@ describe('zeevAdapter', () => {
     expect(section7728?.fields?.map(({ name }): string => name)).toEqual([
       'documentoCadastroPdf',
     ]);
+
+    const documentoCadastroPdfT04 = section7728?.fields?.find(
+      ({ name }): boolean => name === 'documentoCadastroPdf',
+    );
+    expect(documentoCadastroPdfT04?.editable).toBe(true);
 
     const allDiscoveredFieldNames = sections.flatMap(
       ({ fields }): readonly string[] =>

@@ -47,6 +47,7 @@ export const EXPECTED_T04_NATIVE_SECTIONS: readonly FormSection[] = [
       {
         name: 'documentoCadastroPdf',
         label: 'Documento escolhido no cadastro em pdf',
+        editable: true,
       },
     ],
   },
@@ -215,9 +216,8 @@ export function t04RealSectionsMarkup(): string {
                       <tr codgroup="7728">
                         <td id="td0documentoCadastroPdf" class="col0">Documento escolhido no cadastro em pdf</td>
                         <td id="td1documentoCadastroPdf" class="col1">
-                          <input type="hidden" data-name="documentoCadastroPdf">
-                          <a href="/download/cadastro.pdf">cadastro.pdf</a>
-                          <button id="btnDownload_documentoCadastroPdf" type="button">Baixar</button>
+                          <input type="text" style="display: none;" id="inpdocumentoCadastroPdf" data-name="documentoCadastroPdf" value="">
+                          <button id="btnUploaddocumentoCadastroPdf" type="button" disabled="disabled">anexar arquivo</button>
                         </td>
                       </tr>
                     </tbody>
