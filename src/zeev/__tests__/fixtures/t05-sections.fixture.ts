@@ -6,8 +6,8 @@ export const EXPECTED_T05_NATIVE_SECTIONS: readonly FormSection[] = [
     label: 'Dados da prestação de serviço',
     fields: [
       { name: 'numeroContrato', label: 'Numero do contrato', editable: false },
-      { name: 'dataContrato', label: 'Data do contrato' },
-      { name: 'valorContrato', label: 'Valor do contrato' },
+      { name: 'dataContrato', label: 'Data do contrato', editable: false },
+      { name: 'valorContrato', label: 'Valor do contrato', editable: false },
       { name: 'documentoContratoPdf', label: 'Contrato em PDF' },
     ],
   },

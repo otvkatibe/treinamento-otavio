@@ -474,8 +474,8 @@ describe('zeevAdapter', () => {
     expect(section7727?.fields).toHaveLength(4);
     expect(section7727?.fields).toEqual([
       { name: 'numeroContrato', label: 'Numero do contrato', editable: false },
-      { name: 'dataContrato', label: 'Data do contrato' },
-      { name: 'valorContrato', label: 'Valor do contrato' },
+      { name: 'dataContrato', label: 'Data do contrato', editable: false },
+      { name: 'valorContrato', label: 'Valor do contrato', editable: false },
       { name: 'documentoContratoPdf', label: 'Contrato em PDF' },
     ]);
     expect(section7727?.fields?.map(({ name }): string => name)).toEqual([
@@ -495,6 +495,16 @@ describe('zeevAdapter', () => {
       ({ name }): boolean => name === 'numeroContrato',
     );
     expect(numeroContratoT05?.editable).toBe(false);
+
+    const dataContratoT05 = section7727?.fields?.find(
+      ({ name }): boolean => name === 'dataContrato',
+    );
+    expect(dataContratoT05?.editable).toBe(false);
+
+    const valorContratoT05 = section7727?.fields?.find(
+      ({ name }): boolean => name === 'valorContrato',
+    );
+    expect(valorContratoT05?.editable).toBe(false);
 
     expect(section7728).toBeDefined();
     expect(section7728?.fields).toHaveLength(1);
@@ -579,7 +589,7 @@ describe('zeevAdapter', () => {
     expect(sections).toHaveLength(1);
     expect(sections[0].fields).toEqual([
       { name: 'numeroContrato', label: 'Numero do contrato', editable: false },
-      { name: 'dataContrato', label: 'Data do contrato' },
+      { name: 'dataContrato', label: 'Data do contrato', editable: false },
     ]);
   });
 
@@ -626,6 +636,16 @@ describe('zeevAdapter', () => {
       ({ name }): boolean => name === 'numeroContrato',
     );
     expect(numeroContratoT04?.editable).toBe(true);
+
+    const dataContratoT04 = section7727?.fields?.find(
+      ({ name }): boolean => name === 'dataContrato',
+    );
+    expect(dataContratoT04?.editable).toBe(true);
+
+    const valorContratoT04 = section7727?.fields?.find(
+      ({ name }): boolean => name === 'valorContrato',
+    );
+    expect(valorContratoT04?.editable).toBe(true);
 
     const section7728 = sections.find(({ id }): boolean => id === '7728');
     expect(section7728?.fields?.map(({ name }): string => name)).toEqual([

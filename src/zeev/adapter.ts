@@ -209,7 +209,11 @@ function discoverSectionFields(
       const rawLabel = labelCell?.textContent?.trim() ?? '';
       const label = rawLabel.replace(/\s+/g, ' ').trim();
 
-      if (name === 'numeroContrato') {
+      if (
+        name === 'numeroContrato' ||
+        name === 'dataContrato' ||
+        name === 'valorContrato'
+      ) {
         const isTextInput =
           inputElement instanceof HTMLInputElement &&
           inputElement.type.toLowerCase() === 'text';

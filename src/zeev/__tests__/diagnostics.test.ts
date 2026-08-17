@@ -390,8 +390,8 @@ describe('diagnóstico de homologação', () => {
       label: 'Dados da prestação de serviço',
       fields: [
         { name: 'numeroContrato', label: 'Numero do contrato', editable: false },
-        { name: 'dataContrato', label: 'Data do contrato' },
-        { name: 'valorContrato', label: 'Valor do contrato' },
+        { name: 'dataContrato', label: 'Data do contrato', editable: false },
+        { name: 'valorContrato', label: 'Valor do contrato', editable: false },
         { name: 'documentoContratoPdf', label: 'Contrato em PDF' },
       ],
     });
@@ -417,7 +417,7 @@ describe('diagnóstico de homologação', () => {
     });
   });
 
-  it('expõe a editabilidade estrutural de numeroContrato no diagnostics().sections para T04 e T05', async () => {
+  it('expõe a editabilidade estrutural dos campos escalares no diagnostics().sections para T04 e T05', async () => {
     document.body.innerHTML = t04RealSectionsMarkup();
     const { boot, teardown } = await import('../lifecycle');
     const runtimeT04 = boot();
@@ -431,6 +431,16 @@ describe('diagnóstico de homologação', () => {
       ({ name }): boolean => name === 'numeroContrato',
     );
     expect(numeroContratoT04?.editable).toBe(true);
+
+    const dataContratoT04 = section7727T04?.fields?.find(
+      ({ name }): boolean => name === 'dataContrato',
+    );
+    expect(dataContratoT04?.editable).toBe(true);
+
+    const valorContratoT04 = section7727T04?.fields?.find(
+      ({ name }): boolean => name === 'valorContrato',
+    );
+    expect(valorContratoT04?.editable).toBe(true);
 
     teardown();
 
@@ -446,5 +456,15 @@ describe('diagnóstico de homologação', () => {
       ({ name }): boolean => name === 'numeroContrato',
     );
     expect(numeroContratoT05?.editable).toBe(false);
+
+    const dataContratoT05 = section7727T05?.fields?.find(
+      ({ name }): boolean => name === 'dataContrato',
+    );
+    expect(dataContratoT05?.editable).toBe(false);
+
+    const valorContratoT05 = section7727T05?.fields?.find(
+      ({ name }): boolean => name === 'valorContrato',
+    );
+    expect(valorContratoT05?.editable).toBe(false);
   });
 });
