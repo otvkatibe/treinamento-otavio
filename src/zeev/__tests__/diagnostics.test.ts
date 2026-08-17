@@ -384,7 +384,12 @@ describe('diagnóstico de homologação', () => {
     expect(report.sections[0]).toEqual({
       id: '7727',
       label: 'Dados da prestação de serviço',
-      fields: [{ name: 'numeroContrato', label: 'Numero do contrato' }],
+      fields: [
+        { name: 'numeroContrato', label: 'Numero do contrato' },
+        { name: 'dataContrato', label: 'Data do contrato' },
+        { name: 'valorContrato', label: 'Valor do contrato' },
+        { name: 'documentoContratoPdf', label: 'Contrato em PDF' },
+      ],
     });
     expect(report.sections[1]).toEqual({
       id: '7728',

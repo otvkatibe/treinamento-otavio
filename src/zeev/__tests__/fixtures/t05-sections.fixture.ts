@@ -4,7 +4,12 @@ export const EXPECTED_T05_NATIVE_SECTIONS: readonly FormSection[] = [
   {
     id: '7727',
     label: 'Dados da prestação de serviço',
-    fields: [{ name: 'numeroContrato', label: 'Numero do contrato' }],
+    fields: [
+      { name: 'numeroContrato', label: 'Numero do contrato' },
+      { name: 'dataContrato', label: 'Data do contrato' },
+      { name: 'valorContrato', label: 'Valor do contrato' },
+      { name: 'documentoContratoPdf', label: 'Contrato em PDF' },
+    ],
   },
   { id: '7728', label: 'Documentos', fields: [] },
   { id: '7729', label: 'Validação', fields: [] },
@@ -48,6 +53,14 @@ export function t05RealSectionsMarkup(): string {
                           <div class="form-control-static"><span>R$ 50.000,00</span></div>
                         </td>
                       </tr>
+                      <tr codgroup="7727">
+                        <td id="td0documentoContratoPdf" class="col0">Contrato em PDF</td>
+                        <td id="td1documentoContratoPdf" class="col1">
+                          <input type="hidden" data-name="documentoContratoPdf">
+                          <a href="/download/contrato.pdf">contrato.pdf</a>
+                          <button id="btnDownload_documentoContratoPdf" type="button">Baixar</button>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
 
@@ -64,14 +77,6 @@ export function t05RealSectionsMarkup(): string {
                           <input type="hidden" data-name="documentoCadastroPdf">
                           <a href="/download/cadastro.pdf">cadastro.pdf</a>
                           <button id="btnDownload_documentoCadastroPdf" type="button">Baixar</button>
-                        </td>
-                      </tr>
-                      <tr codgroup="7728">
-                        <td id="td0documentoContratoPdf" class="col0">Documento do contrato</td>
-                        <td id="td1documentoContratoPdf" class="col1">
-                          <input type="hidden" data-name="documentoContratoPdf">
-                          <a href="/download/contrato.pdf">contrato.pdf</a>
-                          <button id="btnDownload_documentoContratoPdf" type="button">Baixar</button>
                         </td>
                       </tr>
                     </tbody>

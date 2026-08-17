@@ -199,28 +199,26 @@ function discoverSectionFields(
     table.querySelectorAll<HTMLTableRowElement>(`tr[codgroup="${groupId}"]`),
   );
 
-  const numeroContratoRow = functionalRows.find(
-    (row: HTMLTableRowElement): boolean =>
-      Boolean(row.querySelector('input[data-name="numeroContrato"]')),
-  );
+  return functionalRows
+    .map((row: HTMLTableRowElement): FormSectionField | null => {
+      const inputElement = row.querySelector<HTMLElement>(
+        'td.col1 input[data-name], td.col1 [data-name]',
+      );
+      const name = inputElement?.getAttribute('data-name')?.trim();
+      if (!name) {
+        return null;
+      }
 
-  if (!numeroContratoRow) {
-    return [];
-  }
+      const labelCell = row.querySelector<HTMLElement>('td.col0');
+      const rawLabel = labelCell?.textContent?.trim() ?? '';
+      const label = rawLabel.replace(/\s+/g, ' ').trim();
 
-  const inputElement = numeroContratoRow.querySelector<HTMLElement>(
-    'input[data-name="numeroContrato"]',
-  );
-  const name = inputElement?.getAttribute('data-name')?.trim();
-  if (!name) {
-    return [];
-  }
-
-  const labelCell = numeroContratoRow.querySelector<HTMLElement>('td.col0');
-  const rawLabel = labelCell?.textContent?.trim() ?? '';
-  const label = rawLabel.replace(/\s+/g, ' ').trim();
-
-  return [{ name, label }];
+      return {
+        name,
+        label,
+      };
+    })
+    .filter((field: FormSectionField | null): field is FormSectionField => field !== null);
 }
 
 function getSections(): readonly FormSection[] {

@@ -458,25 +458,47 @@ describe('zeevAdapter', () => {
     expect(sections).toEqual([{ id: '1111', label: 'Seção Válida', fields: [] }]);
   });
 
-  it('descobre o campo numeroContrato dentro da seção 7727 da T05 com name e label normalizados', () => {
+  it('descobre as quatro linhas funcionais da seção 7727 da T05 com names, labels e ordem exatos', () => {
     document.body.innerHTML = t05RealSectionsMarkup();
 
     const sections = zeevAdapter.getSections();
     const section7727 = sections.find(({ id }): boolean => id === '7727');
+    const section7728 = sections.find(({ id }): boolean => id === '7728');
+    const section7729 = sections.find(({ id }): boolean => id === '7729');
 
     expect(section7727).toBeDefined();
+    expect(section7727?.fields).toHaveLength(4);
     expect(section7727?.fields).toEqual([
       { name: 'numeroContrato', label: 'Numero do contrato' },
+      { name: 'dataContrato', label: 'Data do contrato' },
+      { name: 'valorContrato', label: 'Valor do contrato' },
+      { name: 'documentoContratoPdf', label: 'Contrato em PDF' },
     ]);
+    expect(section7727?.fields?.map(({ name }): string => name)).toEqual([
+      'numeroContrato',
+      'dataContrato',
+      'valorContrato',
+      'documentoContratoPdf',
+    ]);
+    expect(section7727?.fields?.map(({ label }): string => label)).toEqual([
+      'Numero do contrato',
+      'Data do contrato',
+      'Valor do contrato',
+      'Contrato em PDF',
+    ]);
+
+    expect(section7728?.fields).toEqual([]);
+    expect(section7729?.fields).toEqual([]);
   });
 
   it('não inclui inputs fora das tabelas materializadas na coleção de campos da seção', () => {
     document.body.innerHTML = `
       <input type="hidden" data-name="numeroContrato" value="EXTERNO_DOCUMENTO">
+      <input type="hidden" data-name="dataContrato" value="EXTERNO_DATA">
       <div id="containerRequest">
-        <input type="hidden" data-name="numeroContrato" value="FORA_DO_CONTAINER_FORM">
+        <input type="hidden" data-name="valorContrato" value="FORA_DO_CONTAINER_FORM">
         <div id="ContainerForm">
-          <input type="hidden" data-name="numeroContrato" value="FORA_DAS_TABELAS">
+          <input type="hidden" data-name="documentoContratoPdf" value="FORA_DAS_TABELAS">
           <table class="form" data-groupid="7727">
             <tbody>
               <tr class="group">
@@ -486,6 +508,12 @@ describe('zeevAdapter', () => {
                 <td class="col0">  Numero   do   contrato  </td>
                 <td class="col1">
                   <input type="hidden" data-name="numeroContrato" value="CTR-7727">
+                </td>
+              </tr>
+              <tr codgroup="7727">
+                <td class="col0">Data do contrato</td>
+                <td class="col1">
+                  <input type="hidden" data-name="dataContrato" value="2026-08-17">
                 </td>
               </tr>
             </tbody>
@@ -498,6 +526,7 @@ describe('zeevAdapter', () => {
     expect(sections).toHaveLength(1);
     expect(sections[0].fields).toEqual([
       { name: 'numeroContrato', label: 'Numero do contrato' },
+      { name: 'dataContrato', label: 'Data do contrato' },
     ]);
   });
 
