@@ -394,7 +394,12 @@ describe('diagnóstico de homologação', () => {
     expect(report.sections[1]).toEqual({
       id: '7728',
       label: 'Documentos',
-      fields: [],
+      fields: [
+        {
+          name: 'documentoCadastroPdf',
+          label: 'Documento escolhido no cadastro em pdf',
+        },
+      ],
     });
     expect(report.sections[2]).toEqual({
       id: '7729',

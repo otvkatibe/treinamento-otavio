@@ -458,7 +458,7 @@ describe('zeevAdapter', () => {
     expect(sections).toEqual([{ id: '1111', label: 'Seção Válida', fields: [] }]);
   });
 
-  it('descobre as quatro linhas funcionais da seção 7727 da T05 com names, labels e ordem exatos', () => {
+  it('descobre as quatro linhas funcionais da seção 7727 e a linha funcional da seção 7728 da T05', () => {
     document.body.innerHTML = t05RealSectionsMarkup();
 
     const sections = zeevAdapter.getSections();
@@ -487,7 +487,15 @@ describe('zeevAdapter', () => {
       'Contrato em PDF',
     ]);
 
-    expect(section7728?.fields).toEqual([]);
+    expect(section7728).toBeDefined();
+    expect(section7728?.fields).toHaveLength(1);
+    expect(section7728?.fields).toEqual([
+      {
+        name: 'documentoCadastroPdf',
+        label: 'Documento escolhido no cadastro em pdf',
+      },
+    ]);
+
     expect(section7729?.fields).toEqual([]);
   });
 

@@ -191,7 +191,7 @@ function discoverSectionFields(
   table: HTMLTableElement,
   groupId: string,
 ): readonly FormSectionField[] {
-  if (groupId !== '7727') {
+  if (groupId !== '7727' && groupId !== '7728') {
     return [];
   }
 

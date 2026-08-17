@@ -11,7 +11,16 @@ export const EXPECTED_T05_NATIVE_SECTIONS: readonly FormSection[] = [
       { name: 'documentoContratoPdf', label: 'Contrato em PDF' },
     ],
   },
-  { id: '7728', label: 'Documentos', fields: [] },
+  {
+    id: '7728',
+    label: 'Documentos',
+    fields: [
+      {
+        name: 'documentoCadastroPdf',
+        label: 'Documento escolhido no cadastro em pdf',
+      },
+    ],
+  },
   { id: '7729', label: 'Validação', fields: [] },
 ] as const;
 
@@ -72,7 +81,7 @@ export function t05RealSectionsMarkup(): string {
                         </td>
                       </tr>
                       <tr codgroup="7728">
-                        <td id="td0documentoCadastroPdf" class="col0">Documento de cadastro</td>
+                        <td id="td0documentoCadastroPdf" class="col0">Documento escolhido no cadastro em pdf</td>
                         <td id="td1documentoCadastroPdf" class="col1">
                           <input type="hidden" data-name="documentoCadastroPdf">
                           <a href="/download/cadastro.pdf">cadastro.pdf</a>
