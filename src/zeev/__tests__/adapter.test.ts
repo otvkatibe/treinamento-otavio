@@ -476,7 +476,7 @@ describe('zeevAdapter', () => {
       { name: 'numeroContrato', label: 'Numero do contrato', editable: false },
       { name: 'dataContrato', label: 'Data do contrato', editable: false },
       { name: 'valorContrato', label: 'Valor do contrato', editable: false },
-      { name: 'documentoContratoPdf', label: 'Contrato em PDF' },
+      { name: 'documentoContratoPdf', label: 'Contrato em PDF', editable: false },
     ]);
     expect(section7727?.fields?.map(({ name }): string => name)).toEqual([
       'numeroContrato',
@@ -505,6 +505,11 @@ describe('zeevAdapter', () => {
       ({ name }): boolean => name === 'valorContrato',
     );
     expect(valorContratoT05?.editable).toBe(false);
+
+    const documentoContratoPdfT05 = section7727?.fields?.find(
+      ({ name }): boolean => name === 'documentoContratoPdf',
+    );
+    expect(documentoContratoPdfT05?.editable).toBe(false);
 
     expect(section7728).toBeDefined();
     expect(section7728?.fields).toHaveLength(1);
@@ -646,6 +651,11 @@ describe('zeevAdapter', () => {
       ({ name }): boolean => name === 'valorContrato',
     );
     expect(valorContratoT04?.editable).toBe(true);
+
+    const documentoContratoPdfT04 = section7727?.fields?.find(
+      ({ name }): boolean => name === 'documentoContratoPdf',
+    );
+    expect(documentoContratoPdfT04?.editable).toBe(true);
 
     const section7728 = sections.find(({ id }): boolean => id === '7728');
     expect(section7728?.fields?.map(({ name }): string => name)).toEqual([

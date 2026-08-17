@@ -392,7 +392,7 @@ describe('diagnóstico de homologação', () => {
         { name: 'numeroContrato', label: 'Numero do contrato', editable: false },
         { name: 'dataContrato', label: 'Data do contrato', editable: false },
         { name: 'valorContrato', label: 'Valor do contrato', editable: false },
-        { name: 'documentoContratoPdf', label: 'Contrato em PDF' },
+        { name: 'documentoContratoPdf', label: 'Contrato em PDF', editable: false },
       ],
     });
     expect(report.sections[1]).toEqual({
@@ -417,7 +417,7 @@ describe('diagnóstico de homologação', () => {
     });
   });
 
-  it('expõe a editabilidade estrutural dos campos escalares no diagnostics().sections para T04 e T05', async () => {
+  it('expõe a editabilidade estrutural dos campos da seção 7727 no diagnostics().sections para T04 e T05', async () => {
     document.body.innerHTML = t04RealSectionsMarkup();
     const { boot, teardown } = await import('../lifecycle');
     const runtimeT04 = boot();
@@ -441,6 +441,11 @@ describe('diagnóstico de homologação', () => {
       ({ name }): boolean => name === 'valorContrato',
     );
     expect(valorContratoT04?.editable).toBe(true);
+
+    const documentoContratoPdfT04 = section7727T04?.fields?.find(
+      ({ name }): boolean => name === 'documentoContratoPdf',
+    );
+    expect(documentoContratoPdfT04?.editable).toBe(true);
 
     teardown();
 
@@ -466,5 +471,10 @@ describe('diagnóstico de homologação', () => {
       ({ name }): boolean => name === 'valorContrato',
     );
     expect(valorContratoT05?.editable).toBe(false);
+
+    const documentoContratoPdfT05 = section7727T05?.fields?.find(
+      ({ name }): boolean => name === 'documentoContratoPdf',
+    );
+    expect(documentoContratoPdfT05?.editable).toBe(false);
   });
 });

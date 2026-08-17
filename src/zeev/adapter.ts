@@ -226,6 +226,21 @@ function discoverSectionFields(
         };
       }
 
+      if (name === 'documentoContratoPdf') {
+        const cellCol1 = row.querySelector<HTMLElement>('td.col1');
+        const hasUploadAction =
+          cellCol1?.querySelector(
+            'input[type="file"], button[id*="Upload"], button[id*="upload"], [data-role="file-upload"], [class*="upload" i]',
+          ) !== null;
+        const editable = Boolean(hasUploadAction);
+
+        return {
+          name,
+          label,
+          editable,
+        };
+      }
+
       return {
         name,
         label,
