@@ -79,7 +79,10 @@ export function sharedHumanTaskMarkup(): string {
                   <div class="user"><span class="user-photo">OK</span></div>
                 </div>
                 <div class="d-none d-md-block col-md-3" style="display:block">OTAVIO AUGUSTO COELHO KATIBE</div>
-                <div class="col small" style="display:block">T02 - Validar o cadastro</div>
+                <div class="col small" style="display:block">
+                  <span class="d-md-none font-weight-bold">OTAVIO AUGUSTO COELHO KATIBE</span>
+                  T02 - Validar o cadastro
+                </div>
                 <div class="d-none d-md-flex col-md-2 small" style="display:flex"><time datetime="2026-08-17T09:38:00">17/08/2026, 09:38</time></div>
                 <div class="col-2" style="display:block"><span class="badge badge-light-secondary">Aprovado</span></div>
               </div>
@@ -88,7 +91,10 @@ export function sharedHumanTaskMarkup(): string {
                   <div class="user"><span class="user-photo">OK</span></div>
                 </div>
                 <div class="d-none d-md-block col-md-3" style="display:block">OTAVIO AUGUSTO COELHO KATIBE</div>
-                <div class="col small" style="display:block">T01 - Fazer o cadastro</div>
+                <div class="col small" style="display:block">
+                  <span class="d-md-none font-weight-bold">OTAVIO AUGUSTO COELHO KATIBE</span>
+                  T01 - Fazer o cadastro
+                </div>
                 <div class="d-none d-md-flex col-md-2 small" style="display:flex"><time datetime="2026-08-14T14:28:00">14/08/2026, 14:28</time></div>
                 <div class="col-2" style="display:block"><span class="badge badge-light-secondary">Concluído</span></div>
               </div>

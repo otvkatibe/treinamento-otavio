@@ -412,6 +412,7 @@ const HUMAN_TASK_CLASSES = {
     'text-[0.6875rem]',
     'font-bold',
   ],
+  historyMobileNameDuplicate: ['!hidden'],
   historyStatusComplete: ['border-emerald-200', 'bg-emerald-50', 'text-emerald-700'],
   historyStatusActive: ['border-blue-200', 'bg-blue-50', 'text-blue-900'],
   additionalBody: ['grid', 'w-full', 'max-w-full', 'min-w-0', 'grid-cols-1', 'gap-3'],
@@ -1010,6 +1011,18 @@ function enhanceSharedHistory(
         'human-history-activity',
         HUMAN_TASK_CLASSES.historyActivityColumn,
       );
+
+      // Neutraliza a representação mobile duplicada do nome dentro da atividade
+      const mobileDuplicate = activityColumn.querySelector<HTMLElement>(
+        '.d-md-none, [class*="d-md-none"], [class*="mobile-name" i]',
+      );
+      if (mobileDuplicate) {
+        decorate(
+          mobileDuplicate,
+          'human-history-mobile-duplicate',
+          HUMAN_TASK_CLASSES.historyMobileNameDuplicate,
+        );
+      }
     }
 
     // 4. Data/Hora (.d-none.d-md-flex.col-md-2.small ou time)
@@ -1040,8 +1053,15 @@ function enhanceSharedHistory(
       );
     }
 
-    // 5. Status (.col-2 contendo .badge)
+    // 5. Status: identificado pelos 5 filhos diretos (índice 4 esperado) ou filho com .badge / .status (sem depender de :has())
     const statusColumn =
+      (directChildren.length >= 5 &&
+      (directChildren[4]?.querySelector('.badge, [class*="badge"]') !== null ||
+        directChildren[4]?.classList.contains('status') ||
+        directChildren[4]?.classList.contains('col-2') ||
+        directChildren[4]?.classList.contains('col'))
+        ? directChildren[4]
+        : null) ??
       directChildren.find(
         (child): boolean =>
           (child.querySelector('.badge, [class*="badge"]') !== null ||

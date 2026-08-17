@@ -246,7 +246,48 @@ describe('regressão estrutural das regiões compartilhadas no host real', () =>
       );
       expect(badge).not.toHaveClass('w-full');
       expect(badge).not.toHaveClass('!w-full');
+
+      // Nome duplicado mobile neutralizado com !hidden
+      const mobileNameDuplicate = item.querySelector('.col.small .d-md-none');
+      expect(mobileNameDuplicate).toHaveClass('!hidden');
     });
+  });
+
+  it('garante um único nome visível, atividade única, timestamp único e preservação dos 5 nós nativos em mobile e sidebar 300 px', () => {
+    renderSharedTask();
+
+    enhanceNativeExperience('T1');
+
+    const event1 = document.querySelector<HTMLElement>('#history-event-1');
+    expect(event1).not.toBeNull();
+    if (!event1) return;
+
+    // 5 nós nativos preservados
+    expect(event1.children).toHaveLength(5);
+    const [avatarCol, personCol, activityCol, dateCol, statusCol] = Array.from(
+      event1.children,
+    ) as HTMLElement[];
+
+    expect(avatarCol).toHaveClass('col-2', 'col-md-1', 'avatar');
+    expect(personCol).toHaveClass('d-none', 'd-md-block', 'col-md-3');
+    expect(activityCol).toHaveClass('col', 'small');
+    expect(dateCol).toHaveClass('d-none', 'd-md-flex', 'col-md-2', 'small');
+    expect(statusCol).toHaveClass('col-2');
+
+    // Nome visível único: personCol promovido para !block e span.d-md-none dentro de activityCol neutralizado com !hidden
+    expect(personCol).toHaveClass('!block', 'col-start-2');
+    const mobileNameDuplicate = activityCol.querySelector('.d-md-none');
+    expect(mobileNameDuplicate).toHaveClass('!hidden');
+
+    // Atividade única e timestamp único
+    expect(activityCol).toHaveClass('!block', 'col-start-2');
+    expect(dateCol).toHaveClass('!flex', 'col-start-2');
+    expect(dateCol.querySelector('time')).toHaveTextContent('17/08/2026, 09:38');
+
+    // Badge compacto sem w-full
+    const badge = statusCol.querySelector('.badge');
+    expect(badge).toHaveClass('inline-flex', 'w-fit', 'shrink-0', 'whitespace-nowrap');
+    expect(badge).not.toHaveClass('w-full');
   });
 
   it('descobre eventos do histórico por prioridade (lista conhecida, estrutural, fallback data/hora)', () => {
