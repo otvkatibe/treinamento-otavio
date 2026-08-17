@@ -8,6 +8,10 @@ import {
 } from '../adapter';
 import { PROCESS_STEPS } from '../steps';
 import {
+  EXPECTED_T04_NATIVE_SECTIONS,
+  t04RealSectionsMarkup,
+} from './fixtures/t04-sections.fixture';
+import {
   EXPECTED_T05_NATIVE_SECTIONS,
   t05RealSectionsMarkup,
 } from './fixtures/t05-sections.fixture';
@@ -572,6 +576,57 @@ describe('zeevAdapter', () => {
       { name: 'numeroContrato', label: 'Numero do contrato' },
       { name: 'dataContrato', label: 'Data do contrato' },
     ]);
+  });
+
+  it('descobre dinamicamente as seções e campos da T04 mantendo correcaoRealizada externa fora da coleção', () => {
+    document.body.innerHTML = t04RealSectionsMarkup();
+
+    const sections = zeevAdapter.getSections();
+
+    expect(sections).toEqual(EXPECTED_T04_NATIVE_SECTIONS);
+    expect(sections).toHaveLength(5);
+
+    const section7724 = sections.find(({ id }): boolean => id === '7724');
+    expect(section7724?.fields?.map(({ name }): string => name)).toEqual([
+      'nomeCompleto',
+      'cpfCliente',
+      'nacionalidade',
+      'estadoCivil',
+      'profissao',
+      'tipoDocumento',
+      'numeroDocumento',
+    ]);
+
+    const section7725 = sections.find(({ id }): boolean => id === '7725');
+    expect(section7725?.fields?.map(({ name }): string => name)).toEqual([
+      'telefone',
+    ]);
+
+    const section7726 = sections.find(({ id }): boolean => id === '7726');
+    expect(section7726?.fields?.map(({ name }): string => name)).toEqual([
+      'logradouro',
+      'cepEndereco',
+      'numeroEndereco',
+    ]);
+
+    const section7727 = sections.find(({ id }): boolean => id === '7727');
+    expect(section7727?.fields?.map(({ name }): string => name)).toEqual([
+      'numeroContrato',
+      'dataContrato',
+      'valorContrato',
+      'documentoContratoPdf',
+    ]);
+
+    const section7728 = sections.find(({ id }): boolean => id === '7728');
+    expect(section7728?.fields?.map(({ name }): string => name)).toEqual([
+      'documentoCadastroPdf',
+    ]);
+
+    const allDiscoveredFieldNames = sections.flatMap(
+      ({ fields }): readonly string[] =>
+        fields?.map(({ name }): string => name) ?? [],
+    );
+    expect(allDiscoveredFieldNames).not.toContain('correcaoRealizada');
   });
 
   it('retorna valores seguros quando o DOM Zeev está ausente', () => {
