@@ -226,22 +226,33 @@ function discoverSectionFields(
         };
       }
 
-      if (
-        name === 'documentoContratoPdf' ||
-        name === 'documentoCadastroPdf'
-      ) {
-        const cellCol1 = row.querySelector<HTMLElement>('td.col1');
+      const cellCol1 = row.querySelector<HTMLElement>('td.col1');
+      if (cellCol1 !== null) {
         const hasUploadAction =
-          cellCol1?.querySelector(
+          cellCol1.querySelector(
             'input[type="file"], button[id*="Upload"], button[id*="upload"], [data-role="file-upload"], [class*="upload" i]',
           ) !== null;
-        const editable = Boolean(hasUploadAction);
 
-        return {
-          name,
-          label,
-          editable,
-        };
+        if (hasUploadAction) {
+          return {
+            name,
+            label,
+            editable: true,
+          };
+        }
+
+        const hasSpecificFileViewAction =
+          cellCol1.querySelector(
+            'a[download], button[id*="Download"], button[id*="download"], [data-role="file-download"], [data-role="file-viewer"], [class*="download" i], [class*="viewer" i], [data-fieldformat="FILE_VIEW"]',
+          ) !== null;
+
+        if (hasSpecificFileViewAction) {
+          return {
+            name,
+            label,
+            editable: false,
+          };
+        }
       }
 
       return {

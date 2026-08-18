@@ -680,6 +680,223 @@ describe('zeevAdapter', () => {
     expect(allDiscoveredFieldNames).not.toContain('correcaoRealizada');
   });
 
+  it('generaliza a editabilidade de campos de arquivo FILE com nomes arbitrários e affordances de upload', () => {
+    document.body.innerHTML = `
+      <div id="containerRequest">
+        <div id="ContainerForm">
+          <table class="form" data-groupid="8801">
+            <tbody>
+              <tr class="group">
+                <td><b data-key="8801">Documentação Complementar</b></td>
+              </tr>
+              <tr codgroup="8801">
+                <td class="col0">Anexo do Relatório</td>
+                <td class="col1">
+                  <input type="file" data-name="anexoRelatorioPdf">
+                  <button id="btnUpload_anexoRelatorioPdf" type="button">Enviar</button>
+                </td>
+              </tr>
+              <tr codgroup="8801">
+                <td class="col0">Termo de Adesão</td>
+                <td class="col1">
+                  <input type="hidden" data-name="termoAdesaoDoc" value="">
+                  <button id="btnUploadTermoAdesao" type="button" disabled="disabled">Anexar termo</button>
+                </td>
+              </tr>
+              <tr codgroup="8801">
+                <td class="col0">Comprovante de Renda</td>
+                <td class="col1">
+                  <input type="text" style="display: none;" data-name="comprovanteRenda" value="">
+                  <div data-role="file-upload"><span>Upload</span></div>
+                </td>
+              </tr>
+              <tr codgroup="8801">
+                <td class="col0">Foto do Crachá</td>
+                <td class="col1">
+                  <input type="hidden" data-name="fotoCracha" value="">
+                  <button class="btn upload-action" type="button">Selecionar foto</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    const sections = zeevAdapter.getSections();
+    expect(sections).toHaveLength(1);
+    expect(sections[0].fields).toEqual([
+      { name: 'anexoRelatorioPdf', label: 'Anexo do Relatório', editable: true },
+      { name: 'termoAdesaoDoc', label: 'Termo de Adesão', editable: true },
+      { name: 'comprovanteRenda', label: 'Comprovante de Renda', editable: true },
+      { name: 'fotoCracha', label: 'Foto do Crachá', editable: true },
+    ]);
+  });
+
+  it('generaliza campos de arquivo FILE_VIEW (readonly) com nomes arbitrários, viewer/download e armazenamento técnico', () => {
+    document.body.innerHTML = `
+      <div id="containerRequest">
+        <div id="ContainerForm">
+          <table class="form" data-groupid="8802">
+            <tbody>
+              <tr class="group">
+                <td><b data-key="8802">Arquivos Homologados</b></td>
+              </tr>
+              <tr codgroup="8802">
+                <td class="col0">Laudo Pericial</td>
+                <td class="col1">
+                  <input type="hidden" data-name="laudoPericialPdf">
+                  <a href="/files/laudo.pdf">laudo.pdf</a>
+                  <button id="btnDownload_laudoPericialPdf" type="button">Baixar</button>
+                </td>
+              </tr>
+              <tr codgroup="8802">
+                <td class="col0">Comprovante de Matrícula</td>
+                <td class="col1">
+                  <input type="hidden" data-name="comprovanteMatricula">
+                  <a href="/files/matricula.pdf" download>matricula.pdf</a>
+                </td>
+              </tr>
+              <tr codgroup="8802">
+                <td class="col0">Documento Assinado</td>
+                <td class="col1">
+                  <input type="hidden" data-name="documentoAssinado" data-fieldformat="FILE_VIEW">
+                  <button id="btnDownload_documentoAssinado" type="button">Download</button>
+                </td>
+              </tr>
+              <tr codgroup="8802">
+                <td class="col0">Observação Técnica</td>
+                <td class="col1">
+                  <input type="hidden" data-name="observacaoTecnica" value="Sem pendências">
+                  <div class="form-control-static"><span>Sem pendências</span></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    const sections = zeevAdapter.getSections();
+    expect(sections).toHaveLength(1);
+    expect(sections[0].fields).toEqual([
+      { name: 'laudoPericialPdf', label: 'Laudo Pericial', editable: false },
+      { name: 'comprovanteMatricula', label: 'Comprovante de Matrícula', editable: false },
+      { name: 'documentoAssinado', label: 'Documento Assinado', editable: false },
+      { name: 'observacaoTecnica', label: 'Observação Técnica' },
+    ]);
+  });
+
+  it('preserva campos comuns que contêm links sem sinais específicos de arquivo como { name, label }', () => {
+    document.body.innerHTML = `
+      <div id="containerRequest">
+        <div id="ContainerForm">
+          <table class="form" data-groupid="8803">
+            <tbody>
+              <tr class="group">
+                <td><b data-key="8803">Instruções e Links Úteis</b></td>
+              </tr>
+              <tr codgroup="8803">
+                <td class="col0">Termo de Política Interna</td>
+                <td class="col1">
+                  <input type="hidden" data-name="termoPolitica" value="TERMO-POL-2026">
+                  <a href="https://portaldatransparencia.fieb.org.br/politicas" target="_blank">Consulte a política aqui</a>
+                  <div class="form-control-static"><span>TERMO-POL-2026</span></div>
+                </td>
+              </tr>
+              <tr codgroup="8803">
+                <td class="col0">Central de Ajuda</td>
+                <td class="col1">
+                  <input type="hidden" data-name="linkCentralAjuda" value="https://suporte.fieb.org.br">
+                  <a href="https://suporte.fieb.org.br">Acessar suporte</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    const sections = zeevAdapter.getSections();
+    expect(sections).toHaveLength(1);
+    expect(sections[0].fields).toEqual([
+      { name: 'termoPolitica', label: 'Termo de Política Interna' },
+      { name: 'linkCentralAjuda', label: 'Central de Ajuda' },
+    ]);
+  });
+
+  it('preserva a regra homologada para os escalares numeroContrato, dataContrato e valorContrato', () => {
+    // Cenário 1: Editáveis (input text)
+    document.body.innerHTML = `
+      <div id="containerRequest">
+        <div id="ContainerForm">
+          <table class="form" data-groupid="8804">
+            <tbody>
+              <tr class="group">
+                <td><b data-key="8804">Contrato em Edição</b></td>
+              </tr>
+              <tr codgroup="8804">
+                <td class="col0">Número do Contrato</td>
+                <td class="col1"><input type="text" data-name="numeroContrato" value="CTR-100"></td>
+              </tr>
+              <tr codgroup="8804">
+                <td class="col0">Data do Contrato</td>
+                <td class="col1"><input type="text" data-name="dataContrato" value="2026-08-18"></td>
+              </tr>
+              <tr codgroup="8804">
+                <td class="col0">Valor do Contrato</td>
+                <td class="col1"><input type="text" data-name="valorContrato" value="75000.00"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    const sectionsEdit = zeevAdapter.getSections();
+    expect(sectionsEdit).toHaveLength(1);
+    expect(sectionsEdit[0].fields).toEqual([
+      { name: 'numeroContrato', label: 'Número do Contrato', editable: true },
+      { name: 'dataContrato', label: 'Data do Contrato', editable: true },
+      { name: 'valorContrato', label: 'Valor do Contrato', editable: true },
+    ]);
+
+    // Cenário 2: Readonly (input hidden)
+    document.body.innerHTML = `
+      <div id="containerRequest">
+        <div id="ContainerForm">
+          <table class="form" data-groupid="8805">
+            <tbody>
+              <tr class="group">
+                <td><b data-key="8805">Contrato em Leitura</b></td>
+              </tr>
+              <tr codgroup="8805">
+                <td class="col0">Número do Contrato</td>
+                <td class="col1"><input type="hidden" data-name="numeroContrato" value="CTR-100"></td>
+              </tr>
+              <tr codgroup="8805">
+                <td class="col0">Data do Contrato</td>
+                <td class="col1"><input type="hidden" data-name="dataContrato" value="2026-08-18"></td>
+              </tr>
+              <tr codgroup="8805">
+                <td class="col0">Valor do Contrato</td>
+                <td class="col1"><input type="hidden" data-name="valorContrato" value="75000.00"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    const sectionsRead = zeevAdapter.getSections();
+    expect(sectionsRead).toHaveLength(1);
+    expect(sectionsRead[0].fields).toEqual([
+      { name: 'numeroContrato', label: 'Número do Contrato', editable: false },
+      { name: 'dataContrato', label: 'Data do Contrato', editable: false },
+      { name: 'valorContrato', label: 'Valor do Contrato', editable: false },
+    ]);
+  });
+
   it('retorna valores seguros quando o DOM Zeev está ausente', () => {
     expect(zeevAdapter.getRoot()).toBeNull();
     expect(zeevAdapter.getForm()).toBeNull();
